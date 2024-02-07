@@ -15,6 +15,15 @@ AXPManager::AXPManager()
 	bAlwaysRelevant = true;
 }
 
+int AXPManager::GetFreeID()
+{
+	int ID = 0;
+	do {
+		ID = FMath::RandHelper(INT_MAX - 1);
+	} while (ID != 0 && CurrentXPObjects.Contains(ID));
+	return ID;
+}
+
 void AXPManager::PickupXP_Implementation(APiratePlayerCharacter* Character, int XPID)
 {
 	if (!CurrentXPObjects.Contains(XPID))

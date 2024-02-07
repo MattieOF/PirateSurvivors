@@ -21,6 +21,9 @@ class PIRATESURVIVORS_API AXPManager : public AActor
 public:
 	AXPManager();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	int GetFreeID();
+
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void DestroyXP(int ID);
 
