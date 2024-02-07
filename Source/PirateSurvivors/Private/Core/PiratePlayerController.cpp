@@ -15,3 +15,8 @@ void APiratePlayerController::OnPossess(APawn* InPawn)
 		PIRATE_LOG_ERROR("Pirate player controller has possessed non Pirate character!");
 	}
 }
+
+void APiratePlayerController::CallCreateUI_Implementation()
+{
+	CreateUI();
+}

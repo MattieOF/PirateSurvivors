@@ -7,6 +7,7 @@
 #include "PiratePlayerController.generated.h"
 
 class APiratePlayerCharacter;
+
 /**
  * Player controller class for Pirate Survivors
  */
@@ -17,6 +18,12 @@ class PIRATESURVIVORS_API APiratePlayerController : public APlayerController
 
 public:
 	virtual void OnPossess(APawn* InPawn) override;
+
+	UFUNCTION(Client, Reliable)
+	void CallCreateUI();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "UI")
+	void CreateUI();
 
 	UPROPERTY(BlueprintReadWrite)
 	APiratePlayerCharacter* Pirate;
