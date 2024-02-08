@@ -3,6 +3,7 @@
 #include "World/XPManager.h"
 
 #include "PirateLog.h"
+#include "Core/PirateGameInstance.h"
 #include "Core/PirateGameState.h"
 #include "Core/PiratePlayerCharacter.h"
 #include "World/XP.h"
@@ -69,6 +70,18 @@ void AXPManager::Initialise(TArray<FXPInfo> XPItems, bool bClearFirst)
 	}
 }
 
+void AXPManager::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UPirateGameInstance* const GameInstance = UPirateGameInstance::GetPirateGameInstance(GetWorld());
+	if (GameInstance->XPToBeReplicated.Num() > 0)
+	{
+		Initialise(GameInstance->XPToBeReplicated, false);
+		GameInstance->XPToBeReplicated.Empty();
+	}
+}
+
 void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Character, int XPID)
 {
 	if (!CurrentXPObjects.Contains(XPID))
@@ -78,6 +91,8 @@ void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Chara
 	}
 
 	AXP* XP = CurrentXPObjects[XPID];
+	if (XP->bPickedUp)
+		return;
 	XP->bPickedUp = true;
 	XP->SetActorEnableCollision(false);
 	Character->XPBeingPickedUp.Add(XP);

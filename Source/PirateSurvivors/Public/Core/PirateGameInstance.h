@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PirateGameInstance.generated.h"
 
+struct FXPInfo;
 /**
  * Game Instance class for Pirate Survivors.
  * Holds data that persists throughout the entire session, including static settings.
@@ -22,4 +23,7 @@ public:
 	{
 		return Cast<UPirateGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
 	}
+	
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FXPInfo> XPToBeReplicated;
 };

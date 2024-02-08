@@ -56,4 +56,7 @@ public:
 	void Multicast_PickupXP(APiratePlayerCharacter* Character, int XPID);
 	
 	TMap<int, AXP*> CurrentXPObjects;
+
+protected:
+	virtual void BeginPlay() override;
 };
