@@ -31,6 +31,8 @@ void APirateGameModeBase::PostLogin(APlayerController* NewPlayer)
 		PIRATE_LOG_ERROR("Player state is null!");
 	}
 	Cast<APiratePlayerController>(NewPlayer)->Client_CallCreateUI();
+	if (!NewPlayer->IsLocalController())
+		Cast<APiratePlayerController>(NewPlayer)->Client_InitialiseXP(APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->GetCurrentXP());
 	// TODO: Replicate existing XP to new player
 	// Send array of structs with XP Pos, ID, and value?
 	// RPC call sends one UDP packet - so a max of 64(ish) KB.

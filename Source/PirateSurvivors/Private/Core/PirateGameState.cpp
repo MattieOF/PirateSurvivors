@@ -7,5 +7,6 @@
 void APirateGameState::BeginPlay()
 {
 	Super::BeginPlay();
-	XPManager = GetWorld()->SpawnActor<AXPManager>();
+	if (HasAuthority())
+		XPManager = GetWorld()->SpawnActor<AXPManager>();
 }

@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "PiratePlayerController.generated.h"
 
+struct FXPInfo;
 class APiratePlayerCharacter;
 
 /**
@@ -18,7 +19,10 @@ class PIRATESURVIVORS_API APiratePlayerController : public APlayerController
 
 public:
 	virtual void OnPossess(APawn* InPawn) override;
-
+	
+	UFUNCTION(Client, Reliable)
+	void Client_InitialiseXP(const TArray<FXPInfo>& XPItems);
+	
 	UFUNCTION(Client, Reliable)
 	void Client_CallCreateUI();
 
