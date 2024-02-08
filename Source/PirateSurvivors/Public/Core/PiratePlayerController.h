@@ -22,6 +22,9 @@ public:
 	
 	UFUNCTION(Client, Reliable)
 	void Client_InitialiseXP(const TArray<FXPInfo>& XPItems);
+
+	UFUNCTION()
+	void EnsureXPReplicated();
 	
 	UFUNCTION(Client, Reliable)
 	void Client_CallCreateUI();

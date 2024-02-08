@@ -19,6 +19,24 @@ void APiratePlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
+void APiratePlayerController::EnsureXPReplicated()
+{
+	// If XPManager is initialised, then replicate the XP items
+	if (const auto GS = APirateGameState::GetPirateGameState(GetWorld()))
+	{
+		if (const auto XPManager = GS->GetXPManager())
+		{
+			const auto GI = UPirateGameInstance::GetPirateGameInstance(GetWorld());
+			XPManager->Initialise(GI->XPToBeReplicated, false);
+			GI->XPToBeReplicated.Empty();
+			return;
+		}
+	}
+	
+	// Couldn't replicate yet, so set timer for next tick
+	GetWorldTimerManager().SetTimerForNextTick(this, &APiratePlayerController::EnsureXPReplicated);
+}
+
 void APiratePlayerController::Client_InitialiseXP_Implementation(const TArray<FXPInfo>& XPItems)
 {
 	// If XPManger is already initialised, then initialise the XP items
@@ -32,8 +50,9 @@ void APiratePlayerController::Client_InitialiseXP_Implementation(const TArray<FX
 	}
 
 	// Otherwise, store the XP items in the game instance to be replicated once the XPManager is initialised
+	// TODO: This can probably be removed
 	UPirateGameInstance::GetPirateGameInstance(GetWorld())->XPToBeReplicated.Append(XPItems);
-	FVector Lol = UPirateGameInstance::GetPirateGameInstance(GetWorld())->XPToBeReplicated[0].Location;
+	EnsureXPReplicated();
 }
 
 void APiratePlayerController::Client_CallCreateUI_Implementation()

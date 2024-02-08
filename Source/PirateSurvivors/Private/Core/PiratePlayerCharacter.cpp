@@ -113,6 +113,9 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 		XPBeingPickedUp[Index]->SetActorLocation(XPBeingPickedUp[Index]->GetActorLocation() + DirNormalised * 800 * DeltaTime);
 
 		// Then, if we're close enough, pick it up. If we're the server, tell all clients it's been picked up
+		// TODO: Might be better if XP is added on pickup instead of when it's close enough
+		// Since pickup serverside, there's no worry about cheating
+		// Will have to think of a way so clients can recover from picking up XP that the server didn't agree with
 		if (Direction.Size() < 70)
 		{
 			Cast<APiratePlayerState>(GetPlayerState())->AddXP(XPBeingPickedUp[Index]->Value); 
