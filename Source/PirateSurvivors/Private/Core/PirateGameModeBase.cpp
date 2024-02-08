@@ -2,15 +2,18 @@
 
 #include <Core/PirateGameModeBase.h>
 
+#include "PirateLog.h"
 #include "Core/PirateGameState.h"
 #include "Core/PiratePlayerCharacter.h"
 #include "Core/PiratePlayerController.h"
+#include "Core/PiratePlayerState.h"
 #include "World/XPManager.h"
 
 APirateGameModeBase::APirateGameModeBase()
 {
 	DefaultPawnClass = APiratePlayerCharacter::StaticClass();
 	PlayerControllerClass = APiratePlayerController::StaticClass();
+	PlayerStateClass = APiratePlayerState::StaticClass();
 	GameStateClass = APirateGameState::StaticClass();
 	DefaultPlayerName = FText::FromString("Pirate");
 }
@@ -23,6 +26,10 @@ void APirateGameModeBase::BeginPlay()
 void APirateGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+	if (!NewPlayer->PlayerState)
+	{
+		PIRATE_LOG_ERROR("Player state is null!");
+	}
 	Cast<APiratePlayerController>(NewPlayer)->Client_CallCreateUI();
 	// TODO: Replicate existing XP to new player
 	// Send array of structs with XP Pos, ID, and value?

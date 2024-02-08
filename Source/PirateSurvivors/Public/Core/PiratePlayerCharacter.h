@@ -38,16 +38,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Fire(bool bHeld);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE float GetCurrentXPMultiplier() const
-	{
-		const APirateGameModeBase* const GameMode = APirateGameModeBase::GetPirateGameMode(this);
-		return Level < GameMode->XPMultipliers.Num() ? GameMode->XPMultipliers[Level] : GameMode->XPMultipliers.Last();
-	}
-
-	UFUNCTION(BlueprintCallable)
-	void AddXP(float AddedXP);
-	
 	UFUNCTION()
 	void OnPickupRangeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
 								   const FHitResult& SweepResult);
@@ -91,11 +81,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bInvertHorizontalMovement = false;
 	
-	UPROPERTY(Replicated, BlueprintReadOnly, EditAnywhere)
-	int Level = 0;
-	UPROPERTY(Replicated, BlueprintReadOnly, EditAnywhere)
-	float XP = 0;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* PickupRange;
 };

@@ -42,7 +42,7 @@ void AXPManager::Multicast_DestroyXP_Implementation(int ID)
 {
 	if (!CurrentXPObjects.Contains(ID))
 	{
-		PIRATE_LOG_ERROR(FString::Printf(TEXT("Tried to destroy XP with ID %d, but it doesn't exist!"), ID));
+		// PIRATE_LOG_ERROR(FString::Printf(TEXT("Tried to destroy XP with ID %d, but it doesn't exist!"), ID));
 		return;
 	}
 	

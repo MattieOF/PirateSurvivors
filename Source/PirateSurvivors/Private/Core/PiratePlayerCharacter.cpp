@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Core/PirateGameState.h"
+#include "Core/PiratePlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -68,9 +69,6 @@ void APiratePlayerCharacter::BeginPlay()
 void APiratePlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(APiratePlayerCharacter, XP);
-	DOREPLIFETIME(APiratePlayerCharacter, Level);
 }
 
 void APiratePlayerCharacter::OnMove(const FInputActionValue& ActionValue)
@@ -114,11 +112,13 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 		FVector DirNormalised = Direction.GetSafeNormal();
 		XPBeingPickedUp[Index]->SetActorLocation(XPBeingPickedUp[Index]->GetActorLocation() + DirNormalised * 800 * DeltaTime);
 
-		// Then, if we're close enough, pick it up. But only if we're the server
-		if (HasAuthority() && Direction.Size() < 100)
+		// Then, if we're close enough, pick it up. If we're the server, tell all clients it's been picked up
+		if (Direction.Size() < 70)
 		{
-			AddXP(XPBeingPickedUp[Index]->Value);
-			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_DestroyXP(XPBeingPickedUp[Index]->ID);
+			Cast<APiratePlayerState>(GetPlayerState())->AddXP(XPBeingPickedUp[Index]->Value); 
+			if (HasAuthority())
+				APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_DestroyXP(XPBeingPickedUp[Index]->ID);
+			XPBeingPickedUp[Index]->Destroy();
 			XPBeingPickedUp.RemoveAt(Index);
 		}
 	}
@@ -158,28 +158,6 @@ void APiratePlayerCharacter::DoJump()
 void APiratePlayerCharacter::Fire(bool bHeld)
 {
 	// Probably unused
-}
-
-void APiratePlayerCharacter::AddXP(float AddedXP)
-{
-	if (!HasAuthority()) return;
-
-	while (AddedXP > 0)
-	{
-		float XPMul = GetCurrentXPMultiplier();
-		float AdjustedXP = AddedXP * XPMul;
-		if (AdjustedXP > (1 - this->XP))
-		{
-			Level++;
-			AdjustedXP -= 1 - this->XP;
-			this->XP = 0;
-			AddedXP = AdjustedXP / XPMul;
-		} else
-		{
-			this->XP += AdjustedXP;
-			AddedXP = 0;
-		}
-	}
 }
 
 void APiratePlayerCharacter::OnPickupRangeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
