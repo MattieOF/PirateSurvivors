@@ -118,7 +118,7 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 		if (HasAuthority() && Direction.Size() < 100)
 		{
 			AddXP(XPBeingPickedUp[Index]->Value);
-			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->DestroyXP(XPBeingPickedUp[Index]->ID);
+			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_DestroyXP(XPBeingPickedUp[Index]->ID);
 			XPBeingPickedUp.RemoveAt(Index);
 		}
 	}
@@ -190,6 +190,6 @@ void APiratePlayerCharacter::OnPickupRangeBeginOverlap(UPrimitiveComponent* Over
 	if (const AXP* XPActor = Cast<AXP>(OtherActor))
 	{
 		if (XPActor->bPickedUp) return;
-		APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->PickupXP(this, XPActor->ID);
+		APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_PickupXP(this, XPActor->ID);
 	}
 }

@@ -23,7 +23,7 @@ void APirateGameModeBase::BeginPlay()
 void APirateGameModeBase::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
-	Cast<APiratePlayerController>(NewPlayer)->CallCreateUI();
+	Cast<APiratePlayerController>(NewPlayer)->Client_CallCreateUI();
 	// TODO: Replicate existing XP to new player
 	// Send array of structs with XP Pos, ID, and value?
 	// RPC call sends one UDP packet - so a max of 64(ish) KB.

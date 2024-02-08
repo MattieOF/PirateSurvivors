@@ -16,7 +16,7 @@ void APiratePlayerController::OnPossess(APawn* InPawn)
 	}
 }
 
-void APiratePlayerController::CallCreateUI_Implementation()
+void APiratePlayerController::Client_CallCreateUI_Implementation()
 {
 	CreateUI();
 }

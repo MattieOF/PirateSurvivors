@@ -20,7 +20,7 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
-	void CallCreateUI();
+	void Client_CallCreateUI();
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "UI")
 	void CreateUI();

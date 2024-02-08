@@ -24,7 +24,7 @@ int AXPManager::GetFreeID()
 	return ID;
 }
 
-void AXPManager::PickupXP_Implementation(APiratePlayerCharacter* Character, int XPID)
+void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Character, int XPID)
 {
 	if (!CurrentXPObjects.Contains(XPID))
 	{
@@ -38,7 +38,7 @@ void AXPManager::PickupXP_Implementation(APiratePlayerCharacter* Character, int 
 	Character->XPBeingPickedUp.Add(XP);
 }
 
-void AXPManager::DestroyXP_Implementation(int ID)
+void AXPManager::Multicast_DestroyXP_Implementation(int ID)
 {
 	if (!CurrentXPObjects.Contains(ID))
 	{
@@ -51,7 +51,7 @@ void AXPManager::DestroyXP_Implementation(int ID)
 	CurrentXPObjects.Remove(ID);
 }
 
-void AXPManager::SpawnXP_Implementation(FVector Location, float Value, int ID)
+void AXPManager::Multicast_SpawnXP_Implementation(FVector Location, float Value, int ID)
 {
 	AXP* XP = GetWorld()->SpawnActorDeferred<AXP>(APirateGameState::GetPirateGameState(GetWorld())->XPClass, FTransform(Location));
 	XP->Value = Value;

@@ -25,13 +25,13 @@ public:
 	int GetFreeID();
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
-	void DestroyXP(int ID);
+	void Multicast_DestroyXP(int ID);
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
-	void SpawnXP(FVector Location, float Value, int ID);
+	void Multicast_SpawnXP(FVector Location, float Value, int ID);
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
-	void PickupXP(APiratePlayerCharacter* Character, int XPID);
+	void Multicast_PickupXP(APiratePlayerCharacter* Character, int XPID);
 	
 	TMap<int, AXP*> CurrentXPObjects;
 };
