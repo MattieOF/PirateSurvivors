@@ -16,13 +16,13 @@ struct FXPInfo
 
 public:
 	UPROPERTY(BlueprintReadWrite)
-	FVector Location;
+	FVector Location = FVector(0, 0, 0);
 	
 	UPROPERTY(BlueprintReadWrite)
-	float Value;
+	float Value = 0;
 	
 	UPROPERTY(BlueprintReadWrite)
-	int ID;
+	int ID = 0;
 };
 
 // Manages all XP objects in the world
