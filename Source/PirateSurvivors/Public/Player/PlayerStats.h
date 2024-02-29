@@ -3,16 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/UpgradeType.h"
 #include "UObject/Object.h"
 #include "PlayerStats.generated.h"
-
-// Used to determine how the stat should be upgraded
-UENUM(BlueprintType)
-enum class EUpgradeType : uint8
-{
-	Add       UMETA(DisplayName = "Add"),
-	Multiply  UMETA(DisplayName = "Multiply")
-};
 
 // Represents a player stat upgrade, such as health, damage, etc.
 USTRUCT(BlueprintType)

@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PirateGameModeBase.generated.h"
 
+enum class ERarity : uint8;
 class AXP;
 class AXPManager;
 
@@ -21,6 +22,9 @@ class PIRATESURVIVORS_API APirateGameModeBase : public AGameModeBase
 public:
 	APirateGameModeBase();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default Game Settings")
+	TMap<float, ERarity> RarityProbabilities;
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta = (WorldContext = "WorldContextObject"))
 	static FORCEINLINE APirateGameModeBase* GetPirateGameMode(const UObject* WorldContextObject)
 	{
