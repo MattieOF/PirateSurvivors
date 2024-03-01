@@ -54,6 +54,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
 	float MaxHealth = 100;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
+	float MaxSpeed = 1000;
+
 	UFUNCTION()
 	static TArray<FName> GetPropertyNames();
 };

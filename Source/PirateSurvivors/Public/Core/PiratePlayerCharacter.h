@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "PirateGameModeBase.h"
+#include "PirateSurvivorsCharacter.h"
 #include "GameFramework/Character.h"
 #include "PiratePlayerCharacter.generated.h"
 
@@ -15,7 +16,7 @@ struct FInputActionValue;
 class UInputAction;
 
 UCLASS()
-class PIRATESURVIVORS_API APiratePlayerCharacter : public ACharacter
+class PIRATESURVIVORS_API APiratePlayerCharacter : public APirateSurvivorsCharacter
 {
 	GENERATED_BODY()
 

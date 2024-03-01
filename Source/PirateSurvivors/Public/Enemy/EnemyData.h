@@ -23,4 +23,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	float BaseDamage = 20;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
+	USkeletalMesh* Mesh;
 };
