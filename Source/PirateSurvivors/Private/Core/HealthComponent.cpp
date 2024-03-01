@@ -77,7 +77,6 @@ void UHealthComponent::Heal(const float Amount)
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME()
 }
 
 void UHealthComponent::BeginPlay()
