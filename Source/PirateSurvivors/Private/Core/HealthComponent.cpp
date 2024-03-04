@@ -7,7 +7,7 @@
 UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	SetIsReplicated(true);
+	SetIsReplicatedByDefault(true);
 }
 
 void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -51,6 +51,8 @@ void UHealthComponent::SetHP(const float NewHP)
 		}
 	}
 
+	if (Health == OldHP)
+		return;
 	if (Health < OldHP)
 		OnHurt.Broadcast(OldHP - Health, Health);
 	else
@@ -74,9 +76,26 @@ void UHealthComponent::Heal(const float Amount)
 	ChangeHP(Amount);
 }
 
+void UHealthComponent::SetOverhealEnabled(const bool bEnable, const bool bClampHP)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		bEnableOverheal = bEnable;
+		PrimaryComponentTick.SetTickFunctionEnable(bEnable);
+
+		if (bClampHP)
+			SetHP(FMath::Clamp(Health, 0.f, MaxHealth));
+	}
+}
+
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UHealthComponent, Health);
+	DOREPLIFETIME(UHealthComponent, MaxHealth);
+	DOREPLIFETIME_CONDITION(UHealthComponent, bEnableOverheal, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UHealthComponent, OverhealDecayRate, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(UHealthComponent, OverhealDecayMagnitude, COND_OwnerOnly);
 }
 
 void UHealthComponent::BeginPlay()

@@ -22,14 +22,24 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 								FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION(BlueprintCallable, Category = "Health")
 	void ChangeHP(const float Amount);
+	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetHP(const float NewHP);
+	UFUNCTION(BlueprintCallable, Category = "Health")
 	FORCEINLINE void Hurt(const float Damage);
+	UFUNCTION(BlueprintCallable, Category = "Health")
 	FORCEINLINE void Heal(const float Amount);
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE float GetHealth() const { return Health; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE bool  IsOverhealEnabled() const { return bEnableOverheal; }
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void SetOverhealEnabled(const bool bEnable, const bool bClampHP = true);
 	
 	// How many seconds between Health -= OverhealDecayMagnitude
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated)
@@ -38,6 +48,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated)
 	float OverhealDecayMagnitude = 1;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Health")
 	float CurrentOverhealDecayDelay = 0;
 
 protected:

@@ -24,6 +24,7 @@ void AEnemy::SetData(UEnemyData* NewEnemyData)
 {
 	EnemyData = NewEnemyData;
 
-	if (EnemyData->BaseHealth)
-		HealthComponent.
+	GetMesh()->SetSkeletalMesh(EnemyData->Mesh);
+	if (HasAuthority())
+		HealthComponent->SetHP(EnemyData->BaseHealth);
 }
