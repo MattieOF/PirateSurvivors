@@ -2,12 +2,22 @@
 
 #include "Weapon/WeaponStats.h"
 
-TArray<FName> UWeaponStats::GetPropertyNames()
+#include "PirateLog.h"
+#include "Weapon/WeaponData.h"
+
+bool UWeaponData::VerifyCompatability() const
 {
-	TArray<FName> PropertyNames;
-	for( TFieldIterator<FProperty> Prop(StaticClass()); Prop; ++Prop) {
-		const FProperty* Property = *Prop;
-		PropertyNames.Add(Property->GetFName());
+	if (!BaseWeaponStats)
+	{
+		PIRATE_LOG_ERROR(FString::Printf(TEXT("In %ls, BaseWeaponStats is null! This must be set for the weapon to work."), *GetName()));
+		return false;
 	}
-	return PropertyNames;
+
+	if (BaseWeaponStats->GetClass() != WeaponStatsSubclass)
+	{
+		PIRATE_LOG_ERROR(FString::Printf(TEXT("In %ls, BaseWeaponStats is not of the same class as WeaponStatsSubclass!"), *GetName()));
+		return false;
+	}
+	
+	return true;
 }

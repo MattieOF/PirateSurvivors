@@ -14,21 +14,30 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
                                      FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
+	// Only ever ticks on server
 	if (bEnableOverheal)
 	{
 		if (MaxHealth < Health)
 		{
 			// We're overhealed, decay!!
-			// TODO: Should we call any delegates here?
 			CurrentOverhealDecayDelay -= DeltaTime;
 			if (CurrentOverhealDecayDelay <= 0)
 			{
-				Health = FMath::Max(MaxHealth, Health - OverhealDecayMagnitude);
+				SetHP(FMath::Max(MaxHealth, Health - OverhealDecayMagnitude), false);
 				CurrentOverhealDecayDelay = OverhealDecayRate;
 			}
 		}
 	}
+}
+
+void UHealthComponent::Multicast_TakeDamage_Implementation(const FDamageInstance& DamageEvent)
+{
+	if (GetOwner()->HasAuthority())
+		ChangeHP(DamageEvent.Damage);
+	
+	if (bRetainDamageEvents)
+		DamageHistory.Add(DamageEvent);
 }
 
 void UHealthComponent::ChangeHP(const float Amount)
@@ -36,9 +45,13 @@ void UHealthComponent::ChangeHP(const float Amount)
 	SetHP(Health + Amount);
 }
 
-void UHealthComponent::SetHP(const float NewHP)
+void UHealthComponent::Multicast_ChangeHP_Implementation(const float Amount)
 {
-	const float OldHP = Health;
+	ChangeHP(Amount);
+}
+
+void UHealthComponent::SetHP(const float NewHP, const bool bResetPrevious)
+{
 	Health = NewHP;
 
 	if (Health > MaxHealth)
@@ -51,19 +64,35 @@ void UHealthComponent::SetHP(const float NewHP)
 		}
 	}
 
-	if (Health == OldHP)
+	if (Health == PreviousHP)
 		return;
-	if (Health < OldHP)
-		OnHurt.Broadcast(OldHP - Health, Health);
+	if (Health < PreviousHP)
+		OnHurt.Broadcast(PreviousHP - Health, Health);
 	else
-		OnHealed.Broadcast(Health - OldHP, Health);
+		OnHealed.Broadcast(Health - PreviousHP, Health);
 
-	OnHealthChanged.Broadcast(Health - OldHP, Health);
+	OnHealthChanged.Broadcast(Health - PreviousHP, Health);
 	
 	if (Health <= 0)
-	{
-		OnDeath.Broadcast();
-	}
+		Multicast_Die();
+	
+	if (bResetPrevious)
+		PreviousHP = Health;
+}
+
+void UHealthComponent::Multicast_SetHP(const float NewHP, const bool bResetPrevious)
+{
+	SetHP(NewHP, bResetPrevious);
+}
+
+void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP)
+{
+	if (!GetOwner()->HasAuthority())
+		return;
+	
+	MaxHealth = NewMaxHP;
+	if (bClampHP)
+		SetHP(FMath::Clamp(Health, 0.f, MaxHealth));
 }
 
 void UHealthComponent::Hurt(float Damage)
@@ -74,6 +103,12 @@ void UHealthComponent::Hurt(float Damage)
 void UHealthComponent::Heal(const float Amount)
 {
 	ChangeHP(Amount);
+}
+
+void UHealthComponent::Multicast_Die_Implementation()
+{
+	OnDeath.Broadcast();
+	Health = 0;	
 }
 
 void UHealthComponent::SetOverhealEnabled(const bool bEnable, const bool bClampHP)

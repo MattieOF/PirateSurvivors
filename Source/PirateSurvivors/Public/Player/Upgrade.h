@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "Upgrade.generated.h"
 
+class UWeaponData;
+class UWeaponStats;
 struct FPlayerStatUpgrade;
 struct FWeaponStatUpgrade;
 
@@ -61,8 +63,25 @@ class PIRATESURVIVORS_API UWeaponUpgrade : public UUpgrade
 	GENERATED_BODY()
 
 public:
+	UWeaponUpgrade();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
+	TArray<UWeaponData*> ValidWeapons;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
+	TSubclassOf<UWeaponStats> WeaponStatsClass;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
 	TArray<FWeaponStatUpgrade> StatUpgrades;
+	
+	UFUNCTION()
+	TArray<FName> GetPropertyNames();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon Upgrade")
+	bool VerifyCompatability() const;
+	
+	UFUNCTION(CallInEditor, Category = "Weapon")
+	FORCEINLINE void CheckCompatibility() const { VerifyCompatability(); };
 };
 
 UCLASS()

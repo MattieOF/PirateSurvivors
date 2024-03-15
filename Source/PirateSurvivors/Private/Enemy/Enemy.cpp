@@ -2,11 +2,16 @@
 
 #include "Enemy/Enemy.h"
 
+#include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
 
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
+	NetUpdateFrequency = 5;
+	AIControllerClass = AEnemyAIController::StaticClass();
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AEnemy::BeginPlay()
@@ -26,5 +31,10 @@ void AEnemy::SetData(UEnemyData* NewEnemyData)
 
 	GetMesh()->SetSkeletalMesh(EnemyData->Mesh);
 	if (HasAuthority())
-		HealthComponent->SetHP(EnemyData->BaseHealth);
+		HealthComponent->SetHP(EnemyData->BaseHealth, true);
+}
+
+void AEnemy::Multicast_SetData_Implementation(UEnemyData* NewEnemyData)
+{
+	SetData(NewEnemyData);
 }

@@ -20,6 +20,18 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
     FText Name;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<class UWeaponStats> WeaponStatsSubclass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TSubclassOf<class AWeaponFunctionality> WeaponFunctionalitySubclass;
+
     UPROPERTY(EditAnywhere, Instanced, BlueprintReadOnly, Category = "Weapon")
 	UWeaponStats* BaseWeaponStats;
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	bool VerifyCompatability() const;
+
+	UFUNCTION(CallInEditor, Category = "Weapon")
+	FORCEINLINE void CheckCompatibility() const { VerifyCompatability(); };
 };

@@ -6,6 +6,7 @@
 #include "Player/PlayerClassData.h"
 #include "Player/PlayerStats.h"
 #include "Player/Upgrade.h"
+#include "Weapon/ProjectileData.h"
 #include "Weapon/WeaponData.h"
 
 #define DEFINE_ASSET_FACTORY(Type, FullType) U##Type##Factory::U##Type##Factory()\
@@ -63,6 +64,7 @@ FString FactoryStatics::HumanizeString(FString Input)
 DEFINE_ASSET_FACTORY(WeaponData, UWeaponData);
 DEFINE_ASSET_FACTORY(EnemyData, UEnemyData);
 DEFINE_ASSET_FACTORY(PlayerClassData, UPlayerClassData);
+DEFINE_ASSET_FACTORY(ProjectileData, UProjectileData);
 DEFINE_ASSET_FACTORY_NONAME(PlayerStats, UPlayerStats);
 DEFINE_ASSET_FACTORY(WeaponUpgrade, UWeaponUpgrade);
 DEFINE_ASSET_FACTORY(PlayerUpgrade, UPlayerUpgrade);

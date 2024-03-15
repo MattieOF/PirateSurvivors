@@ -21,9 +21,16 @@ public:
 protected:
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	void SetData(UEnemyData* NewEnemyData);
 
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "Enemy")
+	void Multicast_SetData(UEnemyData* NewEnemyData);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UEnemyData* EnemyData;
+	UEnemyData* EnemyData = nullptr;
+
+	// Usually null, only valid if the enemy is a mini-boss
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UUserWidget* HealthBar = nullptr;
 };

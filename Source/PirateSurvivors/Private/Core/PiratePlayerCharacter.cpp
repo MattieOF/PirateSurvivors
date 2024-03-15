@@ -14,6 +14,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Weapon/WeaponData.h"
+#include "Weapon/WeaponFunctionality.h"
 #include "World/XP.h"
 #include "World/XPManager.h"
 
@@ -21,6 +23,7 @@ APiratePlayerCharacter::APiratePlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
+	NetUpdateFrequency = 10;
 
 	// Setup rotation settings
 	bUseControllerRotationPitch = false;
@@ -53,6 +56,39 @@ APiratePlayerCharacter::APiratePlayerCharacter()
 	PickupRange->SetSphereRadius(100);
 	PickupRange->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	PickupRange->OnComponentBeginOverlap.AddDynamic(this, &APiratePlayerCharacter::OnPickupRangeBeginOverlap);
+
+	// Init state
+	Weapons.Reserve(4);
+}
+
+bool APiratePlayerCharacter::GiveWeaponFromType(UWeaponData* Weapon)
+{
+	for (int i = 0; i < Weapons.Num(); i++)
+	{
+		if (!Weapons[i])
+		{
+			AWeaponFunctionality* NewWeapon = GetWorld()->SpawnActor<AWeaponFunctionality>(Weapon->WeaponFunctionalitySubclass);
+			NewWeapon->Initialise(this, Weapon);
+			Weapons[i] = NewWeapon;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+bool APiratePlayerCharacter::GiveWeaponFromFunctionalityActor(AWeaponFunctionality* Weapon)
+{
+	for (int i = 0; i < Weapons.Num(); i++)
+	{
+		if (!Weapons[i])
+		{
+			Weapons[i] = Weapon;
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 void APiratePlayerCharacter::BeginPlay()

@@ -15,7 +15,7 @@ struct FWeaponStatUpgrade
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (GetOptions = "PirateSurvivors.WeaponStats.GetPropertyNames"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (GetOptions = "GetPropertyNames"))
 	FName PropertyName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EUpgradeType UpgradeType;
@@ -47,7 +47,7 @@ struct FWeaponStatUpgrade
 /**
  * Stores a weapons stats, such as damage multiplier, etc
  */
-UCLASS()
+UCLASS(EditInlineNew, BlueprintType, Blueprintable, HideCategories = (Object))
 class PIRATESURVIVORS_API UWeaponStats : public UObject
 {
 	GENERATED_BODY()
@@ -63,17 +63,20 @@ public:
 	float Range = 1000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	float ProjectileSpeed = 1000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	float Knockback = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
 	float Spread = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
-	int32 ClipSize = 30;
+	float Ammo = 30;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
-	int32 MaxAmmo = 300;
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	// int32 MaxAmmo = 300;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
 	float ReloadTime = 2.f;
-	
-	UFUNCTION()
-	static TArray<FName> GetPropertyNames();
 };
