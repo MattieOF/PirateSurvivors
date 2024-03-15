@@ -52,6 +52,15 @@ bool UWeaponUpgrade::VerifyCompatability() const
 			return false;
 		}
 
+		if (!Weapon->WeaponStatsSubclass)
+		{
+			PIRATE_LOG_ERROR(
+				FString::Printf(
+					TEXT("Weapon upgrade %ls has weapon %ls set as valid, but it has an invalid weapon stats class!"),
+					*GetName(), *Weapon->GetName()));
+			return false;
+		}
+
 		if (!Weapon->WeaponStatsSubclass.Get()->IsChildOf(WeaponStatsClass))
 		{
 			PIRATE_LOG_ERROR(

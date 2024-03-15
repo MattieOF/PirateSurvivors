@@ -52,6 +52,7 @@ protected:
 	AProjectile* SpawnProjectile(const FVector& Position, const FVector& Direction, UProjectileData* ProjectileType) const;
 	
 	// Internal state
+	// TODO: Ammo, reload, etc.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	APirateSurvivorsCharacter* OwningCharacter = nullptr;
 
