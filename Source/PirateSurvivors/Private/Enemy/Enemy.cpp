@@ -2,6 +2,9 @@
 
 #include "Enemy/Enemy.h"
 
+#include "PirateLog.h"
+#include "PirateSurvivors.h"
+#include "Components/CapsuleComponent.h"
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
 
@@ -12,6 +15,8 @@ AEnemy::AEnemy()
 	NetUpdateFrequency = 5;
 	AIControllerClass = AEnemyAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	GetCapsuleComponent()->SetCollisionObjectType(ECC_Enemy);
 }
 
 void AEnemy::BeginPlay()
@@ -29,8 +34,13 @@ void AEnemy::SetData(UEnemyData* NewEnemyData)
 {
 	EnemyData = NewEnemyData;
 
-	GetMesh()->SetSkeletalMesh(EnemyData->Mesh);
-	if (HasAuthority())
+	if (!EnemyData)
+	{
+		PIRATE_LOG_ERROR(FString::Printf(TEXT("In enemy %s, SetData called with null enemydata"), *GetName()));
+	}
+	
+	GetMesh()->SetSkeletalMesh(EnemyData ? EnemyData->Mesh : nullptr);
+	if (HasAuthority() && EnemyData && HealthComponent)
 		HealthComponent->SetHP(EnemyData->BaseHealth, true);
 }
 

@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "PirateGameModeBase.h"
 #include "PirateSurvivorsCharacter.h"
-#include "GameFramework/Character.h"
 #include "PiratePlayerCharacter.generated.h"
 
 class UWeaponData;
@@ -48,15 +47,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TArray<AXP*> XPBeingPickedUp;
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	FORCEINLINE bool HasFreeWeaponSlot() { for (const AWeaponFunctionality* Weapon : Weapons) { if (Weapon == nullptr) return true; } return false; };
-	
-	UFUNCTION(BlueprintCallable)
-	bool GiveWeaponFromType(UWeaponData* Weapon);
-	
-	UFUNCTION(BlueprintCallable)
-	bool GiveWeaponFromFunctionalityActor(AWeaponFunctionality* Weapon);
-	
 protected:
 	virtual void BeginPlay() override;
 
@@ -84,9 +74,6 @@ protected:
 	void OnJump();
 	void OnMouseLook(const FInputActionValue& ActionValue);
 	void OnFire(bool bHeld);
-
-	UPROPERTY(BlueprintReadWrite, Category = "Weapons")
-	TArray<AWeaponFunctionality*> Weapons;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	class UPlayerMappableInputConfig* InputMappingConfig;

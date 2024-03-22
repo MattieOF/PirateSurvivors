@@ -4,6 +4,7 @@
 
 #include "PirateLog.h"
 #include "Weapon/WeaponData.h"
+#include "Weapon/WeaponFunctionality.h"
 #include "Weapon/WeaponStats.h"
 
 UWeaponUpgrade::UWeaponUpgrade()
@@ -14,7 +15,7 @@ UWeaponUpgrade::UWeaponUpgrade()
 TArray<FName> UWeaponUpgrade::GetPropertyNames()
 {
 	TArray<FName> PropertyNames;
-	for( TFieldIterator<FProperty> Prop(WeaponStatsClass ? WeaponStatsClass : UWeaponStats::StaticClass()); Prop; ++Prop) {
+	for (TFieldIterator<FProperty> Prop(WeaponStatsClass ? WeaponStatsClass : UWeaponStats::StaticClass()); Prop; ++Prop) {
 		const FProperty* Property = *Prop;
 		PropertyNames.Add(Property->GetFName());
 	}
@@ -44,6 +45,18 @@ bool UWeaponUpgrade::VerifyCompatability() const
 		}
 	}
 
+	for (const FWeaponFunctionalityUpgrade& Upgrade : FunctionalityUpgrades)
+	{
+		if (Upgrade.Type == EWeaponFunctionalityUpgradeType::ChangeClass && !Upgrade.ClassValue)
+		{
+			PIRATE_LOG_ERROR(
+				FString::Printf(
+					TEXT("Weapon upgrade %ls has a functionality upgrade that changes the class of the weapon, but the class is null!"),
+					*GetName()));
+			return false;
+		}
+	}
+
 	for (const UWeaponData* Weapon : ValidWeapons)
 	{
 		if (!Weapon)
@@ -56,7 +69,7 @@ bool UWeaponUpgrade::VerifyCompatability() const
 		{
 			PIRATE_LOG_ERROR(
 				FString::Printf(
-					TEXT("Weapon upgrade %ls has weapon %ls set as valid, but it has an invalid weapon stats class!"),
+					TEXT("Weapon upgrade %ls has weapon %ls set as valid, but the weapon has an unset weapon stats class!"),
 					*GetName(), *Weapon->GetName()));
 			return false;
 		}
@@ -69,6 +82,30 @@ bool UWeaponUpgrade::VerifyCompatability() const
 						" They must either be the same, or the weapons stat class must be a subclass of this upgrades stat class."),
 					*GetName(), *Weapon->GetName(), *Weapon->WeaponStatsSubclass.Get()->GetName()));
 			return false;
+		}
+
+		if (!Weapon->WeaponFunctionalitySubclass)
+		{
+			PIRATE_LOG_ERROR(
+				FString::Printf(
+					TEXT("Weapon upgrade %ls has weapon %ls set as valid, but the weapon has an unset weapon functionality class!"),
+					*GetName(), *Weapon->GetName()));
+			return false;
+		}
+
+		for (const FWeaponFunctionalityUpgrade& Upgrade : FunctionalityUpgrades)
+		{
+			if (Upgrade.Type != EWeaponFunctionalityUpgradeType::ChangeClass)
+			{
+				if (!Weapon->WeaponFunctionalitySubclass.Get()->FindPropertyByName(Upgrade.PropertyName))
+				{
+					PIRATE_LOG_ERROR(
+						FString::Printf(
+							TEXT("Weapon functionality upgrade attempts to modify property %ls, but valid weapon %ls's functionality class does not have this property!"),
+							*Upgrade.PropertyName.ToString(), *Weapon->GetName()));
+					return false;
+				}
+			}
 		}
 	}
 	

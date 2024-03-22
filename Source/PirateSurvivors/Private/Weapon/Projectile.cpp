@@ -3,7 +3,10 @@
 #include "Weapon/Projectile.h"
 
 #include "PirateLog.h"
+#include "PirateSurvivors.h"
+#include "Core/PirateSurvivorsCharacter.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Weapon/ProjectileData.h"
 #include "Weapon/WeaponStats.h"
 
@@ -12,10 +15,18 @@ AProjectile::AProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bReplicates = true;
+	// AActor::SetReplicateMovement(true);
 	
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 	ProjectileMovementComponent->bAutoActivate = false;
+	// No gravity by default. This could be changed with a projectile subclass if needed, but we really don't want gravity on most projectiles.
+	// Most of the time, the effect you'd get from gravity is achieved with a lifetime.
+	ProjectileMovementComponent->ProjectileGravityScale = 0;
+	// No friction either. This is a projectile, it's supposed to keep going until it hits something (or its lifetime expires).
+	// Again, this could be changed with a projectile subclass if needed.
+	ProjectileMovementComponent->Friction = 0;
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->OnComponentHit.AddDynamic(this, &AProjectile::OnProjectileHit);
 
 	RootComponent = Mesh;
 }
@@ -35,16 +46,15 @@ void AProjectile::Tick(float DeltaTime)
 		if (TimeUntilDeath <= 0)
 		{
 			Multicast_OnProjectileDeath();
+			Destroy();
 		}
 	}
 }
 
 void AProjectile::OnProjectileDeath_Implementation()
-{
-	Destroy();
-}
+{ }
 
-void AProjectile::Initialise(UWeaponStats* WeaponStats, UProjectileData* NewData)
+void AProjectile::Initialise(APirateSurvivorsCharacter* NewOwner, UWeaponStats* WeaponStats, UProjectileData* NewData)
 {
 	if (!WeaponStats)
 	{
@@ -52,29 +62,97 @@ void AProjectile::Initialise(UWeaponStats* WeaponStats, UProjectileData* NewData
 		return;
 	}
 	
-	if (!Data)
+	if (!NewData)
 	{
 		PIRATE_LOG_WARN(FString::Printf(TEXT("%ls called Initialise() with null data, was this intentional?"), *GetName()));
 	}
-	
+
+	OwningCharacter = NewOwner;
 	Data = NewData;
-	ProjectileMovementComponent->InitialSpeed = WeaponStats->ProjectileSpeed * (Data ? Data->GetRandomSpeedMultiplier() : 1);
+	ProjectileSpeed  = WeaponStats->ProjectileSpeed * (Data ? Data->GetRandomSpeedMultiplier() : 1);
+	ProjectileDamage = WeaponStats->Damage * (Data ? Data->GetRandomDamageMultiplier() : 1);
+	ProjectileMovementComponent->InitialSpeed = ProjectileSpeed;
 	TimeUntilDeath = Data ? Data->LifeTime : -1;
 	if (Data)
-	{
-		Mesh->SetStaticMesh(Data->Mesh);
-		ProjectileMovementComponent->Activate();
-	}
+		SetupFromData();
 	
-	if (Data && Data->ProjectileSubclass != StaticClass())
+	if (Data && Data->ProjectileSubclass != GetClass())
 	{
 		PIRATE_LOG_ERROR("ProjectileData's subclass is not the same as the class of the projectile. This could cause issues.");
 	}
 }
 
-void AProjectile::SetDirection(const FVector& NewDirection)
+void AProjectile::FireInDirection(const FVector& NewDirection)
 {
-	ProjectileMovementComponent->Velocity = NewDirection;
+	ProjectileDirection = NewDirection;
+	ProjectileMovementComponent->Velocity = NewDirection * ProjectileMovementComponent->InitialSpeed;
+	ProjectileMovementComponent->Activate();
+}
+
+void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
+{
+	PIRATE_LOG(FString::Printf(TEXT("PROJECTILE %s HIT: %s"), *GetName(), *OtherActor->GetName()));
+
+	if (APirateSurvivorsCharacter* Character = Cast<APirateSurvivorsCharacter>(OtherActor))
+	{
+		ProjectileHitCharacter(Character);
+	}
+	else
+	{
+		ProjectileHitNonCharacter(OtherActor);
+	}
+
+	if (bDestroyOnHit)
+	{
+		OnProjectileDeath();
+		Destroy();
+	}
+}
+
+void AProjectile::ProjectileHitNonCharacter_Implementation(AActor* Other)
+{ }
+
+void AProjectile::ProjectileHitCharacter_Implementation(APirateSurvivorsCharacter* Other)
+{
+	FDamageInstance DamageEvent;
+	DamageEvent.Damage = ProjectileDamage;
+	DamageEvent.Instigator = OwningCharacter;
+	if (OwningCharacter)
+		DamageEvent.Description = FText::Format(FText::FromString("{0}'s {1}"), OwningCharacter->CharacterName, Data->Name);
+	else
+		DamageEvent.Description = FText::Format(FText::FromString("A {1}"), Data->Name);
+	Other->GetHealthComponent()->Multicast_TakeDamage(DamageEvent);
+}
+
+void AProjectile::SetupFromData()
+{
+	Mesh->SetStaticMesh(Data->Mesh);
+
+	// Setup collision
+	if (!Data->bCollideWithWalls)                    // If we don't collide with walls, disable all collisions.
+		Mesh->SetCollisionProfileName("IgnoreAll");  // We'll re-enable the channels we want to collide with in the following lines.
+	Mesh->SetCollisionResponseToChannel(ECC_Player, Data->bCollideWithPlayers ? ECR_Block : ECR_Ignore);
+	Mesh->SetCollisionResponseToChannel(ECC_Enemy, Data->bCollideWithEnemies ? ECR_Block : ECR_Ignore);
+	Mesh->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore); // We don't want projectiles to collide with each other
+	Mesh->SetCollisionObjectType(ECC_Projectile);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+}
+
+void AProjectile::PostNetInit()
+{
+	Super::PostNetInit();
+	SetupFromData();
+	ProjectileMovementComponent->Velocity = ProjectileDirection * ProjectileSpeed;
+	ProjectileMovementComponent->Activate();
+}
+
+void AProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(AProjectile, Data, COND_InitialOnly);
+	DOREPLIFETIME_CONDITION(AProjectile, ProjectileSpeed, COND_InitialOnly);
+	DOREPLIFETIME_CONDITION(AProjectile, ProjectileDirection, COND_InitialOnly);
 }
 
 void AProjectile::Multicast_OnProjectileDeath_Implementation()

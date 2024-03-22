@@ -20,6 +20,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
     FText Name;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	UTexture2D* Icon;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TSubclassOf<class UWeaponStats> WeaponStatsSubclass;
 	

@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PirateGameModeBase.generated.h"
 
+class UEnemyData;
 enum class ERarity : uint8;
 class AXP;
 class AXPManager;
@@ -30,6 +31,24 @@ public:
 	{
 		return Cast<APirateGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
 	}
+
+	UFUNCTION(Exec, Category = "Pirate Game Mode")
+	void ListPlayerIndexes() const;
+
+	UFUNCTION(Exec, Category = "Pirate Game Mode")
+	void ListWeapons() const;
+
+	UFUNCTION(Exec, Category = "Pirate Game Mode")
+	void ListEnemies() const;
+	
+	UFUNCTION(Exec, BlueprintCallable, Category = "Pirate Game Mode")
+	void GivePlayerWeapon(int PlayerIndex, FString WeaponName);
+
+	UFUNCTION(BlueprintCallable, Category = "Pirate Game Mode")
+	void SpawnEnemy(UEnemyData* EnemyType, const FVector& Location, const FRotator& Rotation);
+
+	UFUNCTION(Exec, Category = "Pirate Game Mode")
+	void SpawnEnemyNearby(FString EnemyType);
 	
 protected:
 	virtual void BeginPlay() override;

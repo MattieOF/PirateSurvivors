@@ -15,6 +15,8 @@ class PIRATESURVIVORS_API UEnemyData : public UDataAsset
 	GENERATED_BODY()
 
 public:
+	// ----------------- Basic Properties -----------------
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	FText Name;
 
@@ -30,4 +32,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	USkeletalMesh* Mesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
+	TSubclassOf<class AEnemy> EnemySubclass;
+
+	// ----------------- Audio -----------------
+	
+	// Some enemies are a big deal, and should have a unique sound when they spawn
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data")
+	USoundBase* SpawnSound;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data")
+	USoundBase* HitSound;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data")
+	USoundBase* DeathSound;
 };

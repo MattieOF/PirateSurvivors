@@ -128,6 +128,7 @@ void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UHealthComponent, Health);
 	DOREPLIFETIME(UHealthComponent, MaxHealth);
+	DOREPLIFETIME_CONDITION(UHealthComponent, bRetainDamageEvents, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UHealthComponent, bEnableOverheal, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UHealthComponent, OverhealDecayRate, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UHealthComponent, OverhealDecayMagnitude, COND_OwnerOnly);

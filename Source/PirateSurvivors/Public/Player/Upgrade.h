@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "Upgrade.generated.h"
 
+struct FWeaponFunctionalityUpgrade;
 class UWeaponData;
 class UWeaponStats;
 struct FPlayerStatUpgrade;
@@ -73,6 +74,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
 	TArray<FWeaponStatUpgrade> StatUpgrades;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
+	TArray<FWeaponFunctionalityUpgrade> FunctionalityUpgrades;
 	
 	UFUNCTION()
 	TArray<FName> GetPropertyNames();

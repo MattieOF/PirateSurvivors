@@ -32,7 +32,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Data")
 	TSubclassOf<class AProjectile> ProjectileSubclass;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Data|Collision")
+	bool bCollideWithWalls = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Data|Collision")
+	bool bCollideWithPlayers = true;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile Data|Collision")
+	bool bCollideWithEnemies = true;
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Projectile Data")
 	FORCEINLINE float GetRandomSpeedMultiplier() const
 	{

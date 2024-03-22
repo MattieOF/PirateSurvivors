@@ -3,7 +3,7 @@
 TArray<FName> UPlayerStats::GetPropertyNames()
 {
 	TArray<FName> PropertyNames;
-	for( TFieldIterator<FProperty> Prop(StaticClass()); Prop; ++Prop) {
+	for (TFieldIterator<FProperty> Prop(StaticClass()); Prop; ++Prop) {
 		const FProperty* Property = *Prop;
 		PropertyNames.Add(Property->GetFName());
 	}

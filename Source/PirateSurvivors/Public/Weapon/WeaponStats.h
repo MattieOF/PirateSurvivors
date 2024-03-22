@@ -7,6 +7,7 @@
 #include "UObject/Object.h"
 #include "WeaponStats.generated.h"
 
+class AWeaponFunctionality;
 class UWeaponData;
 
 // Represents a player stat upgrade, such as health, damage, etc.
@@ -44,6 +45,77 @@ struct FWeaponStatUpgrade
 	}
 };
 
+UENUM(BlueprintType)
+enum class EWeaponFunctionalityUpgradeType : uint8
+{
+	SetBool,
+	SetFloat,
+	AddFloat,
+	ChangeClass
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponFunctionalityUpgrade
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FName PropertyName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EWeaponFunctionalityUpgradeType Type;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "Type == EWeaponFunctionalityUpgradeType::SetBool", EditConditionHides))
+	bool bBoolValue;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "Type == EWeaponFunctionalityUpgradeType::SetFloat || Type == EWeaponFunctionalityUpgradeType::AddFloat", EditConditionHides))
+	float FloatValue;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "Type == EWeaponFunctionalityUpgradeType::ChangeClass", EditConditionHides))
+	TSubclassOf<AWeaponFunctionality> ClassValue;
+
+	FWeaponFunctionalityUpgrade()
+	{
+		PropertyName = NAME_None;
+		Type = EWeaponFunctionalityUpgradeType::SetBool;
+		bBoolValue = false;
+		FloatValue = 0;
+		ClassValue = nullptr;
+	}
+
+	explicit FWeaponFunctionalityUpgrade(const FName FlagName)
+	{
+		this->PropertyName = FlagName;
+		Type = EWeaponFunctionalityUpgradeType::SetBool;
+		bBoolValue = false;
+		FloatValue = 0;
+		ClassValue = nullptr;
+	}
+	
+	FWeaponFunctionalityUpgrade(const FName FlagName, const bool Value)
+	{
+		this->PropertyName = FlagName;
+		Type = EWeaponFunctionalityUpgradeType::SetBool;
+		bBoolValue = Value;
+		FloatValue = 0;
+		ClassValue = nullptr;
+	}
+
+	FWeaponFunctionalityUpgrade(const FName FlagName, const float Value)
+	{
+		this->PropertyName = FlagName;
+		Type = EWeaponFunctionalityUpgradeType::SetFloat;
+		bBoolValue = false;
+		FloatValue = Value;
+		ClassValue = nullptr;
+	}
+
+	FWeaponFunctionalityUpgrade(const FName FlagName, TSubclassOf<AWeaponFunctionality> Value)
+	{
+		this->PropertyName = FlagName;
+		Type = EWeaponFunctionalityUpgradeType::ChangeClass;
+		bBoolValue = false;
+		FloatValue = 0;
+		ClassValue = Value;
+	}
+};
+
 /**
  * Stores a weapons stats, such as damage multiplier, etc
  */
@@ -56,8 +128,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats")
 	float Damage = 100;
 
+	// The weapon will fire every FireRateSeconds
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
-	float FireRate = 0.1f;
+	float FireRateSeconds = .5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
 	float Range = 1000.f;
@@ -79,4 +152,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
 	float ReloadTime = 2.f;
+
+	virtual bool IsSupportedForNetworking() const override { return true; };
 };

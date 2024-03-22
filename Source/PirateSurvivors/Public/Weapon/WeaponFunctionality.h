@@ -13,6 +13,8 @@ class UWeaponData;
 class APirateSurvivorsCharacter;
 class UWeaponStats;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAmmoEmpty);
+
 UCLASS()
 class PIRATESURVIVORS_API AWeaponFunctionality : public AActor
 {
@@ -33,32 +35,60 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
 	FORCEINLINE UWeaponStats* GetWeaponStats() const { return WeaponStats; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
+	FORCEINLINE float GetReloadProgress() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
+	FORCEINLINE float GetAmmoPercentage() const;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponAmmoEmpty OnWeaponAmmoEmpty;
 	
 protected:
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	bool UseAmmo(float Amount);
+	
 	// Utility functions
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
 	TArray<AActor*> GetAllEnemies() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	FORCEINLINE TArray<AEnemy*> GetEnemiesWithinWeaponRange() const;
+	FORCEINLINE int GetEnemiesWithinWeaponRange(TArray<AEnemy*>& OutEnemiesInRange);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	TArray<AEnemy*> GetEnemiesWithinRange(float Radius) const;
+	int GetEnemiesWithinRange(TArray<AEnemy*>& OutEnemiesInRange, float Radius);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	AEnemy* GetClosestEnemyWithinWeaponRange() const;
+	int GetEnemiesWithinRangeSorted(TArray<AEnemy*>& OutEnemiesInRange, float Radius);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
+	AEnemy* GetClosestEnemyWithinWeaponRange();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon Utility")
 	AProjectile* SpawnProjectile(const FVector& Position, const FVector& Direction, UProjectileData* ProjectileType) const;
+
+	virtual void PostNetInit() override;
 	
 	// Internal state
-	// TODO: Ammo, reload, etc.
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon", Replicated)
+	float Ammo = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon", Replicated)
+	float ReloadTime = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	float CurrentFireTime = 0;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	APirateSurvivorsCharacter* OwningCharacter = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", Replicated)
 	UWeaponData* WeaponData = nullptr;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon", Replicated)
 	UWeaponStats* WeaponStats = nullptr;
+
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
