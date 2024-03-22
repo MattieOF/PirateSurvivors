@@ -89,8 +89,20 @@ void AProjectile::FireInDirection(const FVector& NewDirection)
 	ProjectileMovementComponent->Activate();
 }
 
+void AProjectile::DamageHealthComponent(UHealthComponent* HealthComponent)
+{
+	FDamageInstance DamageEvent;
+	DamageEvent.Damage = ProjectileDamage;
+	DamageEvent.Instigator = OwningCharacter;
+	if (OwningCharacter)
+		DamageEvent.Description = FText::Format(FText::FromString("{0}'s {1}"), OwningCharacter->CharacterName, Data->Name);
+	else
+		DamageEvent.Description = FText::Format(FText::FromString("A {1}"), Data->Name);
+	HealthComponent->Multicast_TakeDamage(DamageEvent);
+}
+
 void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+                                  FVector NormalImpulse, const FHitResult& Hit)
 {
 	PIRATE_LOG(FString::Printf(TEXT("PROJECTILE %s HIT: %s"), *GetName(), *OtherActor->GetName()));
 
@@ -111,18 +123,14 @@ void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* Oth
 }
 
 void AProjectile::ProjectileHitNonCharacter_Implementation(AActor* Other)
-{ }
+{
+	if (UHealthComponent* Health = Other->GetComponentByClass<UHealthComponent>())
+		DamageHealthComponent(Health);
+}
 
 void AProjectile::ProjectileHitCharacter_Implementation(APirateSurvivorsCharacter* Other)
 {
-	FDamageInstance DamageEvent;
-	DamageEvent.Damage = ProjectileDamage;
-	DamageEvent.Instigator = OwningCharacter;
-	if (OwningCharacter)
-		DamageEvent.Description = FText::Format(FText::FromString("{0}'s {1}"), OwningCharacter->CharacterName, Data->Name);
-	else
-		DamageEvent.Description = FText::Format(FText::FromString("A {1}"), Data->Name);
-	Other->GetHealthComponent()->Multicast_TakeDamage(DamageEvent);
+	DamageHealthComponent(Other->GetHealthComponent());
 }
 
 void AProjectile::SetupFromData()

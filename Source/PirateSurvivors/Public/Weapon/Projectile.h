@@ -25,6 +25,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Projectile")
 	void FireInDirection(const FVector& NewDirection);
+
+	UFUNCTION(BlueprintCallable, Category = "Projectile")
+	void DamageHealthComponent(class UHealthComponent* HealthComponent);
 	
 	UFUNCTION()
 	void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
