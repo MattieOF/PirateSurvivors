@@ -8,6 +8,7 @@
 #include "PirateGameInstance.generated.h"
 
 // Forward decls
+class UDamageNumbers;
 class UEnemyData;
 class UWeaponData;
 struct FXPInfo;
@@ -48,6 +49,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TMap<FString, UEnemyData*> Enemies;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pirate Game Instance")
-	TSubclassOf<class UDamageNumberWidget> DamageNumberWidgetClass;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Game Instance")
+	TSubclassOf<UUserWidget> DamageNumbersClass;
 };

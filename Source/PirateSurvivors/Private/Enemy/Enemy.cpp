@@ -8,7 +8,7 @@
 #include "Core/PirateGameState.h"
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
-#include "World/DamageNumberManager.h"
+#include "UI/DamageNumbers.h"
 
 AEnemy::AEnemy()
 {
@@ -31,9 +31,12 @@ void AEnemy::BeginPlay()
 
 void AEnemy::OnHealthChanged(float Change, float NewHP)
 {
+	const auto GS = APirateGameState::GetPirateGameState(GetWorld());
+	if (!GS) return;
+	
 	FVector Origin, Bounds;
 	GetActorBounds(true, Origin, Bounds);
-	APirateGameState::GetPirateGameState(GetWorld())->GetDamageNumberManager()->AddDamageNumber(Change, Origin + FVector(0, 0, Bounds.Z + 30));
+	GS->GetDamageNumbers()->AddDamageNumber(Origin + FVector(0, 0, Bounds.Z + 30), Change);
 }
 
 void AEnemy::Tick(float DeltaTime)

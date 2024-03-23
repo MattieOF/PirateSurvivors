@@ -2,8 +2,11 @@
 
 #include "Core/PirateGameState.h"
 
+#include "PirateLog.h"
+#include "Blueprint/UserWidget.h"
+#include "Core/PirateGameInstance.h"
 #include "Net/UnrealNetwork.h"
-#include "World/DamageNumberManager.h"
+#include "UI/DamageNumbers.h"
 #include "World/XPManager.h"
 
 void APirateGameState::BeginPlay()
@@ -11,7 +14,16 @@ void APirateGameState::BeginPlay()
 	Super::BeginPlay();
 	if (HasAuthority())
 		XPManager = GetWorld()->SpawnActor<AXPManager>();
-	DamageNumberManager = GetWorld()->SpawnActor<ADamageNumberManager>(); // Every client spawns their own DamageNumberManager
+
+	auto GI = UPirateGameInstance::GetPirateGameInstance(GetWorld());
+	DamageNumbers = Cast<UDamageNumbers>(CreateWidget(GI, GI->DamageNumbersClass));
+	if (!DamageNumbers)
+	{
+		PIRATE_LOG_ERROR(FString::Printf(TEXT("GI DamageNumbersClass is either unset or not a subclass of UDamageNumbers")));
+	} else
+	{
+		DamageNumbers->AddToViewport();
+	}
 }
 
 void APirateGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
