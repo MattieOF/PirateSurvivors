@@ -22,7 +22,7 @@ void APirateGameState::BeginPlay()
 		PIRATE_LOG_ERROR(FString::Printf(TEXT("GI DamageNumbersClass is either unset or not a subclass of UDamageNumbers")));
 	} else
 	{
-		DamageNumbers->AddToViewport();
+		DamageNumbers->AddToViewport(-100);
 	}
 }
 
