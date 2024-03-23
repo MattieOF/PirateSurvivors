@@ -27,7 +27,7 @@ void APirateGameModeBase::ListPlayerIndexes() const
 	for (int i = 0; i < Players.Num(); i++)
 	{
 		FString Output = FString::Printf(TEXT("Player %d: %s"), i, *Players[i]->GetPlayerName());
-		PIRATE_LOG(Output);
+		PIRATE_LOG_S(Output);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Output);
 	}
 }
@@ -38,7 +38,7 @@ void APirateGameModeBase::ListWeapons() const
 	for (const auto& Weapon : Weapons)
 	{
 		FString Output = FString::Printf(TEXT("    %s"), *Weapon.Key);
-		PIRATE_LOG(Output);
+		PIRATE_LOG_S(Output);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Output);
 	}
 }
@@ -49,7 +49,7 @@ void APirateGameModeBase::ListEnemies() const
 	for (const auto& Enemy : Enemies)
 	{
 		FString Output = FString::Printf(TEXT("    %s"), *Enemy.Key);
-		PIRATE_LOG(Output);
+		PIRATE_LOG_S(Output);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Output);
 	}
 }
@@ -60,7 +60,7 @@ void APirateGameModeBase::GivePlayerWeapon(int PlayerIndex, FString WeaponName)
 	if (PlayerIndex < 0 || PlayerIndex >= GS->PlayerArray.Num())
 	{
 		const FString Error = FString::Printf(TEXT("Player index %d is out of range"), PlayerIndex);
-		PIRATE_LOG_ERROR(Error);
+		PIRATE_LOG_ERROR_S(Error);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Error);
 		return;
 	}
@@ -70,7 +70,7 @@ void APirateGameModeBase::GivePlayerWeapon(int PlayerIndex, FString WeaponName)
 	if (!PlayerState)
 	{
 		const FString Error = FString::Printf(TEXT("Couldn't find player with index %d"), PlayerIndex);
-		PIRATE_LOG_ERROR(Error);
+		PIRATE_LOG_ERROR_S(Error);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Error);
 		return;
 	}
@@ -79,7 +79,7 @@ void APirateGameModeBase::GivePlayerWeapon(int PlayerIndex, FString WeaponName)
 	if (!Weapon)
 	{
 		const FString Error = FString::Printf(TEXT("Couldn't find weapon with name %s"), *WeaponName);
-		PIRATE_LOG_ERROR(Error);
+		PIRATE_LOG_ERROR_S(Error);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Error);
 		return;
 	}
@@ -98,7 +98,7 @@ void APirateGameModeBase::SpawnEnemyNearby(FString EnemyType)
 	if (!Enemy)
 	{
 		const FString Error = FString::Printf(TEXT("Couldn't find enemy with name %s"), *EnemyType);
-		PIRATE_LOG_ERROR(Error);
+		PIRATE_LOG_ERROR_S(Error);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Error);
 		return;
 	}
@@ -107,7 +107,7 @@ void APirateGameModeBase::SpawnEnemyNearby(FString EnemyType)
 	if (!LocalPawn)
 	{
 		const FString Error = FString::Printf(TEXT("Couldn't find local pawn"));
-		PIRATE_LOG_ERROR(Error);
+		PIRATE_LOG_ERROR_S(Error);
 		GetWorld()->GetGameViewport()->ViewportConsole->OutputText(Error);
 		return;
 	}

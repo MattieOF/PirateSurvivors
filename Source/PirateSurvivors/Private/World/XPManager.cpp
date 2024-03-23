@@ -40,7 +40,7 @@ TArray<FXPInfo> AXPManager::GetCurrentXP()
 	}
 
 	double End = FPlatformTime::Seconds();
-	PIRATE_LOG(FString::Printf(TEXT("XPManager::GetCurrentXP took %f ms"), (End - Start) * 1000));
+	PIRATE_LOG_S(FString::Printf(TEXT("XPManager::GetCurrentXP took %f ms"), (End - Start) * 1000));
 	
 	return XPItems;
 }
@@ -86,7 +86,7 @@ void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Chara
 {
 	if (!CurrentXPObjects.Contains(XPID))
 	{
-		PIRATE_LOG_ERROR(FString::Printf(TEXT("Tried to pick up XP with ID %d, but it doesn't exist!"), XPID));
+		PIRATE_LOG_ERROR_S(FString::Printf(TEXT("Tried to pick up XP with ID %d, but it doesn't exist!"), XPID));
 		return;
 	}
 
@@ -120,7 +120,7 @@ void AXPManager::Multicast_SpawnXP_Implementation(FVector Location, float Value,
 
 	if (CurrentXPObjects.Contains(ID))
 	{
-		PIRATE_LOG_ERROR(FString::Printf(TEXT("Tried to spawn XP with ID %d, but it already exists!"), ID));
+		PIRATE_LOG_ERROR_S(FString::Printf(TEXT("Tried to spawn XP with ID %d, but it already exists!"), ID));
 	}
 	CurrentXPObjects.Add(ID, XP);
 }

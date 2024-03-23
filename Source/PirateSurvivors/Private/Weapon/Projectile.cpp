@@ -58,13 +58,13 @@ void AProjectile::Initialise(APirateSurvivorsCharacter* NewOwner, UWeaponStats* 
 {
 	if (!WeaponStats)
 	{
-		PIRATE_LOG_WARN(FString::Printf(TEXT("%ls called Initialise() with null weapon stats!"), *GetName()));
+		PIRATE_LOG_WARN_S(FString::Printf(TEXT("%ls called Initialise() with null weapon stats!"), *GetName()));
 		return;
 	}
 	
 	if (!NewData)
 	{
-		PIRATE_LOG_WARN(FString::Printf(TEXT("%ls called Initialise() with null data, was this intentional?"), *GetName()));
+		PIRATE_LOG_WARN_S(FString::Printf(TEXT("%ls called Initialise() with null data, was this intentional?"), *GetName()));
 	}
 
 	OwningCharacter = NewOwner;
@@ -104,7 +104,7 @@ void AProjectile::DamageHealthComponent(UHealthComponent* HealthComponent)
 void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                   FVector NormalImpulse, const FHitResult& Hit)
 {
-	PIRATE_LOG(FString::Printf(TEXT("PROJECTILE %s HIT: %s"), *GetName(), *OtherActor->GetName()));
+	PIRATE_LOG_S(FString::Printf(TEXT("PROJECTILE %s HIT: %s"), *GetName(), *OtherActor->GetName()));
 
 	if (APirateSurvivorsCharacter* Character = Cast<APirateSurvivorsCharacter>(OtherActor))
 	{
