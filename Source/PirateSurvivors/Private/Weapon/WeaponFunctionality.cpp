@@ -64,11 +64,11 @@ void AWeaponFunctionality::Initialise(APirateSurvivorsCharacter* NewOwner, UWeap
 		OwningCharacter = NewOwner;
 	WeaponStats = DuplicateObject<UWeaponStats>(Data->BaseWeaponStats, this);
 	WeaponStats->SetFlags(WeaponStats->GetFlags() | RF_Public); // Thanks https://forums.unrealengine.com/t/uobject-eligible-for-replication-guide/671679/2
-	Ammo = WeaponStats->Ammo; // Start with full ammo
+	Ammo = WeaponStats->Ammo; // Start with full ammo.
 
-	// Dirty hack: if we're the server, and the local player, tell the player state we have this weapon, as
+	// Dirty hack: if we're the server (or sp), and the local player, tell the player state we have this weapon, as
 	// PostNetInit() won't be called (since we're the server).
-	if (GetNetMode() == NM_ListenServer)
+	if (GetNetMode() == NM_ListenServer || GetNetMode() == NM_Standalone)
 	{
 		// @copypasta AWeaponFunctionality::PostNetInit
 		const auto LocalController = GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld());

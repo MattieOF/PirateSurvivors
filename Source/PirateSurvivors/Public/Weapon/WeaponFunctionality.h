@@ -37,10 +37,10 @@ public:
 	FORCEINLINE UWeaponStats* GetWeaponStats() const { return WeaponStats; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
-	FORCEINLINE float GetReloadProgress() const;
+	float GetReloadProgress() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
-	FORCEINLINE float GetAmmoPercentage() const;
+	float GetAmmoPercentage() const;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponAmmoEmpty OnWeaponAmmoEmpty;
@@ -54,7 +54,7 @@ protected:
 	TArray<AActor*> GetAllEnemies() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	FORCEINLINE int GetEnemiesWithinWeaponRange(TArray<AEnemy*>& OutEnemiesInRange);
+	int GetEnemiesWithinWeaponRange(TArray<AEnemy*>& OutEnemiesInRange);
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
 	int GetEnemiesWithinRange(TArray<AEnemy*>& OutEnemiesInRange, float Radius);
