@@ -19,7 +19,7 @@ void APirateGameState::BeginPlay()
 	DamageNumbers = Cast<UDamageNumbers>(CreateWidget(GI, GI->DamageNumbersClass));
 	if (!DamageNumbers)
 	{
-		PIRATE_LOG_ERROR_S(FString::Printf(TEXT("GI DamageNumbersClass is either unset or not a subclass of UDamageNumbers")));
+		PIRATE_LOGC_ERROR(GetWorld(), "GI DamageNumbersClass is either unset or not a subclass of UDamageNumbers");
 	} else
 	{
 		DamageNumbers->AddToViewport(-100);

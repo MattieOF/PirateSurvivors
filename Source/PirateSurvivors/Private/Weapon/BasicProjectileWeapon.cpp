@@ -18,7 +18,7 @@ void ABasicProjectileWeapon::OnFire_Implementation()
 #if WITH_EDITOR
 	if (!Projectile)
 	{
-		PIRATE_LOG_ERROR(FString::Printf(TEXT("No projectile set for weapon %ls!"), *GetName()));
+		PIRATE_LOG_ERROR("No projectile set for weapon %ls!", *GetName());
 		return;
 	}
 #endif

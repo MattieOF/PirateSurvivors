@@ -50,7 +50,7 @@ void AEnemy::SetData(UEnemyData* NewEnemyData)
 
 	if (!EnemyData)
 	{
-		PIRATE_LOG_ERROR_S(FString::Printf(TEXT("In enemy %s, SetData called with null enemydata"), *GetName()));
+		PIRATE_LOGC_ERROR(GetWorld(), "In enemy %s, SetData called with null enemydata", *GetName());
 	}
 	
 	GetMesh()->SetSkeletalMesh(EnemyData ? EnemyData->Mesh : nullptr);
