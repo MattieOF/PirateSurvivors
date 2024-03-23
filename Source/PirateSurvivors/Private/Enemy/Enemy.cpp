@@ -5,8 +5,10 @@
 #include "PirateLog.h"
 #include "PirateSurvivors.h"
 #include "Components/CapsuleComponent.h"
+#include "Core/PirateGameState.h"
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
+#include "World/DamageNumberManager.h"
 
 AEnemy::AEnemy()
 {
@@ -16,6 +18,8 @@ AEnemy::AEnemy()
 	AIControllerClass = AEnemyAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
+	HealthComponent->OnHealthChanged.AddDynamic(this, &AEnemy::OnHealthChanged);
+	
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Enemy);
 }
 
@@ -23,6 +27,13 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	SetData(EnemyData);
+}
+
+void AEnemy::OnHealthChanged(float Change, float NewHP)
+{
+	FVector Origin, Bounds;
+	GetActorBounds(true, Origin, Bounds);
+	APirateGameState::GetPirateGameState(GetWorld())->GetDamageNumberManager()->AddDamageNumber(Change, Origin + FVector(0, 0, Bounds.Z + 30));
 }
 
 void AEnemy::Tick(float DeltaTime)

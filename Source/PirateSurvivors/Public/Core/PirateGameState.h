@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PirateGameState.generated.h"
 
+class ADamageNumberManager;
 class AXP;
 class AXPManager;
 
@@ -28,6 +29,7 @@ public:
 	}
 	
 	FORCEINLINE AXPManager* GetXPManager() const { return XPManager; }
+	FORCEINLINE ADamageNumberManager* GetDamageNumberManager() const { return DamageNumberManager; }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Asset References")
 	TSubclassOf<AXP> XPClass;
@@ -40,4 +42,7 @@ protected:
 	
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	AXPManager* XPManager;
+
+	UPROPERTY(BlueprintReadOnly)
+	ADamageNumberManager* DamageNumberManager;
 };

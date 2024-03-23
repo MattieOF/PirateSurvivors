@@ -47,4 +47,7 @@ public:
 	TMap<FString, UWeaponData*> Weapons;
 	UPROPERTY(BlueprintReadOnly)
 	TMap<FString, UEnemyData*> Enemies;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pirate Game Instance")
+	TSubclassOf<class UDamageNumberWidget> DamageNumberWidgetClass;
 };

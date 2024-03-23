@@ -49,9 +49,9 @@ public:
 	void Multicast_ChangeHP(const float Amount);
 	
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void SetHP(const float NewHP, const bool bResetPrevious = false);
+	void SetHP(const float NewHP, const bool bResetPrevious = true);
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void Multicast_SetHP(const float NewHP, const bool bResetPrevious = false);
+	void Multicast_SetHP(const float NewHP, const bool bResetPrevious = true);
 	
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetMaxHP(const float NewMaxHP, const bool bClampHP = true);
@@ -90,6 +90,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
 	TArray<FDamageInstance> DamageHistory;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnHealed OnHealed;
+	UPROPERTY(BlueprintAssignable)
+	FOnHurt OnHurt;
+	UPROPERTY(BlueprintAssignable)
+	FOnHealthChanged OnHealthChanged;
+	UPROPERTY(BlueprintAssignable)
+	FOnDeath OnDeath;
+
 protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated)
@@ -100,15 +109,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated)
 	bool bEnableOverheal = false;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnHealed OnHealed;
-	UPROPERTY(BlueprintAssignable)
-	FOnHurt OnHurt;
-	UPROPERTY(BlueprintAssignable)
-	FOnHealthChanged OnHealthChanged;
-	UPROPERTY(BlueprintAssignable)
-	FOnDeath OnDeath;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	

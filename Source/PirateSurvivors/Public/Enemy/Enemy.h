@@ -18,6 +18,9 @@ public:
 
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnHealthChanged(float Change, float NewHP);
+	
 protected:
 	virtual void Tick(float DeltaTime) override;
 
