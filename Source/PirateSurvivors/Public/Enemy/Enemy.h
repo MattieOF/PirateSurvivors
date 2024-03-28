@@ -21,6 +21,14 @@ public:
 	UFUNCTION()
 	void OnHealthChanged(float Change, float NewHP);
 	
+	// Runs on the server when the enemy dies
+	UFUNCTION()
+	virtual void Die();
+
+	// Runs on both server and clients when the enemy dies
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDeath();
+	
 protected:
 	virtual void Tick(float DeltaTime) override;
 

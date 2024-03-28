@@ -70,6 +70,14 @@ void AXPManager::Initialise(TArray<FXPInfo> XPItems, bool bClearFirst)
 	}
 }
 
+void AXPManager::SpawnXP(FVector Location, float Value, int ID)
+{
+	if (!HasAuthority()) return;
+	if (ID == 0)
+		ID = GetFreeID();
+	Multicast_SpawnXP(Location, Value, ID);
+}
+
 void AXPManager::BeginPlay()
 {
 	Super::BeginPlay();

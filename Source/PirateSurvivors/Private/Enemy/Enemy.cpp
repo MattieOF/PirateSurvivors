@@ -9,6 +9,7 @@
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
 #include "UI/DamageNumbers.h"
+#include "World/XPManager.h"
 
 AEnemy::AEnemy()
 {
@@ -19,6 +20,7 @@ AEnemy::AEnemy()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	HealthComponent->OnHealthChanged.AddDynamic(this, &AEnemy::OnHealthChanged);
+	HealthComponent->OnDeath.AddDynamic(this, &AEnemy::Die);
 	
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Enemy);
 }
@@ -36,7 +38,22 @@ void AEnemy::OnHealthChanged(float Change, float NewHP)
 	
 	FVector Origin, Bounds;
 	GetActorBounds(true, Origin, Bounds);
-	GS->GetDamageNumbers()->AddDamageNumber(Origin + FVector(0, 0, Bounds.Z + 30), Change);
+	GS->GetDamageNumbers()->AddDamageNumber(Origin + FVector(0, 0, Bounds.Z + 30), -Change); // Invert the change, a change of -20 is a damage of 20
+}
+
+void AEnemy::Die()
+{
+	// Do blueprint stuff
+	OnDeath();
+	
+	if (!HasAuthority()) return;
+
+	// Spawn XP
+	AXPManager* XPManager = APirateGameState::GetPirateGameState(GetWorld())->GetXPManager();
+	XPManager->SpawnXP(GetActorLocation(), EnemyData->GetXPDrop());
+	
+	// Destroy the enemy
+	Destroy();
 }
 
 void AEnemy::Tick(float DeltaTime)

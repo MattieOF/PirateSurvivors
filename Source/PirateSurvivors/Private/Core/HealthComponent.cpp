@@ -34,7 +34,7 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void UHealthComponent::Multicast_TakeDamage_Implementation(const FDamageInstance& DamageEvent)
 {
 	// if (GetOwner()->HasAuthority())
-	ChangeHP(DamageEvent.Damage);
+	ChangeHP(-DamageEvent.Damage);
 	
 	if (bRetainDamageEvents)
 		DamageHistory.Add(DamageEvent);

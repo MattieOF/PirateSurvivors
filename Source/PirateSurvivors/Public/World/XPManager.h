@@ -49,8 +49,11 @@ public:
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void Multicast_DestroyXP(int ID);
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnXP(FVector Location, float Value, int ID = 0);
+
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
-	void Multicast_SpawnXP(FVector Location, float Value, int ID);
+	void Multicast_SpawnXP(FVector Location, float Value, int ID = 0);
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void Multicast_PickupXP(APiratePlayerCharacter* Character, int XPID);
