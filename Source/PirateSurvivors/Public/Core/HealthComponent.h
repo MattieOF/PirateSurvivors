@@ -101,8 +101,11 @@ public:
 
 protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated, ReplicatedUsing = OnRep_Health)
 	float Health = 100;
+	
+	UFUNCTION()
+	void OnRep_Health(float OldHealth);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated)
 	float MaxHealth = 100;

@@ -123,6 +123,11 @@ void UHealthComponent::SetOverhealEnabled(const bool bEnable, const bool bClampH
 	}
 }
 
+void UHealthComponent::OnRep_Health(float OldHealth)
+{
+	PreviousHP = Health;
+}
+
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

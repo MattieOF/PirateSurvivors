@@ -42,7 +42,5 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UCanvasPanel* DamageNumbersCanvas;
 
-	// TODO: Is this the best way to store this?
-	// Removing the oldest damage number will result in a reallocation of the array since it's at the start?
 	TArray<FDmgNumber> DamageNumbers;
 };

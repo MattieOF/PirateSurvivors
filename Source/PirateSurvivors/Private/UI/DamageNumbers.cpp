@@ -22,7 +22,7 @@ void UDamageNumbers::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		if (Dmg.Lifetime <= 0)
 		{
 			Dmg.Widget->RemoveFromParent();
-			DamageNumbers.RemoveAt(i);
+			DamageNumbers.RemoveAt(i, 1, false);
 			continue;
 		}
 
@@ -31,7 +31,7 @@ void UDamageNumbers::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		{
 			// We're offscreen, remove from screen
 			Dmg.Widget->RemoveFromParent();
-			DamageNumbers.RemoveAt(i);
+			DamageNumbers.RemoveAt(i, 1, false);
 			continue;
 		}
 		
