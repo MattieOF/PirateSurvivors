@@ -98,7 +98,8 @@ void AProjectile::DamageHealthComponent(UHealthComponent* HealthComponent)
 		DamageEvent.Description = FText::Format(FText::FromString("{0}'s {1}"), OwningCharacter->CharacterName, Data->Name);
 	else
 		DamageEvent.Description = FText::Format(FText::FromString("A {1}"), Data->Name);
-	HealthComponent->Multicast_TakeDamage(DamageEvent);
+	if (HealthComponent->GetOwner()->HasAuthority())
+		HealthComponent->TakeDamage(DamageEvent);
 }
 
 void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

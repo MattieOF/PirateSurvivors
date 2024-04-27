@@ -8,6 +8,7 @@
 #include "Core/PiratePlayerCharacter.h"
 #include "Core/PiratePlayerController.h"
 #include "Core/PiratePlayerState.h"
+#include "Core/UpgradeList.h"
 #include "Weapon/WeaponData.h"
 #include "World/XPManager.h"
 
@@ -18,6 +19,41 @@ APirateGameModeBase::APirateGameModeBase()
 	PlayerStateClass = APiratePlayerState::StaticClass();
 	GameStateClass = APirateGameState::StaticClass();
 	DefaultPlayerName = FText::FromString("Pirate");
+	
+	RarityProbabilities.Init(0, static_cast<int>(ERarity::Max));
+}
+
+void APirateGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	for (const float RarityProbability : RarityProbabilities)
+		RarityProbabilitySum += RarityProbability;
+	CreateUpgradeList();
+}
+
+void APirateGameModeBase::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	
+	if (!NewPlayer->PlayerState)
+	{
+		PIRATE_LOG_ERROR("Player state is null!");
+	}
+	
+	Cast<APiratePlayerController>(NewPlayer)->Client_CallCreateUI();
+
+	// Send current XP items to new player
+	if (!NewPlayer->IsLocalController())
+	{
+		const auto XPItems = APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->GetCurrentXP();
+		if (XPItems.Num() * sizeof(FXPInfo) > 65536)
+		{
+			PIRATE_LOGC_ERROR(GetWorld(), "XPManager::GetCurrentXP is too large to send to new player over the network!");
+			// TODO: Split array and send over multiple RPC calls
+		}
+		Cast<APiratePlayerController>(NewPlayer)->Client_InitialiseXP(XPItems);
+	}
 }
 
 void APirateGameModeBase::ListPlayerIndexes() const
@@ -79,7 +115,7 @@ void APirateGameModeBase::SpawnEnemy(UEnemyData* EnemyType, const FVector& Locat
 	// TODO this should be in the game state
 }
 
-void APirateGameModeBase::SpawnEnemyNearby(FString EnemyType)
+void APirateGameModeBase::SpawnEnemyNearby(const FString& EnemyType)
 {
 	const auto Enemy = UPirateGameInstance::GetPirateGameInstance(GetWorld())->GetEnemy(EnemyType);
 	if (!Enemy)
@@ -99,31 +135,21 @@ void APirateGameModeBase::SpawnEnemyNearby(FString EnemyType)
 	SpawnEnemy(Enemy, LocalPawn->GetActorLocation() + FVector(300, 0, 0), FRotator::ZeroRotator);
 }
 
-void APirateGameModeBase::BeginPlay()
+ERarity APirateGameModeBase::GetRarityForPlayer(APiratePlayerState* Player) const
 {
-	Super::BeginPlay();
+	float Roll = FMath::FRandRange(0, RarityProbabilitySum);
+	Roll += FMath::FRandRange(0, Player->PlayerStats->Luck * 0.05f * RarityProbabilitySum);
+	float Accum = 0;
+	for (int i = 0; i < RarityProbabilities.Num(); i++)
+	{
+		if (Roll < Accum + RarityProbabilities[i])
+			return static_cast<ERarity>(static_cast<int>(ERarity::Max) - i);
+		Accum += RarityProbabilities[i];
+	}
+	return ERarity::Common; // Should never happen
 }
 
-void APirateGameModeBase::PostLogin(APlayerController* NewPlayer)
+void APirateGameModeBase::CreateUpgradeList_Implementation()
 {
-	Super::PostLogin(NewPlayer);
-	
-	if (!NewPlayer->PlayerState)
-	{
-		PIRATE_LOG_ERROR("Player state is null!");
-	}
-	
-	Cast<APiratePlayerController>(NewPlayer)->Client_CallCreateUI();
-
-	// Send current XP items to new player
-	if (!NewPlayer->IsLocalController())
-	{
-		auto XPItems = APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->GetCurrentXP();
-		if (XPItems.Num() * sizeof(FXPInfo) > 65536)
-		{
-			PIRATE_LOG_ERROR("XPManager::GetCurrentXP is too large to send to new player over the network!");
-			// TODO: Split array and send over multiple RPC calls
-		}
-		Cast<APiratePlayerController>(NewPlayer)->Client_InitialiseXP(XPItems);
-	}
+	UpgradeList = NewObject<UUpgradeList>(this);
 }

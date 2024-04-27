@@ -33,7 +33,7 @@ void UPirateGameInstance::Init()
 		Weapons.Add(Weapon->GetName(), Weapon);
 	}
 	
-	// Find all the weapon data assets and add them to the weapons map
+	// Find all the enemy data assets and add them to the enemies map
 	AssetData.Empty();
 	const UClass* EnemyClass = UEnemyData::StaticClass();
 	AssetRegistry.GetAssetsByClass(FTopLevelAssetPath(EnemyClass->GetPackage()->GetFName(), EnemyClass->GetFName()), AssetData);

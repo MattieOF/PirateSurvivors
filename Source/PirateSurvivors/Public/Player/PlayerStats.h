@@ -57,6 +57,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
 	float MaxSpeed = 1000;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
+	float Armor = 0;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
+	float Luck = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
+	float UpgradeChoices = 3;
+
 	UFUNCTION()
 	static TArray<FName> GetPropertyNames();
 };

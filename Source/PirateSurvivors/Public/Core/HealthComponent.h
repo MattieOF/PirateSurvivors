@@ -6,7 +6,10 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
+// Forward decls
 class APirateSurvivorsCharacter;
+
+// Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, Change, float, NewHP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHurt, float, Damage, float, NewHP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealed, float, HealAmount, float, NewHP);
@@ -29,6 +32,9 @@ public:
 	APirateSurvivorsCharacter* Instigator = nullptr;
 };
 
+// This delegate needs FDamageInstance to be declared, so it's down here.
+DECLARE_DYNAMIC_DELEGATE_RetVal_OneParam(float, FGetArmour, FDamageInstance, DamageEvent);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PIRATESURVIVORS_API UHealthComponent : public UActorComponent
 {
@@ -40,7 +46,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 								FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable, Category = "Health", NetMulticast, Reliable)
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void TakeDamage(const FDamageInstance& DamageEvent);
+	UFUNCTION(Category = "Health", NetMulticast, Reliable)
 	void Multicast_TakeDamage(const FDamageInstance& DamageEvent);
 	
 	UFUNCTION(BlueprintCallable, Category = "Health")
@@ -72,7 +80,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetOverhealEnabled(const bool bEnable, const bool bClampHP = true);
-
+	
 	// Adds each damage event to the DamageEvents array, so that it can be used later for damage reports, etc.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated)
 	bool bRetainDamageEvents = false;
@@ -99,6 +107,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDeath OnDeath;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Health")
+	FGetArmour ArmourGetter;
+	
 protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", Replicated, ReplicatedUsing = OnRep_Health)

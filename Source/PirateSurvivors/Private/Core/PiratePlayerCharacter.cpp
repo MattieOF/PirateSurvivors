@@ -62,10 +62,27 @@ void APiratePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (HasAuthority())
+		FindPlayerState();
+
 	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 			Subsystem->AddPlayerMappableConfig(InputMappingConfig);
+	}
+}
+
+void APiratePlayerCharacter::FindPlayerState()
+{
+	PiratePlayerState = Cast<APiratePlayerState>(GetPlayerState());
+	if (!PiratePlayerState)
+	{
+		// If we can't find the player state, try again next tick
+		GetWorld()->GetTimerManager().SetTimerForNextTick(this, &APiratePlayerCharacter::FindPlayerState);
+	}
+	else
+	{
+		HealthComponent->ArmourGetter.BindDynamic(this, &APiratePlayerCharacter::GetArmour);
 	}
 }
 
@@ -92,6 +109,15 @@ void APiratePlayerCharacter::OnMouseLook(const FInputActionValue& ActionValue)
 void APiratePlayerCharacter::OnFire(bool bHeld)
 {
 	Fire(bHeld);
+}
+
+// Can't be const because it's a dynamic delegate
+// ReSharper disable once CppMemberFunctionMayBeConst
+float APiratePlayerCharacter::GetArmour(FDamageInstance DamageEvent)
+{
+	if (PiratePlayerState && PiratePlayerState->PlayerStats)
+		return PiratePlayerState->PlayerStats->Armor;
+	return 0;
 }
 
 void APiratePlayerCharacter::Tick(float DeltaTime)

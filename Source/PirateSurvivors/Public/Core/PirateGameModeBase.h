@@ -5,8 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/Upgrade.h"
 #include "PirateGameModeBase.generated.h"
 
+// Forward decls
+class UUpgradeList;
+class APiratePlayerState;
+class UUpgrade;
 class UEnemyData;
 enum class ERarity : uint8;
 class AXP;
@@ -24,7 +29,8 @@ public:
 	APirateGameModeBase();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default Game Settings")
-	TMap<float, ERarity> RarityProbabilities;
+	// TStaticArray<float, static_cast<int>(ERarity::Max)> RarityProbabilities;
+	TArray<float> RarityProbabilities;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, meta = (WorldContext = "WorldContextObject"))
 	static FORCEINLINE APirateGameModeBase* GetPirateGameMode(const UObject* WorldContextObject)
@@ -48,10 +54,23 @@ public:
 	void SpawnEnemy(UEnemyData* EnemyType, const FVector& Location, const FRotator& Rotation);
 
 	UFUNCTION(Exec, Category = "Pirate Game Mode")
-	void SpawnEnemyNearby(FString EnemyType);
+	void SpawnEnemyNearby(const FString& EnemyType);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Game Mode")
+	virtual ERarity GetRarityForPlayer(APiratePlayerState* Player) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Game Mode")
+	FORCEINLINE UUpgradeList* GetUpgradeList() const { return UpgradeList; }
 	
 protected:
-	virtual void BeginPlay() override;
+	UPROPERTY(BlueprintReadWrite, Category = "Pirate Game Mode")
+	UUpgradeList* UpgradeList;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void CreateUpgradeList();
+	
+	virtual void BeginPlay() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+	float RarityProbabilitySum = 0;
 };

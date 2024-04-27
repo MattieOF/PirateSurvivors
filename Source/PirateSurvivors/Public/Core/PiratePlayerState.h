@@ -5,16 +5,21 @@
 #include "CoreMinimal.h"
 #include "PirateGameState.h"
 #include "GameFramework/PlayerState.h"
+#include "Player/PlayerStats.h"
 #include "PiratePlayerState.generated.h"
 
-class APiratePlayerController;
+class UUpgrade;
 // Forward decls
+class UWeaponUpgrade;
+class UPlayerUpgrade;
+class APiratePlayerController;
 class APiratePlayerCharacter;
 class UWeaponData;
 class AWeaponFunctionality;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnXPUpdated, float, NewXP, int, NewLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponObtained, AWeaponFunctionality*, NewWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponUpdated, int, Slot, AWeaponFunctionality*, NewWeapon);
 
 /**
  * Base player state class for Pirate Survivors
@@ -54,12 +59,15 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player State")
 	bool GiveWeaponFromFunctionalityActor(AWeaponFunctionality* Weapon);
-	
+
 	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
 	FOnXPUpdated OnXPUpdated;
 
 	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
 	FOnWeaponObtained OnWeaponObtained;
+
+	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
+	FOnWeaponUpdated OnWeaponUpdated;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, EditAnywhere, Category = "Pirate Player State", ReplicatedUsing = OnRep_Level)
 	int Level = 0;
@@ -71,8 +79,25 @@ public:
 	UFUNCTION()
 	FORCEINLINE void OnRep_XP() const;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnLevelUp(int NewLevel);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Player State")
 	uint8 BaseWeaponSlotCount = 4;
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void Multicast_AddStatUpgrade(UPlayerUpgrade* Upgrade);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void Multicast_AddWeaponUpgrade(UWeaponUpgrade* Upgrade);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Player State") // Replicated with RPCs
+	UPlayerStats* PlayerStats;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Pirate Player State")
+	TArray<UUpgrade*> AppliedUpgrades;
+
+	const TArray<AWeaponFunctionality*>* GetWeapons() const { return &Weapons; }
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Weapons")

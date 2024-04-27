@@ -2,6 +2,7 @@
 
 #include "Core/HealthComponent.h"
 
+#include "PirateLog.h"
 #include "Net/UnrealNetwork.h"
 
 UHealthComponent::UHealthComponent()
@@ -29,6 +30,23 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 			}
 		}
 	}
+}
+
+void UHealthComponent::TakeDamage(const FDamageInstance& DamageEvent)
+{
+	if (!GetOwner()->HasAuthority())
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "Only the server can process damage through UHealthComponent::TakeDamage!");
+		return;
+	}
+	
+	FDamageInstance Event = DamageEvent; // Copy the event so we can modify it, needed for armour calculations
+	float Armour = 0;
+	if (ArmourGetter.IsBound())
+		Armour = ArmourGetter.Execute(Event);
+	Event.Damage = FMath::Max(0.f, Event.Damage - (Armour / 2)); // TODO: Refine this formula
+
+	Multicast_TakeDamage(Event);
 }
 
 void UHealthComponent::Multicast_TakeDamage_Implementation(const FDamageInstance& DamageEvent)

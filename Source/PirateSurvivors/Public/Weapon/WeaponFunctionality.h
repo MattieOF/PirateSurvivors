@@ -14,6 +14,7 @@ class APirateSurvivorsCharacter;
 class UWeaponStats;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponAmmoEmpty);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWeaponDataUpdated);
 
 UCLASS()
 class PIRATESURVIVORS_API AWeaponFunctionality : public AActor
@@ -30,11 +31,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Initialise(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data);
 	
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void InitialiseLight(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data);
+	
 	UFUNCTION(BlueprintNativeEvent, Category = "Weapon")
 	void OnFire();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
 	FORCEINLINE UWeaponStats* GetWeaponStats() const { return WeaponStats; }
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
+	FORCEINLINE UWeaponData* GetWeaponData() const { return WeaponData; }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
 	float GetReloadProgress() const;
@@ -44,6 +51,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponAmmoEmpty OnWeaponAmmoEmpty;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponDataUpdated OnDataUpdated;
 	
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -86,7 +96,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", Replicated)
 	UWeaponData* WeaponData = nullptr;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon", Replicated)
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	UWeaponStats* WeaponStats = nullptr;
 
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;

@@ -51,7 +51,8 @@ enum class EWeaponFunctionalityUpgradeType : uint8
 	SetBool,
 	SetFloat,
 	AddFloat,
-	ChangeClass
+	ChangeClass,
+	CallFunction
 };
 
 USTRUCT(BlueprintType)
@@ -69,6 +70,8 @@ struct FWeaponFunctionalityUpgrade
 	float FloatValue;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "Type == EWeaponFunctionalityUpgradeType::ChangeClass", EditConditionHides))
 	TSubclassOf<AWeaponFunctionality> ClassValue;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "Type == EWeaponFunctionalityUpgradeType::CallFunction", EditConditionHides))
+	FName FunctionToCall;
 
 	FWeaponFunctionalityUpgrade()
 	{

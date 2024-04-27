@@ -21,6 +21,9 @@ public:
     FText Name;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
+	TArray<FName> Tags;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")
 	UTexture2D* Icon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon")

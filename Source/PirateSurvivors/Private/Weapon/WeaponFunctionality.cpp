@@ -59,9 +59,7 @@ void AWeaponFunctionality::Tick(float DeltaSeconds)
 
 void AWeaponFunctionality::Initialise(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data)
 {
-	WeaponData = Data;
-	if (NewOwner)
-		OwningCharacter = NewOwner;
+	InitialiseLight(NewOwner, Data);
 	WeaponStats = DuplicateObject<UWeaponStats>(Data->BaseWeaponStats, this);
 	WeaponStats->SetFlags(WeaponStats->GetFlags() | RF_Public); // Thanks https://forums.unrealengine.com/t/uobject-eligible-for-replication-guide/671679/2
 	Ammo = WeaponStats->Ammo; // Start with full ammo.
@@ -75,6 +73,13 @@ void AWeaponFunctionality::Initialise(APirateSurvivorsCharacter* NewOwner, UWeap
 		if (IsOwnedBy(LocalController))
 			LocalController->GetPlayerState<APiratePlayerState>()->Client_OnReceivedWeapon(this);
 	}
+}
+
+void AWeaponFunctionality::InitialiseLight(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data)
+{
+	WeaponData = Data;
+	if (NewOwner)
+		OwningCharacter = NewOwner;
 }
 
 float AWeaponFunctionality::GetReloadProgress() const

@@ -6,6 +6,9 @@
 #include "Engine/DataAsset.h"
 #include "Upgrade.generated.h"
 
+class AWeaponFunctionality;
+class APiratePlayerState;
+class UPlayerStats;
 struct FWeaponFunctionalityUpgrade;
 class UWeaponData;
 class UWeaponStats;
@@ -19,7 +22,8 @@ enum class ERarity : uint8
 	Uncommon   UMETA(DisplayName = "Uncommon"),
 	Rare       UMETA(DisplayName = "Rare"),
 	Epic       UMETA(DisplayName = "Epic"),
-	Legendary  UMETA(DisplayName = "Legendary")
+	Legendary  UMETA(DisplayName = "Legendary"),
+	Max		   UMETA(Hidden)
 };
 
 /**
@@ -68,6 +72,16 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
 	TArray<UWeaponData*> ValidWeapons;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
+	TArray<FName> ValidWeaponTags;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Upgrade")
+	TArray<UUpgrade*> Prerequisites;
+
+	// If true, the upgrade will only apply to one weapon. If false, it will apply to all compatible weapons.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Upgrade")
+	bool bForOneWeapon = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
 	TSubclassOf<UWeaponStats> WeaponStatsClass;
@@ -86,6 +100,15 @@ public:
 	
 	UFUNCTION(CallInEditor, Category = "Weapon")
 	FORCEINLINE void CheckCompatibility() const { VerifyCompatability(); };
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon Upgrade")
+	AWeaponFunctionality* ApplyUpgrade(APiratePlayerState* Player, AWeaponFunctionality* Weapon);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Upgrade")
+	bool IsValidForWeapon(AWeaponFunctionality* Weapon) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Upgrade")
+	bool IsValidForPlayer(APiratePlayerState* Player) const;
 };
 
 UCLASS()
@@ -95,5 +118,14 @@ class PIRATESURVIVORS_API UPlayerUpgrade : public UUpgrade
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Upgrade")
+	TArray<UUpgrade*> Prerequisites;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Upgrade")
 	TArray<FPlayerStatUpgrade> StatUpgrades;
+
+	UFUNCTION(BlueprintCallable, Category = "Player Upgrade")
+	void ApplyUpgrade(APiratePlayerState* Player) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Player Upgrade")
+	bool IsValidForPlayer(APiratePlayerState* Player) const;
 };

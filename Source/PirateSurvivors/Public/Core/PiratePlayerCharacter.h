@@ -50,6 +50,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	void FindPlayerState();
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -75,6 +77,9 @@ protected:
 	void OnMouseLook(const FInputActionValue& ActionValue);
 	void OnFire(bool bHeld);
 
+	UFUNCTION()
+	float GetArmour(FDamageInstance DamageEvent);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	class UPlayerMappableInputConfig* InputMappingConfig;
 
@@ -85,4 +90,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	USphereComponent* PickupRange;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Pirate Player Character")
+	APiratePlayerState* PiratePlayerState;
 };
