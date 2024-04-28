@@ -94,7 +94,7 @@ void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Chara
 {
 	if (!CurrentXPObjects.Contains(XPID))
 	{
-		PIRATE_LOG_ERROR_NOLOC("Tried to pick up XP with ID %d, but it doesn't exist!", XPID);
+		PIRATE_LOGC_ERROR_NOLOC(GetWorld(), "Tried to pick up XP with ID %d, but it doesn't exist!", XPID);
 		return;
 	}
 
@@ -121,14 +121,18 @@ void AXPManager::Multicast_DestroyXP_Implementation(int ID)
 
 void AXPManager::Multicast_SpawnXP_Implementation(FVector Location, float Value, int ID)
 {
-	AXP* XP = GetWorld()->SpawnActorDeferred<AXP>(APirateGameState::GetPirateGameState(GetWorld())->XPClass, FTransform(Location));
-	XP->Value = Value;
-	XP->ID = ID;
-	XP->FinishSpawning(XP->GetTransform());
-
 	if (CurrentXPObjects.Contains(ID))
 	{
 		PIRATE_LOG_ERROR_NOLOC("Tried to spawn XP with ID %d, but it already exists!", ID);
+		return;
 	}
+	
+	AXP* XP = GetWorld()->SpawnActorDeferred<AXP>(APirateGameState::GetPirateGameState(GetWorld())->XPClass, FTransform(Location));
+	XP->Value = Value;
+	XP->ID = ID;
+	// We add it before FinishSpawning as FinishSpawning will cause collisions to be checked, so if a player
+	// is in range of the XP when it spawns, they'll pick it up immediately. This will call Multicast_PickupXP before
+	// the ID is added to the map, which will cause an error.
 	CurrentXPObjects.Add(ID, XP);
+	XP->FinishSpawning(XP->GetTransform());
 }
