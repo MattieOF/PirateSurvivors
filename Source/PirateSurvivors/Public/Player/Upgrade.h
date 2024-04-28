@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "Upgrade.generated.h"
 
+// Forward decls
+class UUpgrade;
 class AWeaponFunctionality;
 class APiratePlayerState;
 class UPlayerStats;
@@ -26,11 +28,24 @@ enum class ERarity : uint8
 	Max		   UMETA(Hidden)
 };
 
+USTRUCT(BlueprintType)
+struct FQueuedUpgradeChoice
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, Category = "Upgrade Choice")
+	UUpgrade* Upgrade;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Upgrade Choice")
+	int TargetWeaponIndex = -1;
+};
+
 /**
  * Object containing base information for an upgrade, such as name, description, etc.
  * This class is abstract as it isn't specifically for players or weapons, but contains the data that both of those classes need.
  */
-UCLASS()
+UCLASS(BlueprintType)
 class PIRATESURVIVORS_API UUpgrade : public UDataAsset
 {
 	GENERATED_BODY()

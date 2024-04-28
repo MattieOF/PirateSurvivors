@@ -105,8 +105,6 @@ void AProjectile::DamageHealthComponent(UHealthComponent* HealthComponent)
 void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                   FVector NormalImpulse, const FHitResult& Hit)
 {
-	PIRATE_LOGC_NOLOC(GetWorld(), "PROJECTILE %s HIT: %s", *GetName(), *OtherActor->GetName());
-	
 	if (APirateSurvivorsCharacter* Character = Cast<APirateSurvivorsCharacter>(OtherActor))
 	{
 		ProjectileHitCharacter(Character);

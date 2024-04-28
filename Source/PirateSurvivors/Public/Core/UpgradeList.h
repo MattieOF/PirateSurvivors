@@ -6,9 +6,10 @@
 #include "UObject/Object.h"
 #include "UpgradeList.generated.h"
 
+// Forward decls
+struct FQueuedUpgradeChoice;
 class UUpgrade;
 class APiratePlayerState;
-// Forward decls
 class UPlayerUpgrade;
 class UWeaponUpgrade;
 enum class ERarity : uint8;
@@ -35,7 +36,7 @@ public:
 	TArray<UPlayerUpgrade*> GetAllPlayerUpgradesOfRarity(ERarity Rarity) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Upgrade List")
-	TArray<UUpgrade*> GetPlayerUpgradeChoices(APiratePlayerState* Player) const;
+	TArray<FQueuedUpgradeChoice> GetPlayerUpgradeChoices(APiratePlayerState* Player) const;
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UPlayerUpgrade* GetPlayerPlayerUpgradeChoice(APiratePlayerState* Player, const TArray<UUpgrade*>& Blacklist) const;
 	UFUNCTION(BlueprintCallable, BlueprintPure)

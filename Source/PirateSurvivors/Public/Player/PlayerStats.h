@@ -64,7 +64,7 @@ public:
 	float Luck = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
-	float UpgradeChoices = 3;
+	float UpgradeChoices = 8;
 
 	UFUNCTION()
 	static TArray<FName> GetPropertyNames();

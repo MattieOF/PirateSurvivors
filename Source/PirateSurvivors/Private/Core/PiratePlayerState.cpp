@@ -17,6 +17,7 @@ void APiratePlayerState::BeginPlay()
 	
 	// Init state
 	PlayerStats = NewObject<UPlayerStats>();
+	
 	AWeaponFunctionality* Null = nullptr;
 	Weapons.Init(Null, BaseWeaponSlotCount);
 }
@@ -38,11 +39,11 @@ void APiratePlayerState::Client_OnReceivedWeapon_Implementation(AWeaponFunctiona
 
 void APiratePlayerState::AddXP(float AddedXP)
 {
-	if (GetNetMode() == NM_Client)
-	{
-		PIRATE_LOG_ERROR("Attempted to add XP on client!");
-		return;
-	}
+	// if (GetNetMode() == NM_Client)
+	// {
+	// 	PIRATE_LOG_ERROR("Attempted to add XP on client!");
+	// 	return;
+	// }
 	
 	while (AddedXP > 0)
 	{
@@ -122,44 +123,84 @@ void APiratePlayerState::OnRep_XP() const
 	OnXPUpdated.Broadcast(XP, Level);
 }
 
-void APiratePlayerState::OnLevelUp_Implementation(int NewLevel)
+void APiratePlayerState::Client_ReceiveUpgradeChoices_Implementation(const TArray<FQueuedUpgradeChoice>& UpgradeChoices)
 {
-	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
-	auto UpgradeChoices = GameMode->GetUpgradeList()->GetPlayerUpgradeChoices(this);
-	PIRATE_LOGC(GetWorld(), "Level up! Upgrade choices:");
-	for (const auto& Upgrade : UpgradeChoices)
-		PIRATE_LOGC_NOLOC(GetWorld(), "    %s", *Upgrade->GetName());
+	PIRATE_LOGC_NOLOC(GetWorld(), "Received upgrade choices!");
+	UpgradeQueue.Enqueue(UpgradeChoices);
+	OnUpgradeChoicesReceived.Broadcast(UpgradeChoices, this);
 }
 
-void APiratePlayerState::Multicast_AddWeaponUpgrade_Implementation(UWeaponUpgrade* Upgrade)
+void APiratePlayerState::OnLevelUp_Implementation(int NewLevel)
 {
+	if (!HasAuthority())
+		return;
+	
+	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
+	auto UpgradeChoices = GameMode->GetUpgradeList()->GetPlayerUpgradeChoices(this);
+
+	PIRATE_LOGC_NOLOC(GetWorld(), "Level up! Upgrade choices:");
+	for (const auto& [Upgrade, TargetWeaponIndex] : UpgradeChoices)
+	{
+		if (TargetWeaponIndex != -1)
+			PIRATE_LOGC_NOLOC(GetWorld(), "    %s, for weapon %i", *Upgrade->GetName(), TargetWeaponIndex);
+		else
+			PIRATE_LOGC_NOLOC(GetWorld(), "    %s", *Upgrade->GetName());
+	}
+	
+	UpgradeQueue.Enqueue(UpgradeChoices); // Enqueue the upgrade choices on the server
+	Client_ReceiveUpgradeChoices(UpgradeChoices); // And send them to the client
+}
+
+void APiratePlayerState::Multicast_AddWeaponUpgrade_Implementation(const FQueuedUpgradeChoice& UpgradeChoice)
+{
+	UWeaponUpgrade* Upgrade = Cast<UWeaponUpgrade>(UpgradeChoice.Upgrade);
+
 	// Get all valid weapons for this upgrade
 	TArray<TTuple<int, AWeaponFunctionality*>> ValidWeapons;
-	for (int i = 0; i < Weapons.Num(); i++)
+	if (UpgradeChoice.TargetWeaponIndex != -1)
 	{
-		if (Upgrade->IsValidForWeapon(Weapons[i]))
-			ValidWeapons.Add(TTuple<int, AWeaponFunctionality*>(i, Weapons[i]));
+		if (!Weapons.IsValidIndex(UpgradeChoice.TargetWeaponIndex))
+		{
+			PIRATE_LOGC_ERROR(
+				GetWorld(),
+				"In player state %s, FQueuedUpgradeChoice has invalid target weapon index: %i. For upgrade %ls.",
+				*GetName(), UpgradeChoice.TargetWeaponIndex, *Upgrade->GetName());
+			return;
+		}
+		if (Upgrade->IsValidForWeapon(Weapons[UpgradeChoice.TargetWeaponIndex]))
+			ValidWeapons.Add(TTuple<int, AWeaponFunctionality*>(UpgradeChoice.TargetWeaponIndex, Weapons[UpgradeChoice.TargetWeaponIndex]));
+		else
+		{
+			PIRATE_LOGC_ERROR(GetWorld(), "Target weapon index %i is not valid for upgrade %s", UpgradeChoice.TargetWeaponIndex, *Upgrade->GetName());
+			return;
+		}
+	} else {
+		for (int i = 0; i < Weapons.Num(); i++)
+		{
+			if (Upgrade->IsValidForWeapon(Weapons[i]))
+				ValidWeapons.Add(TTuple<int, AWeaponFunctionality*>(i, Weapons[i]));
+		}
 	}
 
-	if (Upgrade->bForOneWeapon)
-	{
-		// If we only want to apply to one weapon, pick a random one
-		if (ValidWeapons.Num() > 0)
-		{
-			// TODO: Lots of code duplication here, could be refactored
-			const int ValidWeaponIndex = FMath::RandRange(0, ValidWeapons.Num() - 1);
-			AWeaponFunctionality* NewWeapon = Upgrade->ApplyUpgrade(this, ValidWeapons[ValidWeaponIndex].Value);
-			if (NewWeapon != ValidWeapons[ValidWeaponIndex].Value)
-			{
-				const int Index = ValidWeapons[ValidWeaponIndex].Key;
-				Weapons[Index] = NewWeapon;
-				OnWeaponUpdated.Broadcast(Index, NewWeapon);
-			}
-		} else
-		{
-			PIRATE_LOGC_WARN(GetWorld(), "No valid weapons for upgrade %s", *Upgrade->GetName());
-		}
-	} else
+	// if (Upgrade->bForOneWeapon)
+	// {
+	// 	// If we only want to apply to one weapon, pick a random one
+	// 	if (ValidWeapons.Num() > 0)
+	// 	{
+	// 		// TODO: Lots of code duplication here, could be refactored
+	// 		const int ValidWeaponIndex = FMath::RandRange(0, ValidWeapons.Num() - 1);
+	// 		AWeaponFunctionality* NewWeapon = Upgrade->ApplyUpgrade(this, ValidWeapons[ValidWeaponIndex].Value);
+	// 		if (NewWeapon != ValidWeapons[ValidWeaponIndex].Value)
+	// 		{
+	// 			const int Index = ValidWeapons[ValidWeaponIndex].Key;
+	// 			Weapons[Index] = NewWeapon;
+	// 			OnWeaponUpdated.Broadcast(Index, NewWeapon);
+	// 		}
+	// 	} else
+	// 	{
+	// 		PIRATE_LOGC_WARN(GetWorld(), "No valid weapons for upgrade %s", *Upgrade->GetName());
+	// 	}
+	// } else
 	{
 		for (int i = 0; i < ValidWeapons.Num(); i++)
 		{
@@ -174,9 +215,54 @@ void APiratePlayerState::Multicast_AddWeaponUpgrade_Implementation(UWeaponUpgrad
 	}
 }
 
-void APiratePlayerState::Multicast_AddStatUpgrade_Implementation(UPlayerUpgrade* Upgrade)
+void APiratePlayerState::Multicast_AddStatUpgrade_Implementation(const FQueuedUpgradeChoice& Upgrade)
 {
-	Upgrade->ApplyUpgrade(this);
+	const UPlayerUpgrade* PlayerUpgrade = Cast<UPlayerUpgrade>(Upgrade.Upgrade);
+	if (PlayerUpgrade)
+		PlayerUpgrade->ApplyUpgrade(this);
+	else
+		PIRATE_LOGC_ERROR(GetWorld(), "In player %s, upgrade %s is not a player upgrade, but was applied as one!", *GetName(), *Upgrade.Upgrade->GetName());
+}
+
+void APiratePlayerState::Server_SelectUpgrade_Implementation(int Index)
+{
+	// Try and dequeue the current choices array
+	TArray<FQueuedUpgradeChoice> UpgradeChoices;
+	const bool DidFind = UpgradeQueue.Dequeue(UpgradeChoices);
+
+	// If we didn't find any choices, log an error and return
+	if (!DidFind)
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "In player %s, attempted to select upgrade, but no upgrade choices were found!", *GetName());
+		return;
+	}
+
+	// And if the provided index is invalid, log an error and return
+	if (!UpgradeChoices.IsValidIndex(Index))
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "In player %s, attempted to select upgrade at index %i, but that index is invalid!", *GetName(), Index);
+		return;
+	}
+
+	// Ok, we've got a valid choice, let's apply it
+	// Make sure we call the correct function based on the type of upgrade
+	const FQueuedUpgradeChoice Choice = UpgradeChoices[Index];
+	if (Choice.Upgrade->IsA(UWeaponUpgrade::StaticClass()))
+		Multicast_AddWeaponUpgrade(Choice);
+	else
+		Multicast_AddStatUpgrade(Choice);
+}
+
+void APiratePlayerState::SelectUpgrade(int Index)
+{
+	OnUpgradeChosen.Broadcast(Index);
+	Server_SelectUpgrade(Index);
+	UpgradeQueue.Pop();
+}
+
+bool APiratePlayerState::TryGetNextUpgradeChoices(TArray<FQueuedUpgradeChoice>& OutChoice)
+{
+	return UpgradeQueue.Peek(OutChoice);
 }
 
 void APiratePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

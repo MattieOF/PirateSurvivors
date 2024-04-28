@@ -143,7 +143,7 @@ ERarity APirateGameModeBase::GetRarityForPlayer(APiratePlayerState* Player) cons
 	for (int i = 0; i < RarityProbabilities.Num(); i++)
 	{
 		if (Roll < Accum + RarityProbabilities[i])
-			return static_cast<ERarity>(static_cast<int>(ERarity::Max) - i);
+			return static_cast<ERarity>(static_cast<int>(ERarity::Max) - (i + 1));
 		Accum += RarityProbabilities[i];
 	}
 	return ERarity::Common; // Should never happen

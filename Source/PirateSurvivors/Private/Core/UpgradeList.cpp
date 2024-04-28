@@ -80,11 +80,12 @@ TArray<UPlayerUpgrade*> UUpgradeList::GetAllPlayerUpgradesOfRarity(const ERarity
 	return PlayerUpgrades.FindRef(Rarity);
 }
 
-TArray<UUpgrade*> UUpgradeList::GetPlayerUpgradeChoices(APiratePlayerState* Player) const
+TArray<FQueuedUpgradeChoice> UUpgradeList::GetPlayerUpgradeChoices(APiratePlayerState* Player) const
 {
 	const double Start = FPlatformTime::Seconds();
 	
-	TArray<UUpgrade*> Choices;
+	TArray<FQueuedUpgradeChoice> Choices;
+	TArray<UUpgrade*> ChosenSoFar;
 	const int ChoiceCount = Player->PlayerStats->UpgradeChoices;
 	Choices.Reserve(ChoiceCount);
 	
@@ -95,17 +96,17 @@ TArray<UUpgrade*> UUpgradeList::GetPlayerUpgradeChoices(APiratePlayerState* Play
 
 		// First, try and get a type of the type we rolled.
 		if (!WeaponUpgrade)
-			Choice = GetPlayerPlayerUpgradeChoice(Player, Choices);
+			Choice = GetPlayerPlayerUpgradeChoice(Player, ChosenSoFar);
 		else
-			Choice = GetPlayerWeaponUpgradeChoice(Player, Choices);
+			Choice = GetPlayerWeaponUpgradeChoice(Player, ChosenSoFar);
 
 		// If for some reason we couldn't get one of those, try get the other type
 		if (Choice == nullptr)
 		{
 			if (!WeaponUpgrade)
-				Choice = GetPlayerWeaponUpgradeChoice(Player, Choices);
+				Choice = GetPlayerWeaponUpgradeChoice(Player, ChosenSoFar);
 			else
-				Choice = GetPlayerPlayerUpgradeChoice(Player, Choices);
+				Choice = GetPlayerPlayerUpgradeChoice(Player, ChosenSoFar);
 		}
 
 		// If we still couldn't get one, just return what we have
@@ -115,7 +116,22 @@ TArray<UUpgrade*> UUpgradeList::GetPlayerUpgradeChoices(APiratePlayerState* Play
 		}
 
 		// We did get one, so add it to the list of choices
-		Choices.Add(Choice);
+		ChosenSoFar.Add(Choice);
+		int TargetIndex = -1;
+		if (UWeaponUpgrade* Upgrade = Cast<UWeaponUpgrade>(Choice))
+		{
+			if (Upgrade->bForOneWeapon)
+			{
+				// TODO: We've already calculated this before during the initial upgrade selection, so it's wasteful to do it again.
+				TArray<AWeaponFunctionality*> Weapons = *Player->GetWeapons();
+				Weapons.FilterByPredicate([&Upgrade](AWeaponFunctionality* Weapon) { return Upgrade->IsValidForWeapon(Weapon); });
+				if (Weapons.Num() > 0)
+					TargetIndex = FMath::RandRange(0, Weapons.Num() - 1);
+				else
+					PIRATE_LOGC_ERROR(GetWorld(), "Somehow no valid weapon?");
+			}
+		}
+		Choices.Add({ Choice, TargetIndex });
 	}
 
 	const double End = FPlatformTime::Seconds();
@@ -135,7 +151,7 @@ UPlayerUpgrade* UUpgradeList::GetPlayerPlayerUpgradeChoice(APiratePlayerState* P
 	{
 		TArray<UPlayerUpgrade*> Upgrades = GetAllPlayerUpgradesOfRarity(Rarity);
 		// TODO: @optimization: we could cache the filtered upgrades per rarity
-		Upgrades.FilterByPredicate([&Player, &Blacklist](const UPlayerUpgrade* Upgrade) { return Upgrade->IsValidForPlayer(Player) && !Blacklist.Contains(Upgrade); });
+		Upgrades = Upgrades.FilterByPredicate([&Player, &Blacklist](const UPlayerUpgrade* Upgrade) { return Upgrade->IsValidForPlayer(Player) && !Blacklist.Contains(Cast<UUpgrade>(Upgrade)); });
 		if (Upgrades.Num() > 0)
 		{
 			Choice = Upgrades[FMath::RandRange(0, Upgrades.Num() - 1)];
@@ -143,13 +159,13 @@ UPlayerUpgrade* UUpgradeList::GetPlayerPlayerUpgradeChoice(APiratePlayerState* P
 		}
 			
 		// Go up a rarity if !HasTriedAboveRarities, otherwise go down
-		Rarity = static_cast<ERarity>(static_cast<int>(Rarity) - (HasTriedAboveRarities ? -1 : 1));
+		Rarity = static_cast<ERarity>(static_cast<int>(Rarity) - (HasTriedAboveRarities ? 1 : -1));
 		if (static_cast<int>(Rarity) >= static_cast<int>(ERarity::Max) - 1)
 		{
 			HasTriedAboveRarities = true;
 			Rarity = static_cast<ERarity>(static_cast<int>(ERarity::Max) - 1);
 		}
-	} while (!PlayerUpgrades.Contains(Rarity) && !(static_cast<int>(Rarity) == 0 && HasTriedAboveRarities));
+	} while ((Choice == nullptr || !PlayerUpgrades.Contains(Rarity)) && !(static_cast<int>(Rarity) == 0 && HasTriedAboveRarities));
 
 	return Choice;
 }
@@ -167,21 +183,21 @@ UWeaponUpgrade* UUpgradeList::GetPlayerWeaponUpgradeChoice(APiratePlayerState* P
 		// TODO: @optimization: we could cache the filtered upgrades per rarity
 		// This is even more important for weapon upgrades, since their IsValidForPlayer is more expensive
 		// @copy-paste: this has a lot of duplicated code with GetPlayerPlayerUpgradeChoice
-		Upgrades.FilterByPredicate([&Player, &Blacklist](const UWeaponUpgrade* Upgrade) { return Upgrade->IsValidForPlayer(Player) && !Blacklist.Contains(Upgrade); });
+		Upgrades = Upgrades.FilterByPredicate([&Player, &Blacklist](const UWeaponUpgrade* Upgrade) { return Upgrade->IsValidForPlayer(Player) && !Blacklist.Contains(Cast<UUpgrade>(Upgrade)); });
 		if (Upgrades.Num() > 0)
 		{
 			Choice = Upgrades[FMath::RandRange(0, Upgrades.Num() - 1)];
 			break;
 		}
-			
+		
 		// Go up a rarity if !HasTriedAboveRarities, otherwise go down
-		Rarity = static_cast<ERarity>(static_cast<int>(Rarity) - (HasTriedAboveRarities ? -1 : 1));
+		Rarity = static_cast<ERarity>(static_cast<int>(Rarity) - (HasTriedAboveRarities ? 1 : -1));
 		if (static_cast<int>(Rarity) >= static_cast<int>(ERarity::Max) - 1)
 		{
 			HasTriedAboveRarities = true;
 			Rarity = static_cast<ERarity>(static_cast<int>(ERarity::Max) - 1);
 		}
-	} while (!PlayerUpgrades.Contains(Rarity) && !(static_cast<int>(Rarity) == 0 && HasTriedAboveRarities));
+	} while ((Choice == nullptr || !WeaponUpgrades.Contains(Rarity)) && !(static_cast<int>(Rarity) == 0 && HasTriedAboveRarities));
 
 	return Choice;
 }

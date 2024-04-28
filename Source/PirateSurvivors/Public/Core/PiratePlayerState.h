@@ -8,8 +8,9 @@
 #include "Player/PlayerStats.h"
 #include "PiratePlayerState.generated.h"
 
-class UUpgrade;
 // Forward decls
+struct FQueuedUpgradeChoice;
+class UUpgrade;
 class UWeaponUpgrade;
 class UPlayerUpgrade;
 class APiratePlayerController;
@@ -20,6 +21,12 @@ class AWeaponFunctionality;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnXPUpdated, float, NewXP, int, NewLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponObtained, AWeaponFunctionality*, NewWeapon);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponUpdated, int, Slot, AWeaponFunctionality*, NewWeapon);
+
+// UHT doesn't throw an error about it, but TArrays as parameters in delegates must be const references, or assigning in blueprints will not work.
+// Thanks to https://forums.unrealengine.com/t/signature-error-the-function-event-does-not-match-the-necessary-signature-has-the-delegate-or-function-event-changed/724030/6
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpgradeChoicesReceived, const TArray<FQueuedUpgradeChoice>&, Choices, APiratePlayerState*, PlayerState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeChosen, int, UpgradeIndex);
 
 /**
  * Base player state class for Pirate Survivors
@@ -68,6 +75,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
 	FOnWeaponUpdated OnWeaponUpdated;
+
+	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
+	FOnUpgradeChoicesReceived OnUpgradeChoicesReceived;
+
+	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
+	FOnUpgradeChosen OnUpgradeChosen;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, EditAnywhere, Category = "Pirate Player State", ReplicatedUsing = OnRep_Level)
 	int Level = 0;
@@ -86,10 +99,13 @@ public:
 	uint8 BaseWeaponSlotCount = 4;
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void Multicast_AddStatUpgrade(UPlayerUpgrade* Upgrade);
+	void Multicast_AddStatUpgrade(const FQueuedUpgradeChoice& Upgrade);
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void Multicast_AddWeaponUpgrade(UWeaponUpgrade* Upgrade);
+	void Multicast_AddWeaponUpgrade(const FQueuedUpgradeChoice& Upgrade);
+
+	UFUNCTION(BlueprintCallable, Client, Reliable)
+	void Client_ReceiveUpgradeChoices(const TArray<FQueuedUpgradeChoice>& UpgradeChoices);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Player State") // Replicated with RPCs
 	UPlayerStats* PlayerStats;
@@ -98,10 +114,21 @@ public:
 	TArray<UUpgrade*> AppliedUpgrades;
 
 	const TArray<AWeaponFunctionality*>* GetWeapons() const { return &Weapons; }
+
+	UFUNCTION(BlueprintCallable, Category = "Pirate Player State")
+	void SelectUpgrade(int Index);
+	
+	UFUNCTION(BlueprintCallable, Category = "Pirate Player State", Server, Reliable)
+	void Server_SelectUpgrade(int Index);
+	
+	UFUNCTION(BlueprintCallable, Category = "Pirate Player State")
+	bool TryGetNextUpgradeChoices(TArray<FQueuedUpgradeChoice>& OutChoice);
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Weapons")
 	TArray<AWeaponFunctionality*> Weapons;
+
+	TQueue<TArray<FQueuedUpgradeChoice>> UpgradeQueue;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

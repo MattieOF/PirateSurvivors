@@ -10,7 +10,7 @@ public class PirateSurvivors : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "AIModule" });
 
-		PrivateDependencyModuleNames.AddRange(new[] { "OnlineSubsystem" });
+		PrivateDependencyModuleNames.AddRange(new[] { "OnlineSubsystem", "SlateCore" });
 		
 		if (Target.bBuildEditor)
 			PrivateDependencyModuleNames.Add("MessageLog");

@@ -98,6 +98,10 @@ void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Chara
 		return;
 	}
 
+	// This can happen if XP is picked up as the client is joining the game
+	if (!Character)
+		return;
+
 	AXP* XP = CurrentXPObjects[XPID];
 	if (XP->bPickedUp)
 		return;
@@ -126,8 +130,10 @@ void AXPManager::Multicast_SpawnXP_Implementation(FVector Location, float Value,
 		PIRATE_LOG_ERROR_NOLOC("Tried to spawn XP with ID %d, but it already exists!", ID);
 		return;
 	}
-	
-	AXP* XP = GetWorld()->SpawnActorDeferred<AXP>(APirateGameState::GetPirateGameState(GetWorld())->XPClass, FTransform(Location));
+
+	const auto GS = APirateGameState::GetPirateGameState(GetWorld());
+	if (!GS || !GS->XPClass) return;
+	AXP* XP = GetWorld()->SpawnActorDeferred<AXP>(GS->XPClass, FTransform(Location));
 	XP->Value = Value;
 	XP->ID = ID;
 	// We add it before FinishSpawning as FinishSpawning will cause collisions to be checked, so if a player
