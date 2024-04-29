@@ -38,11 +38,16 @@ class PIRATESURVIVORS_API APiratePlayerState : public APlayerState
 
 public:
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void Initialise();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player State")
 	FORCEINLINE float GetCurrentXPMultiplier() const
 	{
 		const APirateGameState* const GameState = APirateGameState::GetPirateGameState(this);
+		if (!GameState)
+			return 0;
 		return Level < GameState->XPMultipliers.Num() ? GameState->XPMultipliers[Level] : GameState->XPMultipliers.Last();
 	}
 

@@ -15,8 +15,17 @@
 void APiratePlayerState::BeginPlay()
 {
 	Super::BeginPlay();
+	Initialise();
+}
+
+void APiratePlayerState::Initialise()
+{
+	if (!GetPiratePawn())
+	{
+		GetWorldTimerManager().SetTimerForNextTick([this] { Initialise(); });
+		return;
+	}
 	
-	// Init state
 	PlayerStats = NewObject<UPlayerStats>(this);
 
 	GetPiratePawn()->GetHealthComponent()->SetMaxHP(PlayerStats->MaxHealth);
