@@ -13,3 +13,8 @@ AXP::AXP()
 	Mesh->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	RootComponent = Mesh;
 }
+
+void AXP::Hide()
+{
+	Mesh->SetVisibility(false);
+}

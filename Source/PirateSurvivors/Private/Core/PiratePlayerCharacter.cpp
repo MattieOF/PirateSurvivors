@@ -145,13 +145,14 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 		// TODO: Might be better if XP is added on pickup instead of when it's close enough
 		// Since pickup serverside, there's no worry about cheating
 		// Will have to think of a way so clients can recover from picking up XP that the server didn't agree with
-		if (Direction.Size() < 70
-			&& IsLocallyControlled())
+		if (Direction.Size() < 70)
 		{
 			Cast<APiratePlayerState>(GetPlayerState())->AddXP(XPBeingPickedUp[Index]->Value); 
 			if (HasAuthority())
-				APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_DestroyXP(XPBeingPickedUp[Index]->ID);
-			XPBeingPickedUp[Index]->Destroy();
+			{
+				APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_DestroyXP(XPBeingPickedUp[Index]->ID);	
+			}
+			XPBeingPickedUp[Index]->Hide();
 			XPBeingPickedUp.RemoveAt(Index);
 		}
 	}

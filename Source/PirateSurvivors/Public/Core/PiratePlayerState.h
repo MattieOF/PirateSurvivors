@@ -120,6 +120,9 @@ public:
 
 	const TArray<AWeaponFunctionality*>* GetWeapons() const { return &Weapons; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player State")
+	bool IsUpgradeIndexValid(int Index); 
+
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player State")
 	void SelectUpgrade(int Index);
 	

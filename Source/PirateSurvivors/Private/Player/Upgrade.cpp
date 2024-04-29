@@ -255,8 +255,9 @@ AWeaponFunctionality* UWeaponUpgrade::ApplyUpgrade(APiratePlayerState* Player, A
 
 bool UWeaponUpgrade::IsValidForWeapon(AWeaponFunctionality* Weapon) const
 {
-	return ValidWeapons.Contains(Weapon->GetWeaponData()) || Weapon->GetWeaponData()->Tags.ContainsByPredicate(
-		[this](const FName& Tag) { return ValidWeaponTags.Contains(Tag); });
+	return (ValidWeapons.IsEmpty() && ValidWeaponTags.IsEmpty()) // No conditions
+			|| ValidWeapons.Contains(Weapon->GetWeaponData()) // Is a valid weapon type
+			|| Weapon->GetWeaponData()->Tags.ContainsByPredicate([this](const FName& Tag) { return ValidWeaponTags.Contains(Tag); }); // Has a valid tag
 }
 
 bool UWeaponUpgrade::IsValidForPlayer(APiratePlayerState* Player) const

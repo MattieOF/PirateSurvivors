@@ -148,7 +148,7 @@ void APiratePlayerState::Client_ReceiveUpgradeChoices_Implementation(const TArra
 
 void APiratePlayerState::OnLevelUp_Implementation(int NewLevel)
 {
-	if (!HasAuthority())
+	if (GetNetMode() == NM_Client)
 		return;
 	
 	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
@@ -267,6 +267,11 @@ void APiratePlayerState::Server_SelectUpgrade_Implementation(int Index)
 		Multicast_AddWeaponUpgrade(Choice);
 	else
 		Multicast_AddStatUpgrade(Choice);
+}
+
+bool APiratePlayerState::IsUpgradeIndexValid(const int Index)
+{
+	return UpgradeQueue.Peek()->IsValidIndex(Index);
 }
 
 void APiratePlayerState::SelectUpgrade(int Index)

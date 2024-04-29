@@ -79,6 +79,8 @@ void UHealthBars::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	for (auto& HealthBar : HealthBars)
 	{
 		FVector2D Loc;
+		if (!HealthBar.Key || !HealthBar.Value.HealthBar->IsValidLowLevel())
+			continue; // TODO: Will this lead to unremoved health bars?
 		HealthBar.Value.LastLocation = GetTargetLocation(HealthBar.Key);
 		if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(LocalController, HealthBar.Value.LastLocation, Loc, false))
 			HealthBar.Value.HealthBar->SetVisibility(ESlateVisibility::Hidden);

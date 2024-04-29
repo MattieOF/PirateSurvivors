@@ -18,6 +18,9 @@ class PIRATESURVIVORS_API AXP : public AActor
 public:
 	AXP();
 
+	UFUNCTION(BlueprintCallable, Category = "XP")
+	void Hide();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "XP")
 	bool bPickedUp = false;
 	
