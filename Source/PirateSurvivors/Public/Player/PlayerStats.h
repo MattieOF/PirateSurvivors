@@ -65,7 +65,7 @@ public:
 	FOnStatChanged OnMaxHealthChanged;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetMaxSpeed)
-	float MaxSpeed = 1000;
+	float MaxSpeed = 600;
 	UFUNCTION(BlueprintCallable)
 	void SetMaxSpeed(float Value);
 	UPROPERTY(BlueprintAssignable)
@@ -86,7 +86,7 @@ public:
 	FOnStatChanged OnLuckChanged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetUpgradeChoices)
-	float UpgradeChoices = 8;
+	float UpgradeChoices = 3;
 	UFUNCTION(BlueprintCallable)
 	void SetUpgradeChoices(float Value);
 	UPROPERTY(BlueprintAssignable)
