@@ -64,9 +64,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetMaxHP(const float NewMaxHP, const bool bClampHP = true, const bool bGiveDifference = false);
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	FORCEINLINE void Hurt(const float Damage);
+	FORCEINLINE void Hurt(const float Damage) { ChangeHP(-Damage); }
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	FORCEINLINE void Heal(const float Amount);
+	FORCEINLINE void Heal(const float Amount) { ChangeHP(Amount); }
 	
 	UFUNCTION(BlueprintCallable, Category = "Health", NetMulticast, Reliable)
 	void Multicast_Die();
@@ -75,6 +75,8 @@ public:
 	FORCEINLINE float GetHealth() const { return Health; }
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
+	FORCEINLINE float GetHealthPercent() const { return Health / MaxHealth; }
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE bool  IsOverhealEnabled() const { return bEnableOverheal; }
 

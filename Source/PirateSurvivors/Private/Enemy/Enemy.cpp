@@ -9,6 +9,8 @@
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
 #include "UI/DamageNumbers.h"
+#include "UI/HealthBar.h"
+#include "UI/HealthBars.h"
 #include "World/XPManager.h"
 
 UEnemyData::UEnemyData()
@@ -76,8 +78,32 @@ void AEnemy::SetData(UEnemyData* NewEnemyData)
 	}
 	
 	GetMesh()->SetSkeletalMesh(EnemyData ? EnemyData->Mesh : nullptr);
+	if (EnemyData->bIsMiniBoss)
+		SetHasHealthBar(true);
 	if (HasAuthority() && EnemyData && HealthComponent)
 		HealthComponent->SetHP(EnemyData->BaseHealth, true);
+}
+
+void AEnemy::SetHasHealthBar(bool bHasHealthBar)
+{
+	APirateGameState* GS = APirateGameState::GetPirateGameState(GetWorld());
+
+	if (!GS || !GS->GetHealthBars())
+	{
+		// It's possible for this code to be called (by BeginPlay) before the gamestate is initialised, so we'll try again next tick
+		GetWorldTimerManager().SetTimerForNextTick([this, bHasHealthBar] { SetHasHealthBar(bHasHealthBar); });
+		return;
+	}
+	
+	if (bHasHealthBar && !HealthBar)
+	{
+		HealthBar = GS->GetHealthBars()->AddHealthBar(EnemyData->Name, HealthComponent);
+	}
+	else if (!bHasHealthBar && HealthBar)
+	{
+		GS->GetHealthBars()->RemoveHealthBar(GetHealthComponent());
+		HealthBar = nullptr;
+	}
 }
 
 void AEnemy::Multicast_SetData_Implementation(UEnemyData* NewEnemyData)

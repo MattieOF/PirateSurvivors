@@ -6,20 +6,21 @@
 #include "AIController.h"
 #include "EnemyAIController.generated.h"
 
+class AEnemy;
+
 UCLASS()
 class PIRATESURVIVORS_API AEnemyAIController : public AAIController
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AEnemyAIController();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	virtual void OnPossess(APawn* InPawn) override;
 
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(BlueprintReadOnly, Category = "Enemy AI Controller")
+	AEnemy* PossessedEnemy = nullptr;
 };

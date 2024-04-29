@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "PirateGameState.generated.h"
 
+// Forward decls
+class UHealthBars;
 class UDamageNumbers;
 class AXP;
 class AXPManager;
@@ -30,6 +32,7 @@ public:
 	
 	FORCEINLINE AXPManager* GetXPManager() const { return XPManager; }
 	FORCEINLINE UDamageNumbers* GetDamageNumbers() const { return DamageNumbers; }
+	FORCEINLINE UHealthBars* GetHealthBars() const { return HealthBars; }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Asset References")
 	TSubclassOf<AXP> XPClass;
@@ -45,4 +48,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	UDamageNumbers* DamageNumbers;
+
+	UPROPERTY(BlueprintReadOnly)
+	UHealthBars* HealthBars;
 };

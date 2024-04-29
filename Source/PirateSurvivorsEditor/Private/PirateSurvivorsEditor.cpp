@@ -2,10 +2,7 @@
 
 #include "PirateSurvivorsEditor.h"
 
-#include "ActorFactoryEnemy.h"
-#include "IPlacementModeModule.h"
 #include "PirateEditorLog.h"
-#include "Enemy/Enemy.h"
 
 #define LOCTEXT_NAMESPACE "PirateSurvivorsEditorModule"
 

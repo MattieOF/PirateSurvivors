@@ -6,6 +6,8 @@
 #include "Engine/DataAsset.h"
 #include "EnemyData.generated.h"
 
+class UBehaviorTree;
+class UBlackboardData;
 /**
  * This class contains the base values of properties all enemies have, such as name, health, damage, etc.
  */
@@ -34,6 +36,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	USkeletalMesh* Mesh = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
+	UBlackboardData* Blackboard = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
+	UBehaviorTree* BehaviorTree = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	TSubclassOf<class AEnemy> EnemySubclass;

@@ -91,7 +91,7 @@ void UHealthComponent::SetHP(const float NewHP, const bool bResetPrevious)
 
 	OnHealthChanged.Broadcast(Health - PreviousHP, Health);
 	
-	if (Health <= 0)
+	if (Health <= 0 && GetOwner()->HasAuthority())
 		Multicast_Die();
 	
 	if (bResetPrevious)
@@ -115,16 +115,6 @@ void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const
 		SetHP(Health + Diff);
 	if (bClampHP)
 		SetHP(FMath::Clamp(Health, 0.f, MaxHealth));
-}
-
-void UHealthComponent::Hurt(float Damage)
-{
-	ChangeHP(-Damage);
-}
-
-void UHealthComponent::Heal(const float Amount)
-{
-	ChangeHP(Amount);
 }
 
 void UHealthComponent::Multicast_Die_Implementation()

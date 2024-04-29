@@ -52,10 +52,10 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player State")
-	FORCEINLINE APiratePlayerCharacter* GetPiratePawn() const;
+	APiratePlayerCharacter* GetPiratePawn() const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player State")
-	FORCEINLINE APiratePlayerController* GetPirateController() const;
+	APiratePlayerController* GetPirateController() const;
 
 	UFUNCTION(BlueprintCallable, Client, Reliable, Category = "Pirate Player State")
 	void Client_OnReceivedWeapon(AWeaponFunctionality* Weapon);
@@ -93,9 +93,9 @@ public:
 	float XP = 0;
 
 	UFUNCTION()
-	FORCEINLINE void OnRep_Level() const;
+	void OnRep_Level() const;
 	UFUNCTION()
-	FORCEINLINE void OnRep_XP() const;
+	void OnRep_XP() const;
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnLevelUp(int NewLevel);

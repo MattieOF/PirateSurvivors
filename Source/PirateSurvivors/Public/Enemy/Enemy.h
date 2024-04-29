@@ -6,6 +6,7 @@
 #include "Core/PirateSurvivorsCharacter.h"
 #include "Enemy.generated.h"
 
+class UHealthBar;
 class UEnemyData;
 
 UCLASS()
@@ -32,6 +33,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	void SetData(UEnemyData* NewEnemyData);
 
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
+	void SetHasHealthBar(bool bHasHealthBar);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy")
 	FORCEINLINE UEnemyData* GetData() const { return EnemyData; }
 
@@ -46,5 +50,5 @@ protected:
 
 	// Usually null, only valid if the enemy is a mini-boss
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	UUserWidget* HealthBar = nullptr;
+	UHealthBar* HealthBar = nullptr;
 };

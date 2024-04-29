@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "DamageNumbers.generated.h"
 
+// Forward declarations
 class UCanvasPanel;
 class UCanvasPanelSlot;
 class UTextBlock;
