@@ -24,7 +24,8 @@ public class PirateSurvivorsEditor : ModuleRules
                 "MessageLog",
                 "AssetDefinition",
                 "EditorFramework",
-                "UnrealEd"
+                "UnrealEd", 
+                "PlacementMode"
             }
         );
     }

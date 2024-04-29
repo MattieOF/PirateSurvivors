@@ -1,7 +1,11 @@
 ﻿// copyright lololol
 
 #include "PirateSurvivorsEditor.h"
+
+#include "ActorFactoryEnemy.h"
+#include "IPlacementModeModule.h"
 #include "PirateEditorLog.h"
+#include "Enemy/Enemy.h"
 
 #define LOCTEXT_NAMESPACE "PirateSurvivorsEditorModule"
 
@@ -13,7 +17,18 @@ void FPirateSurvivorsEditorModule::StartupModule()
 	InitOptions.bAllowClear = true;
 	InitOptions.bShowFilters = true;
 	MessageLogModule.RegisterLogListing("PiratEd", NSLOCTEXT("PirateEditor", "PiratEdLogLabel", "PiratEd"), InitOptions);
-	
+	//
+	// FPlacementCategoryInfo Info(
+	// 			LOCTEXT("PSCategoryName", "Pirate Survivors"),
+	// 			FSlateIcon(FAppStyle::GetAppStyleSetName(), "PlacementBrowser.Icons.Cinematics"),
+	// 			"PirateSurvivors",
+	// 			TEXT("PMPirate"),
+	// 			50
+	// 		);
+	//
+	// IPlacementModeModule::Get().RegisterPlacementCategory(Info);
+	// IPlacementModeModule::Get().RegisterPlaceableItem(Info.UniqueHandle, MakeShareable( new FPlaceableItem(*UActorFactoryEnemy::StaticClass(), FAssetData(AEnemy::StaticClass())) ));
+	//
 	PIRATED_LOG("Started main Pirate Survivors editor module!");
 }
 

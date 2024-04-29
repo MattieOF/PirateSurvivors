@@ -11,6 +11,11 @@
 #include "UI/DamageNumbers.h"
 #include "World/XPManager.h"
 
+UEnemyData::UEnemyData()
+{
+	EnemySubclass = AEnemy::StaticClass();
+}
+
 AEnemy::AEnemy()
 {
 	PrimaryActorTick.bCanEverTick = true;

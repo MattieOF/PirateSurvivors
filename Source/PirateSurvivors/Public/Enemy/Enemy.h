@@ -29,11 +29,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDeath();
 	
-protected:
-	virtual void Tick(float DeltaTime) override;
-
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	void SetData(UEnemyData* NewEnemyData);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy")
+	FORCEINLINE UEnemyData* GetData() const { return EnemyData; }
+
+protected:
+	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "Enemy")
 	void Multicast_SetData(UEnemyData* NewEnemyData);
