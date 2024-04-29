@@ -6,6 +6,7 @@
 #include "Core/PiratePlayerCharacter.h"
 #include "Core/PiratePlayerController.h"
 #include "Core/UpgradeList.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/Upgrade.h"
 #include "Weapon/WeaponData.h"
@@ -16,7 +17,13 @@ void APiratePlayerState::BeginPlay()
 	Super::BeginPlay();
 	
 	// Init state
-	PlayerStats = NewObject<UPlayerStats>();
+	PlayerStats = NewObject<UPlayerStats>(this);
+
+	GetPiratePawn()->GetHealthComponent()->SetMaxHP(PlayerStats->MaxHealth);
+	GetPiratePawn()->GetCharacterMovement()->MaxWalkSpeed = PlayerStats->MaxSpeed;
+	
+	PlayerStats->OnMaxHealthChanged.AddDynamic(this, &APiratePlayerState::OnMaxHealthChanged);
+	PlayerStats->OnMaxSpeedChanged.AddDynamic(this, &APiratePlayerState::OnMaxSpeedChanged);
 	
 	AWeaponFunctionality* Null = nullptr;
 	Weapons.Init(Null, BaseWeaponSlotCount);
@@ -263,6 +270,16 @@ void APiratePlayerState::SelectUpgrade(int Index)
 bool APiratePlayerState::TryGetNextUpgradeChoices(TArray<FQueuedUpgradeChoice>& OutChoice)
 {
 	return UpgradeQueue.Peek(OutChoice);
+}
+
+void APiratePlayerState::OnMaxHealthChanged(float NewValue)
+{
+	GetPiratePawn()->GetHealthComponent()->SetMaxHP(NewValue);
+}
+
+void APiratePlayerState::OnMaxSpeedChanged(float NewValue)
+{
+	GetPiratePawn()->GetCharacterMovement()->MaxWalkSpeed = NewValue;
 }
 
 void APiratePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

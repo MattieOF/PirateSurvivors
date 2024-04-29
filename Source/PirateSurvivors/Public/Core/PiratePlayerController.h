@@ -32,6 +32,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "UI")
 	void CreateUI();
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player Controller")
+	bool HasLoaded() const;
+	
 	UPROPERTY(BlueprintReadWrite)
 	APiratePlayerCharacter* Pirate;
 };

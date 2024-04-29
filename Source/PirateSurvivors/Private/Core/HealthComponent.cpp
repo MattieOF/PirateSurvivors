@@ -74,7 +74,7 @@ void UHealthComponent::SetHP(const float NewHP, const bool bResetPrevious)
 
 	if (Health > MaxHealth)
 	{
-		if (bEnableOverheal)
+		if (!bEnableOverheal)
 			Health = MaxHealth;
 		else
 		{
@@ -103,12 +103,16 @@ void UHealthComponent::Multicast_SetHP(const float NewHP, const bool bResetPrevi
 	SetHP(NewHP, bResetPrevious);
 }
 
-void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP)
+void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const bool bGiveDifference)
 {
 	if (!GetOwner()->HasAuthority())
 		return;
-	
+
+	const float Diff = NewMaxHP - MaxHealth;
 	MaxHealth = NewMaxHP;
+	OnHealthChanged.Broadcast(0, Health); // This will update the health bar, etc.
+	if (bGiveDifference)
+		SetHP(Health + Diff);
 	if (bClampHP)
 		SetHP(FMath::Clamp(Health, 0.f, MaxHealth));
 }
@@ -144,6 +148,11 @@ void UHealthComponent::SetOverhealEnabled(const bool bEnable, const bool bClampH
 void UHealthComponent::OnRep_Health(float OldHealth)
 {
 	PreviousHP = Health;
+}
+
+void UHealthComponent::OnRep_MaxHealth()
+{
+	OnHealthChanged.Broadcast(0, Health);
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

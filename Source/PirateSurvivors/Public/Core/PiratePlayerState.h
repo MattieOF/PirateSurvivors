@@ -124,6 +124,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player State")
 	bool TryGetNextUpgradeChoices(TArray<FQueuedUpgradeChoice>& OutChoice);
 	
+	UFUNCTION()
+	void OnMaxHealthChanged(float NewValue);
+	
+	UFUNCTION()
+	void OnMaxSpeedChanged(float NewValue);
+	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Weapons")
 	TArray<AWeaponFunctionality*> Weapons;

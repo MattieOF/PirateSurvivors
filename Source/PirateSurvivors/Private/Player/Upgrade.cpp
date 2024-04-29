@@ -21,6 +21,8 @@ TArray<FName> UWeaponUpgrade::GetPropertyNames()
 	TArray<FName> PropertyNames;
 	for (TFieldIterator<FProperty> Prop(WeaponStatsClass ? WeaponStatsClass : UWeaponStats::StaticClass()); Prop; ++Prop) {
 		const FProperty* Property = *Prop;
+		// Continue if the property is not a float
+		if (Property->GetClass() != FFloatProperty::StaticClass()) continue;
 		PropertyNames.Add(Property->GetFName());
 	}
 	return PropertyNames;
@@ -140,13 +142,21 @@ AWeaponFunctionality* UWeaponUpgrade::ApplyUpgrade(APiratePlayerState* Player, A
 							NewValue = Current + Upgrade.FloatValue;
 						}
 
-						FloatProp->SetPropertyValue_InContainer(Weapon, NewValue);
+						if (FloatProp->HasSetter())
+							FloatProp->CallSetter(Weapon, &NewValue);
+						else
+							FloatProp->SetPropertyValue_InContainer(Weapon, NewValue);
 					}
 					break;
 				case EWeaponFunctionalityUpgradeType::SetBool:
 					{
 						if (const FBoolProperty* BoolProp = CastField<FBoolProperty>(Property))
-							BoolProp->SetPropertyValue_InContainer(Weapon, Upgrade.bBoolValue);
+						{
+							if (BoolProp->HasSetter())
+								BoolProp->CallSetter(Weapon, &Upgrade.bBoolValue);
+							else
+								BoolProp->SetPropertyValue_InContainer(Weapon, Upgrade.bBoolValue);
+						}
 						else
 							PIRATE_LOGC_ERROR(GetWorld(), "Weapon functionality upgrade on %ls tries to set non-bool property as bool: %ls", *Name.ToString(), *Upgrade.PropertyName.ToString());
 					}
@@ -290,7 +300,10 @@ void UPlayerUpgrade::ApplyUpgrade(APiratePlayerState* Player) const
 			continue;
 		}
 
-		Prop->SetPropertyValue_InContainer(Player->PlayerStats, NewValue);
+		if (Prop->HasSetter())
+			Prop->CallSetter(Player->PlayerStats, &NewValue);
+		else
+			Prop->SetPropertyValue_InContainer(Player->PlayerStats, NewValue);
 	}
 }
 

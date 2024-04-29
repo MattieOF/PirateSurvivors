@@ -5,6 +5,7 @@
 #include "PirateLog.h"
 #include "Core/PirateGameInstance.h"
 #include "Core/PirateGameState.h"
+#include "Core/PiratePlayerState.h"
 #include "Core/PiratePlayerCharacter.h"
 #include "World/XPManager.h"
 
@@ -35,6 +36,12 @@ void APiratePlayerController::EnsureXPReplicated()
 	
 	// Couldn't replicate yet, so set timer for next tick
 	GetWorldTimerManager().SetTimerForNextTick(this, &APiratePlayerController::EnsureXPReplicated);
+}
+
+bool APiratePlayerController::HasLoaded() const
+{
+	const auto State = GetPlayerState<APiratePlayerState>();
+	return State != nullptr && State->GetPiratePawn() != nullptr;
 }
 
 void APiratePlayerController::Client_InitialiseXP_Implementation(const TArray<FXPInfo>& XPItems)
