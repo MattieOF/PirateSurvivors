@@ -138,7 +138,8 @@ void APirateGameModeBase::SpawnEnemyNearby(const FString& EnemyType)
 ERarity APirateGameModeBase::GetRarityForPlayer(APiratePlayerState* Player) const
 {
 	float Roll = FMath::FRandRange(0, RarityProbabilitySum);
-	Roll += FMath::FRandRange(0, Player->PlayerStats->Luck * 0.05f * RarityProbabilitySum);
+	Roll -= FMath::FRandRange(0, Player->PlayerStats->Luck * 0.02f * RarityProbabilitySum);
+	Roll = FMath::Clamp(Roll, 0.0f, RarityProbabilitySum);
 	float Accum = 0;
 	for (int i = 0; i < RarityProbabilities.Num(); i++)
 	{
