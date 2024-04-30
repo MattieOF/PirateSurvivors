@@ -25,7 +25,8 @@ enum class ERarity : uint8
 	Rare       UMETA(DisplayName = "Rare"),
 	Epic       UMETA(DisplayName = "Epic"),
 	Legendary  UMETA(DisplayName = "Legendary"),
-	Max		   UMETA(Hidden)
+	Max		   UMETA(Hidden),
+	Debug      UMETA(DisplayName = "Debug")
 };
 
 USTRUCT(BlueprintType)

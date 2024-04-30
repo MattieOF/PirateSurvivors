@@ -12,6 +12,14 @@
 #include "Weapon/WeaponData.h"
 #include "World/XPManager.h"
 
+static TAutoConsoleVariable<int32> CVarUseDebugUpgrades(
+	TEXT("ps.DebugUpgrades"),
+	0,
+	TEXT("Defines whether or not debug upgrades should be chosen, instead of normal upgrades.\n")
+	TEXT("<=0: off, normal behaviour\n")
+	TEXT("  1: only provide debug upgrades\n"),
+	 ECVF_Cheat);
+
 APirateGameModeBase::APirateGameModeBase()
 {
 	DefaultPawnClass = APiratePlayerCharacter::StaticClass();
@@ -137,6 +145,9 @@ void APirateGameModeBase::SpawnEnemyNearby(const FString& EnemyType)
 
 ERarity APirateGameModeBase::GetRarityForPlayer(APiratePlayerState* Player) const
 {
+	if (CVarUseDebugUpgrades.GetValueOnGameThread() == 1)
+		return ERarity::Debug;
+	
 	float Roll = FMath::FRandRange(0, RarityProbabilitySum);
 	Roll -= FMath::FRandRange(0, Player->PlayerStats->Luck * 0.02f * RarityProbabilitySum);
 	Roll = FMath::Clamp(Roll, 0.0f, RarityProbabilitySum);
