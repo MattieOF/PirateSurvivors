@@ -164,6 +164,12 @@ void APiratePlayerState::OnLevelUp_Implementation(int NewLevel)
 		else
 			PIRATE_LOGC_NOLOC(GetWorld(), "    %s", *Upgrade->GetName());
 	}
+
+	if (UpgradeChoices.Num() == 0)
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "No upgrade choices found for player %s?? Not sending anything", *GetName());
+		return;
+	}
 	
 	UpgradeQueue.Enqueue(UpgradeChoices); // Enqueue the upgrade choices on the server
 	Client_ReceiveUpgradeChoices(UpgradeChoices); // And send them to the client
