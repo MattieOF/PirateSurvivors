@@ -154,10 +154,7 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 			if (!PS)
 				continue;
 			PS->AddXP(XPBeingPickedUp[Index]->Value); 
-			if (HasAuthority())
-			{
-				APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_DestroyXP(XPBeingPickedUp[Index]->ID);	
-			}
+			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->DestroyXP(XPBeingPickedUp[Index]->ID);	
 			XPBeingPickedUp[Index]->Hide();
 			XPBeingPickedUp.RemoveAt(Index);
 		}

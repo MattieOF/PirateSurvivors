@@ -17,9 +17,9 @@ struct FHealthbarData
 	GENERATED_BODY()
 
 	UPROPERTY()
-	UHealthBar* HealthBar;
+	UHealthBar* HealthBar = nullptr;
 	UPROPERTY()
-	FVector LastLocation;
+	FVector LastLocation = FVector::ZeroVector;
 };
 
 UCLASS()

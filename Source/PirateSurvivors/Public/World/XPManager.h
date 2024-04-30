@@ -50,6 +50,9 @@ public:
 	void Multicast_DestroyXP(int ID);
 
 	UFUNCTION(BlueprintCallable)
+	void DestroyXP(int ID);
+
+	UFUNCTION(BlueprintCallable)
 	void SpawnXP(FVector Location, float Value, int ID = 0);
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)

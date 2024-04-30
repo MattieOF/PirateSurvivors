@@ -72,6 +72,19 @@ void AXPManager::Initialise(TArray<FXPInfo> XPItems, bool bClearFirst)
 	bHasInitialised = true;
 }
 
+void AXPManager::DestroyXP(int ID)
+{
+	if (!CurrentXPObjects.Contains(ID))
+	{
+		// PIRATE_LOG_ERROR(FString::Printf(TEXT("Tried to destroy XP with ID %d, but it doesn't exist!"), ID));
+		return;
+	}
+	
+	AXP* XP = CurrentXPObjects[ID];
+	XP->Destroy();
+	CurrentXPObjects.Remove(ID);
+}
+
 void AXPManager::SpawnXP(FVector Location, float Value, int ID)
 {
 	if (!HasAuthority()) return;
@@ -130,15 +143,7 @@ void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Chara
 
 void AXPManager::Multicast_DestroyXP_Implementation(int ID)
 {
-	if (!CurrentXPObjects.Contains(ID))
-	{
-		// PIRATE_LOG_ERROR(FString::Printf(TEXT("Tried to destroy XP with ID %d, but it doesn't exist!"), ID));
-		return;
-	}
-	
-	AXP* XP = CurrentXPObjects[ID];
-	XP->Destroy();
-	CurrentXPObjects.Remove(ID);
+	DestroyXP(ID);
 }
 
 void AXPManager::Multicast_SpawnXP_Implementation(FVector Location, float Value, int ID)
