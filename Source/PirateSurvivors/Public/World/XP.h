@@ -27,6 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "XP")
 	float Value = 0;
 
+	UPROPERTY(VisibleAnywhere)
 	int ID = 0;
 
 protected:

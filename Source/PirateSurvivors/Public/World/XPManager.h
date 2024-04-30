@@ -56,10 +56,12 @@ public:
 	void Multicast_SpawnXP(FVector Location, float Value, int ID = 0);
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
-	void Multicast_PickupXP(APiratePlayerCharacter* Character, int XPID);
+	void Multicast_PickupXP(APiratePlayerCharacter* Character, int XPID, int Tries = 3);
 	
 	TMap<int, AXP*> CurrentXPObjects;
 
 protected:
 	virtual void BeginPlay() override;
+
+	bool bHasInitialised = false;
 };

@@ -68,6 +68,8 @@ void AXPManager::Initialise(TArray<FXPInfo> XPItems, bool bClearFirst)
 		XP->FinishSpawning(XP->GetTransform());
 		CurrentXPObjects.Add(ID, XP);
 	}
+
+	bHasInitialised = true;
 }
 
 void AXPManager::SpawnXP(FVector Location, float Value, int ID)
@@ -82,6 +84,9 @@ void AXPManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (GetNetMode() != NM_Client)
+		bHasInitialised = true; // Server doesn't need to wait for anything
+
 	UPirateGameInstance* const GameInstance = UPirateGameInstance::GetPirateGameInstance(GetWorld());
 	if (GameInstance->XPToBeReplicated.Num() > 0)
 	{
@@ -90,17 +95,30 @@ void AXPManager::BeginPlay()
 	}
 }
 
-void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Character, int XPID)
+void AXPManager::Multicast_PickupXP_Implementation(APiratePlayerCharacter* Character, int XPID, int Tries)
 {
 	if (!CurrentXPObjects.Contains(XPID))
 	{
-		PIRATE_LOGC_ERROR_NOLOC(GetWorld(), "Tried to pick up XP with ID %d, but it doesn't exist!", XPID);
+		if (GetNetMode() != NM_Client || Tries <= 0)
+		{
+			PIRATE_LOG_ERROR_NOLOC("Tried to pick up XP with ID %d, but it doesn't exist!", XPID);
+			return;
+		}
+		
+		FTimerHandle Handle;
+		GetWorldTimerManager().SetTimer(Handle, [this, Character, XPID, Tries] { Multicast_PickupXP_Implementation(Character, XPID, Tries - 1); }, 1.f, false, -1 );
 		return;
 	}
 
 	// This can happen if XP is picked up as the client is joining the game
 	if (!Character)
+	{
+		// Character is null, so we've received the RPC before the client has fully joined the game
+		// In this case, the best thing we can do is just destroy the XP object, since there's no way for us to
+		// figure out which player should pick it up.
+		Multicast_DestroyXP(XPID);
 		return;
+	}
 
 	AXP* XP = CurrentXPObjects[XPID];
 	if (XP->bPickedUp)

@@ -150,7 +150,10 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 		// Will have to think of a way so clients can recover from picking up XP that the server didn't agree with
 		if (Direction.Size() < 70)
 		{
-			Cast<APiratePlayerState>(GetPlayerState())->AddXP(XPBeingPickedUp[Index]->Value); 
+			APiratePlayerState* PS = Cast<APiratePlayerState>(GetPlayerState());
+			if (!PS)
+				continue;
+			PS->AddXP(XPBeingPickedUp[Index]->Value); 
 			if (HasAuthority())
 			{
 				APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_DestroyXP(XPBeingPickedUp[Index]->ID);	
@@ -200,11 +203,21 @@ void APiratePlayerCharacter::Fire(bool bHeld)
 void APiratePlayerCharacter::OnPickupRangeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!HasAuthority()) return;
-	
 	if (const AXP* XPActor = Cast<AXP>(OtherActor))
 	{
-		if (XPActor->bPickedUp) return;
-		APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_PickupXP(this, XPActor->ID);
+		if (HasAuthority())
+		{
+			if (XPActor->bPickedUp) return;
+			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_PickupXP(this, XPActor->ID);	
+		} else
+		{
+			// So, we have a bit of an issue where XP picked up during a specific time during player connection such that,
+			// while the XP was included in the initial replication, it was too early to send the pickup RPC.
+			// This means that the XP is picked up on the server, but not on the client, and since the client doesn't know,
+			// it'll stay there forever.
+			// One way to fix this could be to have the client occasionally ask the server about all XP IDs that it's
+			// recently been near, and then the server can reply if any of them are invalid and tell the client to remove
+			// them.
+		}
 	}
 }
