@@ -3,19 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Core/Stats.h"
 #include "Core/UpgradeType.h"
 #include "UObject/Object.h"
+#include "Core/Stats.h"
 #include "PlayerStats.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStatChanged, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, float, NewValue);
 
 // Represents a player stat upgrade, such as health, damage, etc.
 USTRUCT(BlueprintType)
 struct FPlayerStatUpgrade
 {
 	GENERATED_BODY()
-
+		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (GetOptions = "PirateSurvivors.PlayerStats.GetPropertyNames"))
 	FName PropertyName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -62,35 +62,35 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetMaxHealth(float Value);
 	UPROPERTY(BlueprintAssignable)
-	FOnStatChanged OnMaxHealthChanged;
+	FOnPlayerStatChanged OnMaxHealthChanged;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetMaxSpeed)
 	float MaxSpeed = 600;
 	UFUNCTION(BlueprintCallable)
 	void SetMaxSpeed(float Value);
 	UPROPERTY(BlueprintAssignable)
-	FOnStatChanged OnMaxSpeedChanged;
+	FOnPlayerStatChanged OnMaxSpeedChanged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetArmor)
 	float Armor = 0;
 	UFUNCTION(BlueprintCallable)
 	void SetArmor(float Value);
 	UPROPERTY(BlueprintAssignable)
-	FOnStatChanged OnArmorChanged;	
+	FOnPlayerStatChanged OnArmorChanged;	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetLuck)
 	float Luck = 0;
 	UFUNCTION(BlueprintCallable)
 	void SetLuck(float Value);
 	UPROPERTY(BlueprintAssignable)
-	FOnStatChanged OnLuckChanged;
+	FOnPlayerStatChanged OnLuckChanged;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetUpgradeChoices)
 	float UpgradeChoices = 3;
 	UFUNCTION(BlueprintCallable)
 	void SetUpgradeChoices(float Value);
 	UPROPERTY(BlueprintAssignable)
-	FOnStatChanged OnUpgradeChoicesChanged;
+	FOnPlayerStatChanged OnUpgradeChoicesChanged;
 
 	// Enemy aggression controls how likely an enemy is to target the player
 	// Enemy spawning is based on the amount of enemies targeting each player. Enemies are spawned to target the player with the least enemies targeting them
@@ -106,7 +106,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetEnemyAggressionFactor(float Value);
 	UPROPERTY(BlueprintAssignable)
-	FOnStatChanged OnEnemyAggressionFactorChanged;
+	FOnPlayerStatChanged OnEnemyAggressionFactorChanged;
 	
 	UFUNCTION()
 	static TArray<FName> GetPropertyNames();

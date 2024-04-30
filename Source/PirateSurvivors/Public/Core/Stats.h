@@ -10,7 +10,7 @@
 // UPROPERTY(BlueprintAssignable)
 // FOnStatChanged OnMaxHealthChanged;
 
-#define DECLARE_PIRATE_STAT(Name, DefaultValue, Cat) \
+#define DECLARE_PIRATE_STAT(Name, DefaultValue, Cat, Delegate) \
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = #Cat, Setter = Set##Name)\
 	float Name = DefaultValue;\
 	\
@@ -18,7 +18,7 @@
 	void Set##Name(float Value);\
 	\
 	UPROPERTY(BlueprintAssignable)\
-	FOnStatChanged On##Name##Changed;
+	Delegate On##Name##Changed;
 
 #define DECLARE_PIRATE_STAT_CPP(ClassName, Name) \
 	void ClassName::Set##Name(float Value)\

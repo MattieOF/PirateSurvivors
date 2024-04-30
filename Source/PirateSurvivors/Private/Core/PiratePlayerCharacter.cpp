@@ -23,13 +23,6 @@ APiratePlayerCharacter::APiratePlayerCharacter()
 	bReplicates = true;
 	NetUpdateFrequency = 10;
 
-	// Setup rotation settings
-	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
-	bUseControllerRotationRoll = false;
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f);
-
 	// Default movement settings (copied from TP template)
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;

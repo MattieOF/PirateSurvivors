@@ -8,6 +8,7 @@
 #include "Core/PirateGameState.h"
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "UI/DamageNumbers.h"
 #include "UI/HealthBar.h"
 #include "UI/HealthBars.h"
@@ -31,6 +32,8 @@ AEnemy::AEnemy()
 	HealthComponent->OnDeath.AddDynamic(this, &AEnemy::Die);
 	
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Enemy);
+
+	GetCharacterMovement()->bUseRVOAvoidance = true;
 }
 
 void AEnemy::BeginPlay()
@@ -67,6 +70,8 @@ void AEnemy::Die()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	
 }
 
 void AEnemy::SetData(UEnemyData* NewEnemyData)

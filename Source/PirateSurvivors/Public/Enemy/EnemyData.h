@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "EnemyData.generated.h"
 
+class UEnemyStats;
 class UBehaviorTree;
 class UBlackboardData;
 /**
@@ -54,15 +55,21 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy Data")
 	FORCEINLINE float GetXPDrop() const { return FMath::RandRange(XPDropRange.X, XPDropRange.Y); }
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data", DisplayName = "Default AI Values")
+	TMap<FName, float> DefaultAIValues;
+
+	UPROPERTY(EditAnywhere, Instanced, BlueprintReadOnly, Category = "Enemy Data")
+	UEnemyStats* Stats;
+	
 	// ----------------- Audio -----------------
 	
 	// Some enemies are a big deal, and should have a unique sound when they spawn
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data|Sounds")
 	USoundBase* SpawnSound = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data|Sounds")
 	USoundBase* HitSound = nullptr;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Data|Sounds")
 	USoundBase* DeathSound = nullptr;
 };
