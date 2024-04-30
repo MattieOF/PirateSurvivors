@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "EnemyAIController.generated.h"
 
+class UPawnSensingComponent;
 class AEnemy;
 
 UCLASS()

@@ -16,6 +16,7 @@
 UEnemyData::UEnemyData()
 {
 	EnemySubclass = AEnemy::StaticClass();
+	EnemyAISubclass = AEnemyAIController::StaticClass();
 }
 
 AEnemy::AEnemy()
@@ -23,7 +24,7 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
 	NetUpdateFrequency = 5;
-	AIControllerClass = AEnemyAIController::StaticClass();
+	AIControllerClass = nullptr; // This'll be set properly in SetData
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	HealthComponent->OnHealthChanged.AddDynamic(this, &AEnemy::OnHealthChanged);
@@ -81,7 +82,18 @@ void AEnemy::SetData(UEnemyData* NewEnemyData)
 	if (EnemyData->bIsMiniBoss)
 		SetHasHealthBar(true);
 	if (HasAuthority() && EnemyData && HealthComponent)
+	{
 		HealthComponent->SetHP(EnemyData->BaseHealth, true);
+
+		// Setup AI controller
+		AIControllerClass = EnemyData->EnemyAISubclass;
+		if (Controller)
+		{
+			Controller->Destroy();
+			Controller = nullptr;
+		}
+		SpawnDefaultController();
+	}
 }
 
 void AEnemy::SetHasHealthBar(bool bHasHealthBar)

@@ -139,7 +139,10 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 		// First, move the XP closer to the player
 		FVector Direction = GetActorLocation() - XPBeingPickedUp[Index]->GetActorLocation();
 		FVector DirNormalised = Direction.GetSafeNormal();
-		XPBeingPickedUp[Index]->SetActorLocation(XPBeingPickedUp[Index]->GetActorLocation() + DirNormalised * 800 * DeltaTime);
+		XPBeingPickedUp[Index]->SetActorLocation(
+			XPBeingPickedUp[Index]->GetActorLocation() + DirNormalised
+				* (800 // * (GetCharacterMovement()->MaxWalkSpeed
+				* DeltaTime));
 
 		// Then, if we're close enough, pick it up. If we're the server, tell all clients it's been picked up
 		// TODO: Might be better if XP is added on pickup instead of when it's close enough

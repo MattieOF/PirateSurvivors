@@ -271,7 +271,7 @@ void APiratePlayerState::Server_SelectUpgrade_Implementation(int Index)
 
 bool APiratePlayerState::IsUpgradeIndexValid(const int Index)
 {
-	return UpgradeQueue.Peek()->IsValidIndex(Index);
+	return UpgradeQueue.Peek() != nullptr && UpgradeQueue.Peek()->IsValidIndex(Index);
 }
 
 void APiratePlayerState::SelectUpgrade(int Index)

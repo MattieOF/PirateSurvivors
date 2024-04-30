@@ -47,6 +47,9 @@ public:
 	TSubclassOf<class AEnemy> EnemySubclass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
+	TSubclassOf<class AEnemyAIController> EnemyAISubclass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	FVector2D XPDropRange = FVector2D(1.0f, 1.5f);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy Data")
 	FORCEINLINE float GetXPDrop() const { return FMath::RandRange(XPDropRange.X, XPDropRange.Y); }

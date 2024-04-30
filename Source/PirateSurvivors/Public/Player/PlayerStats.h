@@ -92,6 +92,22 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnStatChanged OnUpgradeChoicesChanged;
 
+	// Enemy aggression controls how likely an enemy is to target the player
+	// Enemy spawning is based on the amount of enemies targeting each player. Enemies are spawned to target the player with the least enemies targeting them
+	// This factor modifies the amount of enemies targeting the player, making the player more or less likely to be targeted
+	// For example, when spawning a new enemy:
+	//         Player A has 5 enemies targeting them, Player B has 3 enemies targeting them
+	//         If both have an aggression factor of 0, the new enemy will target Player B
+	//         If Player A has an aggression factor of 2, the new enemy will target a random player
+	//         If player A has an aggression factor of 5, the new enemy will target Player A
+	//         If Player B has an aggression factor of -3, the new enemy will target Player A
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetEnemyAggressionFactor)
+	float EnemyAggressionFactor = 0;
+	UFUNCTION(BlueprintCallable)
+	void SetEnemyAggressionFactor(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnStatChanged OnEnemyAggressionFactorChanged;
+	
 	UFUNCTION()
 	static TArray<FName> GetPropertyNames();
 };

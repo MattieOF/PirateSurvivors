@@ -25,6 +25,8 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
+	PIRATE_LOGC(GetWorld(), "Possessing enemy: %s", *InPawn->GetName());
+
 	PossessedEnemy = Cast<AEnemy>(InPawn);
 	if (!PossessedEnemy)
 	{
