@@ -107,6 +107,13 @@ public:
 	void SetEnemyAggressionFactor(float Value);
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerStatChanged OnEnemyAggressionFactorChanged;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetJumpHeight)
+	float JumpHeight = 300;
+	UFUNCTION(BlueprintCallable)
+	void SetJumpHeight(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerStatChanged OnJumpHeightChanged;
 	
 	UFUNCTION()
 	static TArray<FName> GetPropertyNames();

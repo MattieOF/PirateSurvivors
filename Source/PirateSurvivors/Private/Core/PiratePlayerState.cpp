@@ -30,9 +30,11 @@ void APiratePlayerState::Initialise()
 
 	GetPiratePawn()->GetHealthComponent()->SetMaxHP(PlayerStats->MaxHealth);
 	GetPiratePawn()->GetCharacterMovement()->MaxWalkSpeed = PlayerStats->MaxSpeed;
+	GetPiratePawn()->GetCharacterMovement()->JumpZVelocity = PlayerStats->JumpHeight;
 	
 	PlayerStats->OnMaxHealthChanged.AddDynamic(this, &APiratePlayerState::OnMaxHealthChanged);
 	PlayerStats->OnMaxSpeedChanged.AddDynamic(this, &APiratePlayerState::OnMaxSpeedChanged);
+	PlayerStats->OnJumpHeightChanged.AddDynamic(this, &APiratePlayerState::OnJumpHeightChanged);
 	
 	AWeaponFunctionality* Null = nullptr;
 	Weapons.Init(Null, BaseWeaponSlotCount);
@@ -294,6 +296,11 @@ void APiratePlayerState::OnMaxHealthChanged(float NewValue)
 void APiratePlayerState::OnMaxSpeedChanged(float NewValue)
 {
 	GetPiratePawn()->GetCharacterMovement()->MaxWalkSpeed = NewValue;
+}
+
+void APiratePlayerState::OnJumpHeightChanged(float NewValue)
+{
+	GetPiratePawn()->GetCharacterMovement()->JumpZVelocity = NewValue;
 }
 
 void APiratePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

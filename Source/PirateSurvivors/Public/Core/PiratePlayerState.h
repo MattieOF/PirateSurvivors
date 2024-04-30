@@ -138,6 +138,9 @@ public:
 	UFUNCTION()
 	void OnMaxSpeedChanged(float NewValue);
 	
+	UFUNCTION()
+	void OnJumpHeightChanged(float NewValue);
+	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Weapons")
 	TArray<AWeaponFunctionality*> Weapons;

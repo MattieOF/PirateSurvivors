@@ -6,6 +6,7 @@ DECLARE_PIRATE_STAT_CPP(UPlayerStats, Armor);
 DECLARE_PIRATE_STAT_CPP(UPlayerStats, Luck);
 DECLARE_PIRATE_STAT_CPP(UPlayerStats, UpgradeChoices);
 DECLARE_PIRATE_STAT_CPP(UPlayerStats, EnemyAggressionFactor);
+DECLARE_PIRATE_STAT_CPP(UPlayerStats, JumpHeight);
 
 TArray<FName> UPlayerStats::GetPropertyNames()
 {

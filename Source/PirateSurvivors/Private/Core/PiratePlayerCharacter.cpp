@@ -24,7 +24,7 @@ APiratePlayerCharacter::APiratePlayerCharacter()
 	NetUpdateFrequency = 10;
 
 	// Default movement settings (copied from TP template)
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->JumpZVelocity = 300.f;
 	GetCharacterMovement()->AirControl = 0.35f;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
