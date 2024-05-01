@@ -38,6 +38,12 @@ void UInteractableComponent::Multicast_SetProperties_Implementation(const FText&
 	PropertiesUpdated.Broadcast();
 }
 
+void UInteractableComponent::Multicast_SetHoldTime_Implementation(float NewHoldTime)
+{
+	HoldTime = NewHoldTime;
+	PropertiesUpdated.Broadcast();
+}
+
 void UInteractableComponent::BeginInteract(APiratePlayerState* Player)
 {
 	if (InteractingPlayer)

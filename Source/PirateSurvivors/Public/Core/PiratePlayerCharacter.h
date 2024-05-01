@@ -71,6 +71,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player Character")
 	FORCEINLINE bool IsDown() const { return bIsDown; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player Character")
+	FORCEINLINE UInteractableComponent* GetReviveInteraction() const { return ReviveInteraction; }
 	
 	UFUNCTION()
 	void OnReviveInteract(APiratePlayerState* Interactor);

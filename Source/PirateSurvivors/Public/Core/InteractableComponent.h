@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interactable", NetMulticast, Reliable)
 	void Multicast_SetProperties(const FText& NewName, bool bNewRequiresHold, float NewHoldTime);
 
+	UFUNCTION(BlueprintCallable, Category = "Interactable", NetMulticast, Reliable)
+	void Multicast_SetHoldTime(float NewHoldTime);
+	
 	UFUNCTION(BlueprintCallable, Category = "Interactable")
 	void BeginInteract(APiratePlayerState* Player);
 

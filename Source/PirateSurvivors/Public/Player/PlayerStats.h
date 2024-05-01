@@ -114,6 +114,13 @@ public:
 	void SetJumpHeight(float Value);
 	UPROPERTY(BlueprintAssignable)
 	FOnPlayerStatChanged OnJumpHeightChanged;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", Setter = SetTimeToRevive)
+	float TimeToRevive = 3;
+	UFUNCTION(BlueprintCallable)
+	void SetTimeToRevive(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerStatChanged OnTimeToReviveChanged;
 	
 	UFUNCTION()
 	static TArray<FName> GetPropertyNames();

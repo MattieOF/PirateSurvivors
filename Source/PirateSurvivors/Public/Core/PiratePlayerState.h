@@ -149,6 +149,9 @@ public:
 	UFUNCTION()
 	void OnJumpHeightChanged(float NewValue);
 
+	UFUNCTION()
+	void OnTimeToReviveChanged(float NewValue);
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Pirate Player State")
 	UInteractableComponent* CurrentInteractable = nullptr;
 	

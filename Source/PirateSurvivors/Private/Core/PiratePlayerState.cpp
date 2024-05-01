@@ -3,6 +3,7 @@
 #include "Core/PiratePlayerState.h"
 
 #include "PirateLog.h"
+#include "Core/InteractableComponent.h"
 #include "Core/PiratePlayerCharacter.h"
 #include "Core/PiratePlayerController.h"
 #include "Core/UpgradeList.h"
@@ -31,10 +32,12 @@ void APiratePlayerState::Initialise()
 	GetPiratePawn()->GetHealthComponent()->SetMaxHP(PlayerStats->MaxHealth);
 	GetPiratePawn()->GetCharacterMovement()->MaxWalkSpeed = PlayerStats->MaxSpeed;
 	GetPiratePawn()->GetCharacterMovement()->JumpZVelocity = PlayerStats->JumpHeight;
+	GetPiratePawn()->GetReviveInteraction()->Multicast_SetHoldTime(PlayerStats->TimeToRevive);
 	
 	PlayerStats->OnMaxHealthChanged.AddDynamic(this, &APiratePlayerState::OnMaxHealthChanged);
 	PlayerStats->OnMaxSpeedChanged.AddDynamic(this, &APiratePlayerState::OnMaxSpeedChanged);
 	PlayerStats->OnJumpHeightChanged.AddDynamic(this, &APiratePlayerState::OnJumpHeightChanged);
+	PlayerStats->OnTimeToReviveChanged.AddDynamic(this, &APiratePlayerState::OnTimeToReviveChanged);
 	
 	AWeaponFunctionality* Null = nullptr;
 	Weapons.Init(Null, BaseWeaponSlotCount);
@@ -302,7 +305,7 @@ void APiratePlayerState::SetInteractable(UInteractableComponent* NewInteractable
 
 void APiratePlayerState::OnMaxHealthChanged(float NewValue)
 {
-	GetPiratePawn()->GetHealthComponent()->SetMaxHP(NewValue);
+	GetPiratePawn()->GetHealthComponent()->SetMaxHP(NewValue, true, true);
 }
 
 void APiratePlayerState::OnMaxSpeedChanged(float NewValue)
@@ -313,6 +316,11 @@ void APiratePlayerState::OnMaxSpeedChanged(float NewValue)
 void APiratePlayerState::OnJumpHeightChanged(float NewValue)
 {
 	GetPiratePawn()->GetCharacterMovement()->JumpZVelocity = NewValue;
+}
+
+void APiratePlayerState::OnTimeToReviveChanged(float NewValue)
+{
+	GetPiratePawn()->GetReviveInteraction()->Multicast_SetHoldTime(NewValue);
 }
 
 void APiratePlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
