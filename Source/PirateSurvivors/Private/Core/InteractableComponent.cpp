@@ -3,21 +3,23 @@
 #include "Core/InteractableComponent.h"
 
 #include "Components/BoxComponent.h"
+#include "Core/PiratePlayerCharacter.h"
 #include "Core/PiratePlayerState.h"
 #include "Net/UnrealNetwork.h"
 
 UInteractableComponent::UInteractableComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
-	InteractionRange = CreateDefaultSubobject<UBoxComponent>(TEXT("Range"));
-	InteractionRange->SetupAttachment(this);
+	bWantsInitializeComponent = true;
 }
 
 void UInteractableComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 	SetIsReplicated(true);
+	InteractionRange = NewObject<UBoxComponent>(this, TEXT("Range"));
+	InteractionRange->RegisterComponent();
+	InteractionRange->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 	// InteractionRange->SetBoxExtent(ColliderExtents);
 }
 
@@ -39,6 +41,9 @@ void UInteractableComponent::Multicast_SetProperties_Implementation(const FText&
 void UInteractableComponent::BeginInteract(APiratePlayerState* Player)
 {
 	if (InteractingPlayer)
+		return;
+
+	if (Player->GetPiratePawn()->IsDown())
 		return;
 	
 	if (!bRequiresHold)
@@ -67,11 +72,13 @@ void UInteractableComponent::InteractionCompleted(APiratePlayerState* Player)
 
 void UInteractableComponent::EnableInteraction()
 {
+	InteractionRange->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	SetActive(true);
 }
 
 void UInteractableComponent::DisableInteraction()
 {
+	InteractionRange->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	InteractionDisabled.Broadcast();
 	SetActive(false);
 }

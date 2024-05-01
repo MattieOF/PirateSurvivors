@@ -7,6 +7,7 @@
 #include "PirateSurvivorsCharacter.h"
 #include "PiratePlayerCharacter.generated.h"
 
+class UInteractableComponent;
 // Forward decls
 class UWeaponData;
 class AWeaponFunctionality;
@@ -67,6 +68,12 @@ public:
 	FOnKilled Killed;
 	UPROPERTY(BlueprintAssignable)
 	FOnRevived Revived;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Player Character")
+	FORCEINLINE bool IsDown() const { return bIsDown; }
+	
+	UFUNCTION()
+	void OnReviveInteract(APiratePlayerState* Interactor);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -112,13 +119,16 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	class UPlayerMappableInputConfig* InputMappingConfig;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	bool bInvertVertMovement = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	bool bInvertHorizontalMovement = false;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Player Character")
 	USphereComponent* PickupRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Player Character")
+	UInteractableComponent* ReviveInteraction = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Pirate Player Character")
 	APiratePlayerState* PiratePlayerState;

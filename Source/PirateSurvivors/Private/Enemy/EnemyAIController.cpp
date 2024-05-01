@@ -5,6 +5,7 @@
 #include "PirateLog.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Core/PiratePlayerCharacter.h"
+#include "Core/PSStatics.h"
 #include "Enemy/Enemy.h"
 #include "Enemy/EnemyData.h"
 #include "Enemy/EnemyStatics.h"
@@ -70,6 +71,9 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 
 	// PIRATE_LOGC(GetWorld(), "Possessing enemy: %s", *InPawn->GetName());
 
+	if (!UPSStatics::InActualGame())
+		return;
+	
 	PossessedEnemy = Cast<AEnemy>(InPawn);
 	if (!PossessedEnemy)
 	{

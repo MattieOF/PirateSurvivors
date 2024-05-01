@@ -13,6 +13,6 @@ public class PirateSurvivors : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new[] { "OnlineSubsystem", "SlateCore" });
 		
 		if (Target.bBuildEditor)
-			PrivateDependencyModuleNames.Add("MessageLog");
+			PrivateDependencyModuleNames.AddRange(new[] { "MessageLog", "UnrealEd" });
 	}
 }

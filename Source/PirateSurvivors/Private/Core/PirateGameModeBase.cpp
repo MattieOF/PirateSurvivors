@@ -9,6 +9,7 @@
 #include "Core/PiratePlayerController.h"
 #include "Core/PiratePlayerState.h"
 #include "Core/UpgradeList.h"
+#include "Engine/LocalPlayer.h"
 #include "Weapon/WeaponData.h"
 #include "World/XPManager.h"
 

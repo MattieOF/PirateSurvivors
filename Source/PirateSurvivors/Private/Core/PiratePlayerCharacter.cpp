@@ -13,6 +13,7 @@
 #include "Core/InteractableComponent.h"
 #include "Core/PirateGameState.h"
 #include "Core/PiratePlayerState.h"
+#include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "World/XP.h"
@@ -53,14 +54,33 @@ APiratePlayerCharacter::APiratePlayerCharacter()
 	PickupRange->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	PickupRange->OnComponentBeginOverlap.AddDynamic(this, &APiratePlayerCharacter::OnPickupRangeBeginOverlap);
 
+	// Setup health component
 	HealthComponent->bRetainDamageEvents = true;
 	HealthComponent->OnDeath.AddDynamic(this, &APiratePlayerCharacter::OnKilled);
+
+	// Setup revive interaction
+	ReviveInteraction = CreateDefaultSubobject<UInteractableComponent>(TEXT("ReviveInteraction"));
+	ReviveInteraction->SetupAttachment(GetCapsuleComponent());
+	ReviveInteraction->Multicast_SetProperties(FText::FromString("Revive"), true, 3);
+	ReviveInteraction->OnInteract.AddDynamic(this, &APiratePlayerCharacter::OnReviveInteract);
+}
+
+void APiratePlayerCharacter::OnReviveInteract(APiratePlayerState* Interactor)
+{
+	if (!bIsDown)
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "Somehow revived while not down?");
+		return;
+	}
+
+	OnRevived(Interactor->GetPiratePawn());
 }
 
 void APiratePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ReviveInteraction->DisableInteraction();
 	FindPlayerState();
 
 	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
@@ -97,6 +117,9 @@ void APiratePlayerCharacter::OnMove(const FInputActionValue& ActionValue)
 
 void APiratePlayerCharacter::OnJump()
 {
+	if (bIsDown)
+		return;
+	
 	DoJump();
 }
 
@@ -123,6 +146,9 @@ void APiratePlayerCharacter::Server_OnInteract_Implementation(bool bPressed)
 
 void APiratePlayerCharacter::OnInteractImpl(bool bPressed)
 {
+	if (bIsDown)
+		return;
+	
 	if (bPressed
 		&& PiratePlayerState->CurrentInteractable
 		&& !PiratePlayerState->CurrentInteractable->HasInteractingPlayer())
@@ -255,9 +281,14 @@ void APiratePlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* Overlapp
 {
 	if (!(IsLocallyControlled() || GetNetMode() != NM_Client))
 		return;
+
+	if (bIsDown)
+		return;
 	
 	if (UInteractableComponent* Interactable = Cast<UInteractableComponent>(OtherComp->GetOuter()))
 	{
+		if (Interactable == ReviveInteraction)
+			return;
 		PiratePlayerState->SetInteractable(Interactable);
 	}
 }
@@ -269,6 +300,9 @@ void APiratePlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* Overlapped
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (!(IsLocallyControlled() || GetNetMode() != NM_Client))
+		return;
+	
+	if (bIsDown)
 		return;
 	
 	if (UInteractableComponent* Interactable = Cast<UInteractableComponent>(OtherComp->GetOuter()))
@@ -283,9 +317,21 @@ void APiratePlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* Overlapped
 
 void APiratePlayerCharacter::OnKilled()
 {
+	if (bIsDown)
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "Somehow killed while already down?");
+		return;
+	}
+	
 	Killed.Broadcast(HealthComponent->DamageHistory.IsEmpty() ? FDamageInstance{} : HealthComponent->DamageHistory.Last());
 	GetCharacterMovement()->MaxWalkSpeed *= DownSpeedMultiplier;
 	bIsDown = true;
+	ReviveInteraction->EnableInteraction();
+	if (PiratePlayerState->CurrentInteractable)
+	{
+		PiratePlayerState->CurrentInteractable->EndInteract(PiratePlayerState);
+		PiratePlayerState->SetInteractable(nullptr);
+	}
 }
 
 void APiratePlayerCharacter::OnRevived(APiratePlayerCharacter* Reviver)
@@ -293,4 +339,5 @@ void APiratePlayerCharacter::OnRevived(APiratePlayerCharacter* Reviver)
 	Revived.Broadcast(Reviver);
 	GetCharacterMovement()->MaxWalkSpeed /= DownSpeedMultiplier;
 	bIsDown = false;
+	ReviveInteraction->DisableInteraction();
 }
