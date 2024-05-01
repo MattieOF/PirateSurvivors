@@ -121,33 +121,54 @@ TArray<AActor*> AWeaponFunctionality::GetAllEnemies() const
 	return Enemies;
 }
 
-int AWeaponFunctionality::GetEnemiesWithinWeaponRange(TArray<AEnemy*>& EnemiesInRange)
+int AWeaponFunctionality::GetEnemiesWithinWeaponRange(TArray<AEnemy*>& OutEnemiesInRange)
 {
-	GetEnemiesWithinRange(EnemiesInRange, WeaponStats->Range);
-	return EnemiesInRange.Num();
+	GetEnemiesWithinRange(this, OwningCharacter->GetActorLocation(), OutEnemiesInRange, WeaponStats->Range);
+	return OutEnemiesInRange.Num();
 }
 
-int AWeaponFunctionality::GetEnemiesWithinRange(TArray<AEnemy*>& EnemiesInRange, float Radius)
+int AWeaponFunctionality::GetEnemiesWithinRange(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius)
 {
 	TArray<AActor*> AllEnemies;
-	UGameplayStatics::GetAllActorsOfClass(this, AEnemy::StaticClass(), AllEnemies);
+	UGameplayStatics::GetAllActorsOfClass(WorldContextObject, AEnemy::StaticClass(), AllEnemies);
 
 	const float RadiusSquared = Radius * Radius;
 	for (AActor* Enemy : AllEnemies)
 	{
-		if (FVector::DistSquared(Enemy->GetActorLocation(), OwningCharacter->GetActorLocation()) <= RadiusSquared)
-			EnemiesInRange.Add(Cast<AEnemy>(Enemy));
+		if (FVector::DistSquared(Enemy->GetActorLocation(), Origin) <= RadiusSquared)
+			OutEnemiesInRange.Add(Cast<AEnemy>(Enemy));
 	}
 
-	return EnemiesInRange.Num();
+	return OutEnemiesInRange.Num();
 }
 
-int AWeaponFunctionality::GetEnemiesWithinRangeSorted(TArray<AEnemy*>& OutEnemiesInRange, float Radius)
+AEnemy* AWeaponFunctionality::GetClosestEnemyWithinRange(UObject* WorldContextObject, FVector Origin,
+                                                         float Radius)
 {
-	GetEnemiesWithinRange(OutEnemiesInRange, Radius);
-	OutEnemiesInRange.Sort([this] (const AEnemy& A, const AEnemy& B) {
-		return FVector::DistSquared(A.GetActorLocation(), OwningCharacter->GetActorLocation()) <
-			FVector::DistSquared(B.GetActorLocation(), OwningCharacter->GetActorLocation());
+	float ClosestDistance = FLT_MAX;
+	AEnemy* ClosestEnemy = nullptr;
+
+	TArray<AEnemy*> Enemies;
+	GetEnemiesWithinRange(WorldContextObject, Origin, Enemies, Radius);
+	for (AEnemy* Enemy : Enemies)
+	{
+		const float Distance = FVector::DistSquared(Enemy->GetActorLocation(), Origin);
+		if (Distance < ClosestDistance)
+		{
+			ClosestDistance = Distance;
+			ClosestEnemy = Enemy;
+		}
+	}
+
+	return ClosestEnemy;
+}
+
+int AWeaponFunctionality::GetEnemiesWithinRangeSorted(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius)
+{
+	GetEnemiesWithinRange(WorldContextObject, Origin, OutEnemiesInRange, Radius);
+	OutEnemiesInRange.Sort([&Origin] (const AEnemy& A, const AEnemy& B) {
+		return FVector::DistSquared(A.GetActorLocation(), Origin) <
+			FVector::DistSquared(B.GetActorLocation(), Origin);
 	});
 	return OutEnemiesInRange.Num();
 }
@@ -158,7 +179,7 @@ AEnemy* AWeaponFunctionality::GetClosestEnemyWithinWeaponRange()
 	AEnemy* ClosestEnemy = nullptr;
 
 	TArray<AEnemy*> Enemies;
-	GetEnemiesWithinRange(Enemies, WeaponStats->Range);
+	GetEnemiesWithinRange(this, OwningCharacter->GetActorLocation(), Enemies, WeaponStats->Range);
 	for (AEnemy* Enemy : Enemies)
 	{
 		const float Distance = FVector::DistSquared(Enemy->GetActorLocation(), OwningCharacter->GetActorLocation());

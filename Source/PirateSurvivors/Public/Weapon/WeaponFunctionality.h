@@ -72,11 +72,14 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
 	int GetEnemiesWithinWeaponRange(TArray<AEnemy*>& OutEnemiesInRange);
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	int GetEnemiesWithinRange(TArray<AEnemy*>& OutEnemiesInRange, float Radius);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility", meta = (WorldContext = "WorldContextObject"))
+	static int GetEnemiesWithinRange(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	int GetEnemiesWithinRangeSorted(TArray<AEnemy*>& OutEnemiesInRange, float Radius);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility", meta = (WorldContext = "WorldContextObject"))
+	static AEnemy* GetClosestEnemyWithinRange(UObject* WorldContextObject, FVector Origin, float Radius);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility", meta = (WorldContext = "WorldContextObject"))
+	static int GetEnemiesWithinRangeSorted(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
 	AEnemy* GetClosestEnemyWithinWeaponRange();

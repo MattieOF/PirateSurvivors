@@ -315,7 +315,7 @@ void APiratePlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* Overlapped
 	if (!PiratePlayerState)
 	{
 		// Happens sometimes, not really sure why, don't have time to find out why, so just prevent a crash.
-		PIRATE_LOGC_ERROR(GetWorld(), "In OnCapsuleBeginOverlap, but PiratePlayerState is null!");
+		PIRATE_LOGC_WARN_NOLOC(GetWorld(), "In OnCapsuleBeginOverlap, but PiratePlayerState is null!");
 		return;
 	}
 	
