@@ -191,3 +191,5 @@ Plugins/**/Intermediate/*
 
 # End of https://www.toptal.com/developers/gitignore/api/rider,unrealengine,c++
 Builds
+
+*.blend1

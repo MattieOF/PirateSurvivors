@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WeaponStats.h"
+#include "Core/PirateSurvivorsCharacter.h"
 #include "GameFramework/Actor.h"
 #include "Projectile.generated.h"
 
@@ -32,6 +34,11 @@ public:
 	UFUNCTION()
 	void OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION(BlueprintCallable, Category = "Projectile", meta = (WorldContext = "WorldContextObject"))
+	static AProjectile* SpawnProjectile(UObject* WorldContextObject, APirateSurvivorsCharacter* NewOwner,
+	                                    UWeaponStats* Stats, const FVector& SpawnLoc, const FVector& SpawnDir,
+	                                    UProjectileData* NewData);
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Replicated)
 	UProjectileData* Data;

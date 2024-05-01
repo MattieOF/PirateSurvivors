@@ -35,10 +35,11 @@ void AEnemyAIController::PerformMeleeAttack() const
 	check(PossessedEnemy);
 	check(Target);
 
-	PIRATE_LOGC(GetWorld(), "Melee, dist: %f", FVector::Dist(PossessedEnemy->GetActorLocation(), Target->GetActorLocation()));
 	if (FVector::DistSquared(PossessedEnemy->GetActorLocation(), Target->GetActorLocation()) > FMath::Square(
 		PossessedEnemy->GetData()->Stats->MeleeRange + PossessedEnemy->GetData()->MeleeDistCheckBias))
+	{
 		return;
+	}
 	
 	FHitResult Hit;
 	FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
@@ -47,7 +48,6 @@ void AEnemyAIController::PerformMeleeAttack() const
 
 	if (Hit.GetActor() == Target)
 	{
-		PIRATE_LOGC(GetWorld(), "Hit player %s", *Target->GetName());
 		Target->GetHealthComponent()->TakeDamage({
 			FText::Format(FText::FromString("{0}'s Melee"), PossessedEnemy->CharacterName),
 			PossessedEnemy->GetData()->Stats->MeleeDamage, PossessedEnemy

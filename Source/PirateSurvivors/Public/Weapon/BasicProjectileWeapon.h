@@ -12,8 +12,6 @@ class PIRATESURVIVORS_API ABasicProjectileWeapon : public AWeaponFunctionality
 	GENERATED_BODY()
 
 public:
-	ABasicProjectileWeapon();
-	
 	virtual void OnFire_Implementation() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile Weapon")

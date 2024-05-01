@@ -19,6 +19,17 @@ void APiratePlayerState::BeginPlay()
 	Initialise();
 }
 
+void APiratePlayerState::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	for (AWeaponFunctionality* Weapon : Weapons)
+	{
+		if (Weapon && Weapon->bRequestReposition)
+			Weapon->SetActorTransform(GetPawn()->GetActorTransform());
+	}
+}
+
 void APiratePlayerState::Initialise()
 {
 	if (!GetPiratePawn())
@@ -70,7 +81,7 @@ void APiratePlayerState::AddXP(float AddedXP)
 	{
 		const float XPMul = GetCurrentXPMultiplier();
 		float AdjustedXP = AddedXP * XPMul;
-		if (AdjustedXP > (1 - this->XP))
+		if (AdjustedXP + KINDA_SMALL_NUMBER > 1 - this->XP)
 		{
 			// Level up!
 			Level++;

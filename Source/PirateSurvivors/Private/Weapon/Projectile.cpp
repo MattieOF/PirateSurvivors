@@ -123,6 +123,24 @@ void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* Oth
 	}
 }
 
+AProjectile* AProjectile::SpawnProjectile(UObject* WorldContextObject, APirateSurvivorsCharacter* NewOwner, UWeaponStats* Stats,
+                                          const FVector& SpawnLoc, const FVector& SpawnDir, UProjectileData* NewData)
+{
+	UWorld* World = GEngine->GetWorldFromContextObjectChecked(WorldContextObject);
+	AProjectile* NewProjectile = World->SpawnActor<AProjectile>(NewData->ProjectileSubclass, FTransform(SpawnLoc));
+	NewProjectile->Initialise(NewOwner, Stats, NewData);
+	
+	// Add spread to direction vector
+	FVector AdjustedDir = SpawnDir;
+	const FRotator Spread(FMath::RandRange(-Stats->Spread, Stats->Spread),
+						  FMath::RandRange(-Stats->Spread, Stats->Spread), 0);
+	AdjustedDir = AdjustedDir.RotateAngleAxis(Spread.Pitch, FVector::RightVector);
+	AdjustedDir = AdjustedDir.RotateAngleAxis(Spread.Yaw, FVector::UpVector);
+	
+	NewProjectile->FireInDirection(AdjustedDir);
+	return NewProjectile;
+}
+
 void AProjectile::ProjectileHitNonCharacter_Implementation(AActor* Other)
 {
 	if (UHealthComponent* Health = Other->GetComponentByClass<UHealthComponent>())

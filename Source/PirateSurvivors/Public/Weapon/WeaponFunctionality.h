@@ -33,6 +33,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void InitialiseLight(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Weapon")
+	void OnInitialise();
 	
 	UFUNCTION(BlueprintNativeEvent, Category = "Weapon")
 	void OnFire();
@@ -54,6 +57,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponDataUpdated OnDataUpdated;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	bool bRequestReposition = false;
 	
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -66,11 +72,14 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
 	int GetEnemiesWithinWeaponRange(TArray<AEnemy*>& OutEnemiesInRange);
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	int GetEnemiesWithinRange(TArray<AEnemy*>& OutEnemiesInRange, float Radius);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility", meta = (WorldContext = "WorldContextObject"))
+	static int GetEnemiesWithinRange(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius);
 
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
-	int GetEnemiesWithinRangeSorted(TArray<AEnemy*>& OutEnemiesInRange, float Radius);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility", meta = (WorldContext = "WorldContextObject"))
+	static AEnemy* GetClosestEnemyWithinRange(UObject* WorldContextObject, FVector Origin, float Radius);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility", meta = (WorldContext = "WorldContextObject"))
+	static int GetEnemiesWithinRangeSorted(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon Utility")
 	AEnemy* GetClosestEnemyWithinWeaponRange();
@@ -90,7 +99,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
 	float CurrentFireTime = 0;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", Replicated)
 	APirateSurvivorsCharacter* OwningCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", Replicated)

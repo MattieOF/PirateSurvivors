@@ -4,6 +4,7 @@
 
 #include "Core/PiratePlayerState.h"
 #include "Enemy/Enemy.h"
+#include "Engine/LocalPlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Projectile.h"
@@ -17,7 +18,6 @@ AWeaponFunctionality::AWeaponFunctionality()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	bOnlyRelevantToOwner = true;
 	NetUpdateFrequency = 20; // Still a lot, but 1/5th of the default.
 }
 
@@ -37,6 +37,9 @@ void AWeaponFunctionality::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (!(HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy))
+		return;
+
 	if (ReloadTime > 0)
 	{
 		ReloadTime -= DeltaSeconds;
@@ -50,7 +53,8 @@ void AWeaponFunctionality::Tick(float DeltaSeconds)
 			CurrentFireTime -= DeltaSeconds;
 			if (CurrentFireTime <= 0)
 			{
-				OnFire();
+				if (!OwningCharacter->GetHealthComponent()->IsDead())
+					OnFire();
 				CurrentFireTime = WeaponStats->FireRateSeconds;
 			}
 		}
@@ -73,6 +77,8 @@ void AWeaponFunctionality::Initialise(APirateSurvivorsCharacter* NewOwner, UWeap
 		if (IsOwnedBy(LocalController))
 			LocalController->GetPlayerState<APiratePlayerState>()->Client_OnReceivedWeapon(this);
 	}
+
+	OnInitialise();
 }
 
 void AWeaponFunctionality::InitialiseLight(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data)
@@ -80,6 +86,10 @@ void AWeaponFunctionality::InitialiseLight(APirateSurvivorsCharacter* NewOwner, 
 	WeaponData = Data;
 	if (NewOwner)
 		OwningCharacter = NewOwner;
+}
+
+void AWeaponFunctionality::OnInitialise_Implementation()
+{
 }
 
 float AWeaponFunctionality::GetReloadProgress() const
@@ -111,33 +121,54 @@ TArray<AActor*> AWeaponFunctionality::GetAllEnemies() const
 	return Enemies;
 }
 
-int AWeaponFunctionality::GetEnemiesWithinWeaponRange(TArray<AEnemy*>& EnemiesInRange)
+int AWeaponFunctionality::GetEnemiesWithinWeaponRange(TArray<AEnemy*>& OutEnemiesInRange)
 {
-	GetEnemiesWithinRange(EnemiesInRange, WeaponStats->Range);
-	return EnemiesInRange.Num();
+	GetEnemiesWithinRange(this, OwningCharacter->GetActorLocation(), OutEnemiesInRange, WeaponStats->Range);
+	return OutEnemiesInRange.Num();
 }
 
-int AWeaponFunctionality::GetEnemiesWithinRange(TArray<AEnemy*>& EnemiesInRange, float Radius)
+int AWeaponFunctionality::GetEnemiesWithinRange(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius)
 {
 	TArray<AActor*> AllEnemies;
-	UGameplayStatics::GetAllActorsOfClass(this, AEnemy::StaticClass(), AllEnemies);
+	UGameplayStatics::GetAllActorsOfClass(WorldContextObject, AEnemy::StaticClass(), AllEnemies);
 
 	const float RadiusSquared = Radius * Radius;
 	for (AActor* Enemy : AllEnemies)
 	{
-		if (FVector::DistSquared(Enemy->GetActorLocation(), OwningCharacter->GetActorLocation()) <= RadiusSquared)
-			EnemiesInRange.Add(Cast<AEnemy>(Enemy));
+		if (FVector::DistSquared(Enemy->GetActorLocation(), Origin) <= RadiusSquared)
+			OutEnemiesInRange.Add(Cast<AEnemy>(Enemy));
 	}
 
-	return EnemiesInRange.Num();
+	return OutEnemiesInRange.Num();
 }
 
-int AWeaponFunctionality::GetEnemiesWithinRangeSorted(TArray<AEnemy*>& OutEnemiesInRange, float Radius)
+AEnemy* AWeaponFunctionality::GetClosestEnemyWithinRange(UObject* WorldContextObject, FVector Origin,
+                                                         float Radius)
 {
-	GetEnemiesWithinRange(OutEnemiesInRange, Radius);
-	OutEnemiesInRange.Sort([this] (const AEnemy& A, const AEnemy& B) {
-		return FVector::DistSquared(A.GetActorLocation(), OwningCharacter->GetActorLocation()) <
-			FVector::DistSquared(B.GetActorLocation(), OwningCharacter->GetActorLocation());
+	float ClosestDistance = FLT_MAX;
+	AEnemy* ClosestEnemy = nullptr;
+
+	TArray<AEnemy*> Enemies;
+	GetEnemiesWithinRange(WorldContextObject, Origin, Enemies, Radius);
+	for (AEnemy* Enemy : Enemies)
+	{
+		const float Distance = FVector::DistSquared(Enemy->GetActorLocation(), Origin);
+		if (Distance < ClosestDistance)
+		{
+			ClosestDistance = Distance;
+			ClosestEnemy = Enemy;
+		}
+	}
+
+	return ClosestEnemy;
+}
+
+int AWeaponFunctionality::GetEnemiesWithinRangeSorted(UObject* WorldContextObject, FVector Origin, TArray<AEnemy*>& OutEnemiesInRange, float Radius)
+{
+	GetEnemiesWithinRange(WorldContextObject, Origin, OutEnemiesInRange, Radius);
+	OutEnemiesInRange.Sort([&Origin] (const AEnemy& A, const AEnemy& B) {
+		return FVector::DistSquared(A.GetActorLocation(), Origin) <
+			FVector::DistSquared(B.GetActorLocation(), Origin);
 	});
 	return OutEnemiesInRange.Num();
 }
@@ -148,7 +179,7 @@ AEnemy* AWeaponFunctionality::GetClosestEnemyWithinWeaponRange()
 	AEnemy* ClosestEnemy = nullptr;
 
 	TArray<AEnemy*> Enemies;
-	GetEnemiesWithinRange(Enemies, WeaponStats->Range);
+	GetEnemiesWithinRange(this, OwningCharacter->GetActorLocation(), Enemies, WeaponStats->Range);
 	for (AEnemy* Enemy : Enemies)
 	{
 		const float Distance = FVector::DistSquared(Enemy->GetActorLocation(), OwningCharacter->GetActorLocation());
@@ -167,7 +198,15 @@ AProjectile* AWeaponFunctionality::SpawnProjectile(const FVector& Position, cons
 {
 	AProjectile* NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType->ProjectileSubclass, FTransform(Position));
 	NewProjectile->Initialise(OwningCharacter, WeaponStats, ProjectileType);
-	NewProjectile->FireInDirection(Direction);
+	
+	// Add spread to direction vector
+	FVector AdjustedDir = Direction;
+	const FRotator Spread(FMath::RandRange(-WeaponStats->Spread, WeaponStats->Spread),
+	                      FMath::RandRange(-WeaponStats->Spread, WeaponStats->Spread), 0);
+	AdjustedDir = AdjustedDir.RotateAngleAxis(Spread.Pitch, FVector::RightVector);
+	AdjustedDir = AdjustedDir.RotateAngleAxis(Spread.Yaw, FVector::UpVector);
+	
+	NewProjectile->FireInDirection(AdjustedDir);
 	return NewProjectile;
 }
 
@@ -200,8 +239,9 @@ bool AWeaponFunctionality::ReplicateSubobjects(UActorChannel* Channel, FOutBunch
 void AWeaponFunctionality::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AWeaponFunctionality, Ammo);
-	DOREPLIFETIME(AWeaponFunctionality, ReloadTime);
+	DOREPLIFETIME_CONDITION(AWeaponFunctionality, Ammo, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AWeaponFunctionality, ReloadTime, COND_OwnerOnly);
 	// DOREPLIFETIME(AWeaponFunctionality, WeaponStats);
 	DOREPLIFETIME_CONDITION(AWeaponFunctionality, WeaponData, COND_InitialOnly);
+	DOREPLIFETIME_CONDITION(AWeaponFunctionality, OwningCharacter, COND_InitialOnly);
 }

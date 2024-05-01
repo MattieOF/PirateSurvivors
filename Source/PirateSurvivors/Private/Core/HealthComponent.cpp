@@ -123,9 +123,10 @@ void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const
 		SetHP(FMath::Clamp(Health, 0.f, MaxHealth));
 }
 
-void UHealthComponent::Revive()
+void UHealthComponent::Revive(float RevivalHPPercentage)
 {
 	bDead = false;
+	Multicast_SetHP(RevivalHPPercentage * MaxHealth);
 }
 
 void UHealthComponent::Multicast_Die_Implementation()
