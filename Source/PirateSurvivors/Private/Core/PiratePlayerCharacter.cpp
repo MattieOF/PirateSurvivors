@@ -282,6 +282,12 @@ void APiratePlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* Overlapp
 	if (!(IsLocallyControlled() || GetNetMode() != NM_Client))
 		return;
 
+	if (!PiratePlayerState)
+	{
+		// Happens rarely, for now we'll just ignore...
+		return;
+	}
+
 	if (bIsDown)
 		return;
 	
