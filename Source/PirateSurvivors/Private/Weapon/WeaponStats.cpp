@@ -5,6 +5,15 @@
 #include "PirateLog.h"
 #include "Weapon/WeaponData.h"
 
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, Damage);
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, FireRateSeconds);
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, Range);
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, ProjectileSpeed);
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, Knockback);
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, Spread);
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, Ammo);
+DECLARE_PIRATE_STAT_CPP(UWeaponStats, ReloadTime);
+
 bool UWeaponData::VerifyCompatability() const
 {
 	if (!BaseWeaponStats)
@@ -18,6 +27,6 @@ bool UWeaponData::VerifyCompatability() const
 		PIRATE_LOG_ERROR_NOLOC("In %ls, BaseWeaponStats is not of the same class as WeaponStatsSubclass!", *GetName());
 		return false;
 	}
-	
+
 	return true;
 }

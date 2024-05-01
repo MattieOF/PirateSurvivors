@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Core/Stats.h"
 #include "Core/UpgradeType.h"
 #include "UObject/Object.h"
 #include "WeaponStats.generated.h"
 
 class AWeaponFunctionality;
 class UWeaponData;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStatChanged, float, NewValue);
 
 // Represents a player stat upgrade, such as health, damage, etc.
 USTRUCT(BlueprintType)
@@ -128,33 +131,62 @@ class PIRATESURVIVORS_API UWeaponStats : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetDamage)
 	float Damage = 100;
+	UFUNCTION(BlueprintCallable)
+	void SetDamage(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnDamageChanged;
 
 	// The weapon will fire every FireRateSeconds
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetFireRateSeconds)
 	float FireRateSeconds = .5f;
+	UFUNCTION(BlueprintCallable)
+	void SetFireRateSeconds(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnFireRateSecondsChanged;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetRange)
 	float Range = 1000.f;
+	UFUNCTION(BlueprintCallable)
+	void SetRange(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnRangeChanged;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
-	float ProjectileSpeed = 1000;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetProjectileSpeed)
+	float ProjectileSpeed = 1000.f;
+	UFUNCTION(BlueprintCallable)
+	void SetProjectileSpeed(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnProjectileSpeedChanged;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetKnockback)
 	float Knockback = 0;
+	UFUNCTION(BlueprintCallable)
+	void SetKnockback(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnKnockbackChanged;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
-	float Spread = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetSpread)
+	float Spread = 0;
+	UFUNCTION(BlueprintCallable)
+	void SetSpread(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnSpreadChanged;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetAmmo)
 	float Ammo = 30;
+	UFUNCTION(BlueprintCallable)
+	void SetAmmo(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnAmmoChanged;
 
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
-	// int32 MaxAmmo = 300;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats", Setter = SetReloadTime)
 	float ReloadTime = 2.f;
+	UFUNCTION(BlueprintCallable)
+	void SetReloadTime(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnWeaponStatChanged OnReloadTimeChanged;
 
 	virtual bool IsSupportedForNetworking() const override { return true; };
 };

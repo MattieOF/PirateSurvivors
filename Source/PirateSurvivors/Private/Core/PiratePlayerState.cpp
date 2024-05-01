@@ -70,7 +70,7 @@ void APiratePlayerState::AddXP(float AddedXP)
 	{
 		const float XPMul = GetCurrentXPMultiplier();
 		float AdjustedXP = AddedXP * XPMul;
-		if (AdjustedXP > (1 - this->XP))
+		if (AdjustedXP + KINDA_SMALL_NUMBER > 1 - this->XP)
 		{
 			// Level up!
 			Level++;

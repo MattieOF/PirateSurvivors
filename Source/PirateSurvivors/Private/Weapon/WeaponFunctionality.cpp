@@ -4,6 +4,7 @@
 
 #include "Core/PiratePlayerState.h"
 #include "Enemy/Enemy.h"
+#include "Engine/LocalPlayer.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/Projectile.h"
@@ -167,7 +168,15 @@ AProjectile* AWeaponFunctionality::SpawnProjectile(const FVector& Position, cons
 {
 	AProjectile* NewProjectile = GetWorld()->SpawnActor<AProjectile>(ProjectileType->ProjectileSubclass, FTransform(Position));
 	NewProjectile->Initialise(OwningCharacter, WeaponStats, ProjectileType);
-	NewProjectile->FireInDirection(Direction);
+	
+	// Add spread to direction vector
+	FVector AdjustedDir = Direction;
+	const FRotator Spread(FMath::RandRange(-WeaponStats->Spread, WeaponStats->Spread),
+	                      FMath::RandRange(-WeaponStats->Spread, WeaponStats->Spread), 0);
+	AdjustedDir = AdjustedDir.RotateAngleAxis(Spread.Pitch, FVector::RightVector);
+	AdjustedDir = AdjustedDir.RotateAngleAxis(Spread.Yaw, FVector::UpVector);
+	
+	NewProjectile->FireInDirection(AdjustedDir);
 	return NewProjectile;
 }
 
