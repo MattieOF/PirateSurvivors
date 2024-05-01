@@ -8,6 +8,7 @@
 #include "Player/PlayerStats.h"
 #include "PiratePlayerState.generated.h"
 
+class UInteractableComponent;
 // Forward decls
 struct FQueuedUpgradeChoice;
 class UUpgrade;
@@ -21,6 +22,7 @@ class AWeaponFunctionality;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnXPUpdated, float, NewXP, int, NewLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponObtained, AWeaponFunctionality*, NewWeapon);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponUpdated, int, Slot, AWeaponFunctionality*, NewWeapon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractableUpdated, UInteractableComponent*, NewInteractable);
 
 // UHT doesn't throw an error about it, but TArrays as parameters in delegates must be const references, or assigning in blueprints will not work.
 // Thanks to https://forums.unrealengine.com/t/signature-error-the-function-event-does-not-match-the-necessary-signature-has-the-delegate-or-function-event-changed/724030/6
@@ -85,6 +87,9 @@ public:
 	FOnUpgradeChoicesReceived OnUpgradeChoicesReceived;
 
 	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
+	FInteractableUpdated OnInteractableUpdated;
+	
+	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
 	FOnUpgradeChosen OnUpgradeChosen;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly, EditAnywhere, Category = "Pirate Player State", ReplicatedUsing = OnRep_Level)
@@ -131,6 +136,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player State")
 	bool TryGetNextUpgradeChoices(TArray<FQueuedUpgradeChoice>& OutChoice);
+
+	UFUNCTION(BlueprintCallable, Category = "Pirate Player State")
+	void SetInteractable(UInteractableComponent* NewInteractable);
 	
 	UFUNCTION()
 	void OnMaxHealthChanged(float NewValue);
@@ -140,6 +148,9 @@ public:
 	
 	UFUNCTION()
 	void OnJumpHeightChanged(float NewValue);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Pirate Player State")
+	UInteractableComponent* CurrentInteractable = nullptr;
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Weapons")

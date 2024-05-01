@@ -10,6 +10,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Core/InteractableComponent.h"
 #include "Core/PirateGameState.h"
 #include "Core/PiratePlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -31,6 +32,8 @@ APiratePlayerCharacter::APiratePlayerCharacter()
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Player);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APiratePlayerCharacter::OnCapsuleBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APiratePlayerCharacter::OnCapsuleEndOverlap);
 
 	// Setup boom
 	// Boom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Boom"));
@@ -49,14 +52,16 @@ APiratePlayerCharacter::APiratePlayerCharacter()
 	PickupRange->SetSphereRadius(100);
 	PickupRange->SetCollisionProfileName(TEXT("OverlapAllDynamic"));
 	PickupRange->OnComponentBeginOverlap.AddDynamic(this, &APiratePlayerCharacter::OnPickupRangeBeginOverlap);
+
+	HealthComponent->bRetainDamageEvents = true;
+	HealthComponent->OnDeath.AddDynamic(this, &APiratePlayerCharacter::OnKilled);
 }
 
 void APiratePlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority())
-		FindPlayerState();
+	FindPlayerState();
 
 	if (const APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
@@ -75,7 +80,8 @@ void APiratePlayerCharacter::FindPlayerState()
 	}
 	else
 	{
-		HealthComponent->ArmourGetter.BindDynamic(this, &APiratePlayerCharacter::GetArmour);
+		if (HasAuthority())
+			HealthComponent->ArmourGetter.BindDynamic(this, &APiratePlayerCharacter::GetArmour);
 	}
 }
 
@@ -102,6 +108,33 @@ void APiratePlayerCharacter::OnMouseLook(const FInputActionValue& ActionValue)
 void APiratePlayerCharacter::OnFire(bool bHeld)
 {
 	Fire(bHeld);
+}
+
+void APiratePlayerCharacter::OnInteract(bool bPressed)
+{
+	OnInteractImpl(bPressed);
+	Server_OnInteract(bPressed);
+}
+
+void APiratePlayerCharacter::Server_OnInteract_Implementation(bool bPressed)
+{
+	OnInteractImpl(bPressed);
+}
+
+void APiratePlayerCharacter::OnInteractImpl(bool bPressed)
+{
+	if (bPressed
+		&& PiratePlayerState->CurrentInteractable
+		&& !PiratePlayerState->CurrentInteractable->HasInteractingPlayer())
+	{
+		PiratePlayerState->CurrentInteractable->BeginInteract(PiratePlayerState);
+	}
+	else if (!bPressed
+		&& PiratePlayerState->CurrentInteractable
+		&& PiratePlayerState->CurrentInteractable->GetInteractingPlayer() == PiratePlayerState)
+	{
+		PiratePlayerState->CurrentInteractable->EndInteract(PiratePlayerState);
+	}
 }
 
 // Can't be const because it's a dynamic delegate
@@ -164,6 +197,8 @@ void APiratePlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 		EnhancedInputComponent->BindAction(JumpAction,      ETriggerEvent::Triggered, this, &APiratePlayerCharacter::OnJump);
 		EnhancedInputComponent->BindAction(FireAction,      ETriggerEvent::Started,   this, &APiratePlayerCharacter::OnFire, false);
 		EnhancedInputComponent->BindAction(FireAction,      ETriggerEvent::Triggered, this, &APiratePlayerCharacter::OnFire, true);
+		EnhancedInputComponent->BindAction(InteractAction,  ETriggerEvent::Started,   this, &APiratePlayerCharacter::OnInteract, true);
+		EnhancedInputComponent->BindAction(InteractAction,  ETriggerEvent::Completed, this, &APiratePlayerCharacter::OnInteract, false);
 	} else
 	{
 		PIRATE_LOG_ERROR("Player controller has non-enhanced input component!");
@@ -210,4 +245,52 @@ void APiratePlayerCharacter::OnPickupRangeBeginOverlap(UPrimitiveComponent* Over
 			// them.
 		}
 	}
+}
+
+// Can't be const because it's a dynamic delegate
+// ReSharper disable once CppMemberFunctionMayBeConst
+
+void APiratePlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                                   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!(IsLocallyControlled() || GetNetMode() != NM_Client))
+		return;
+	
+	if (UInteractableComponent* Interactable = Cast<UInteractableComponent>(OtherComp->GetOuter()))
+	{
+		PiratePlayerState->SetInteractable(Interactable);
+	}
+}
+
+// Can't be const because it's a dynamic delegate
+// ReSharper disable once CppMemberFunctionMayBeConst
+
+void APiratePlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (!(IsLocallyControlled() || GetNetMode() != NM_Client))
+		return;
+	
+	if (UInteractableComponent* Interactable = Cast<UInteractableComponent>(OtherComp->GetOuter()))
+	{
+		if (Interactable == PiratePlayerState->CurrentInteractable)
+		{
+			PiratePlayerState->SetInteractable(nullptr);
+			Interactable->EndInteract(PiratePlayerState);
+		}
+	}
+}
+
+void APiratePlayerCharacter::OnKilled()
+{
+	Killed.Broadcast(HealthComponent->DamageHistory.IsEmpty() ? FDamageInstance{} : HealthComponent->DamageHistory.Last());
+	GetCharacterMovement()->MaxWalkSpeed *= DownSpeedMultiplier;
+	bIsDown = true;
+}
+
+void APiratePlayerCharacter::OnRevived(APiratePlayerCharacter* Reviver)
+{
+	Revived.Broadcast(Reviver);
+	GetCharacterMovement()->MaxWalkSpeed /= DownSpeedMultiplier;
+	bIsDown = false;
 }

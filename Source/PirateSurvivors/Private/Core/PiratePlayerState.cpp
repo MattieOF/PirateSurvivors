@@ -294,6 +294,12 @@ bool APiratePlayerState::TryGetNextUpgradeChoices(TArray<FQueuedUpgradeChoice>& 
 	return UpgradeQueue.Peek(OutChoice);
 }
 
+void APiratePlayerState::SetInteractable(UInteractableComponent* NewInteractable)
+{
+	CurrentInteractable = NewInteractable;
+	OnInteractableUpdated.Broadcast(CurrentInteractable);
+}
+
 void APiratePlayerState::OnMaxHealthChanged(float NewValue)
 {
 	GetPiratePawn()->GetHealthComponent()->SetMaxHP(NewValue);

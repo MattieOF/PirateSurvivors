@@ -71,6 +71,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health", NetMulticast, Reliable)
 	void Multicast_Die();
 
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void Revive();
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE float GetHealth() const { return Health; }
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")

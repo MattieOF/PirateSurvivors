@@ -123,6 +123,11 @@ void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const
 		SetHP(FMath::Clamp(Health, 0.f, MaxHealth));
 }
 
+void UHealthComponent::Revive()
+{
+	bDead = false;
+}
+
 void UHealthComponent::Multicast_Die_Implementation()
 {
 	bDead = true;
