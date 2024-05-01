@@ -34,6 +34,9 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UHealthComponent::TakeDamage(const FDamageInstance& DamageEvent)
 {
+	if (IsDead())
+		return;
+	
 	if (!GetOwner()->HasAuthority())
 	{
 		PIRATE_LOGC_ERROR(GetWorld(), "Only the server can process damage through UHealthComponent::TakeDamage!");
@@ -82,6 +85,9 @@ void UHealthComponent::SetHP(const float NewHP, const bool bResetPrevious)
 		}
 	}
 
+	if (Health < 0 + KINDA_SMALL_NUMBER)
+		Health = 0;
+
 	if (Health == PreviousHP)
 		return;
 	if (Health < PreviousHP)
@@ -119,6 +125,7 @@ void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const
 
 void UHealthComponent::Multicast_Die_Implementation()
 {
+	bDead = true;
 	OnDeath.Broadcast();
 	Health = 0;	
 }

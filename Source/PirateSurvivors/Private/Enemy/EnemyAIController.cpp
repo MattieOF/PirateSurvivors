@@ -23,6 +23,37 @@ void AEnemyAIController::SetTarget(APirateSurvivorsCharacter* NewTarget)
 	GetBlackboardComponent()->SetValueAsObject(TargetPropertyName, NewTarget);
 }
 
+void AEnemyAIController::SetIsMeleeAttacking(bool bNewValue)
+{
+	bIsMeleeAttacking = bNewValue;
+}
+
+void AEnemyAIController::PerformMeleeAttack() const
+{
+	check(HasAuthority());
+	check(PossessedEnemy);
+	check(Target);
+
+	PIRATE_LOGC(GetWorld(), "Melee, dist: %f", FVector::Dist(PossessedEnemy->GetActorLocation(), Target->GetActorLocation()));
+	if (FVector::DistSquared(PossessedEnemy->GetActorLocation(), Target->GetActorLocation()) > FMath::Square(
+		PossessedEnemy->GetData()->Stats->MeleeRange + PossessedEnemy->GetData()->MeleeDistCheckBias))
+		return;
+	
+	FHitResult Hit;
+	FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
+	Params.AddIgnoredActor(GetPawn());
+	GetWorld()->LineTraceSingleByChannel(Hit, PossessedEnemy->GetActorLocation(), Target->GetActorLocation(), ECC_WorldStatic, Params);
+
+	if (Hit.GetActor() == Target)
+	{
+		PIRATE_LOGC(GetWorld(), "Hit player %s", *Target->GetName());
+		Target->GetHealthComponent()->TakeDamage({
+			FText::Format(FText::FromString("{0}'s Melee"), PossessedEnemy->CharacterName),
+			PossessedEnemy->GetData()->Stats->MeleeDamage, PossessedEnemy
+		});
+	}
+}
+
 void AEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -37,7 +68,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	PIRATE_LOGC(GetWorld(), "Possessing enemy: %s", *InPawn->GetName());
+	// PIRATE_LOGC(GetWorld(), "Possessing enemy: %s", *InPawn->GetName());
 
 	PossessedEnemy = Cast<AEnemy>(InPawn);
 	if (!PossessedEnemy)
@@ -63,6 +94,7 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	if (Data->Stats)
 	{
 		PossessedEnemy->GetCharacterMovement()->MaxWalkSpeed = Data->Stats->WalkSpeed;
+		GetBlackboardComponent()->SetValueAsFloat("MeleeRange", Data->Stats->MeleeRange);
 	}
 	else
 		PIRATE_LOGC_ERROR(GetWorld(), "Null enemy stats in EnemyData %s", *Data->GetName());

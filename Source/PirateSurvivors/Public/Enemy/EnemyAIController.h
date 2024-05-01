@@ -23,6 +23,14 @@ public:
 	void SetTarget(APirateSurvivorsCharacter* NewTarget);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy AI Controller")
 	FORCEINLINE bool IsTargetPlayer() const { return bIsTargetPlayer; }
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy AI Controller")
+	void SetIsMeleeAttacking(bool bNewValue);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy AI Controller")
+	FORCEINLINE bool IsMeleeAttacking() const { return bIsMeleeAttacking; }
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy AI Controller")
+	void PerformMeleeAttack() const;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -39,4 +47,5 @@ protected:
 	APirateSurvivorsCharacter* Target = nullptr;
 
 	bool bIsTargetPlayer = false;
+	bool bIsMeleeAttacking = false;
 };

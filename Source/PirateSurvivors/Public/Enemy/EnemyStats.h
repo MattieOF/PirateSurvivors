@@ -21,4 +21,18 @@ public:
 	void SetWalkSpeed(float Value);
 	UPROPERTY(BlueprintAssignable)
 	FOnEnemyStatChanged OnWalkSpeedChanged;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats", Setter = SetMeleeDamage)
+	float MeleeDamage = 15.f;
+	UFUNCTION(BlueprintCallable)
+	void SetMeleeDamage(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnEnemyStatChanged OnMeleeDamageChanged;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats", Setter = SetMeleeRange)
+	float MeleeRange = 20.f;
+	UFUNCTION(BlueprintCallable)
+	void SetMeleeRange(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnEnemyStatChanged OnMeleeRangeChanged;
 };

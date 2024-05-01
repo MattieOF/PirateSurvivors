@@ -80,6 +80,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE bool  IsOverhealEnabled() const { return bEnableOverheal; }
 
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
+	FORCEINLINE bool IsDead() const { return bDead; }
+	
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void SetOverhealEnabled(const bool bEnable, const bool bClampHP = true);
 	
@@ -134,4 +137,6 @@ protected:
 	virtual void BeginPlay() override;
 
 	float PreviousHP = 100;
+
+	bool bDead = false;
 };

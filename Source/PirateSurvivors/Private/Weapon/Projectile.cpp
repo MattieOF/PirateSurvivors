@@ -91,6 +91,9 @@ void AProjectile::FireInDirection(const FVector& NewDirection)
 
 void AProjectile::DamageHealthComponent(UHealthComponent* HealthComponent)
 {
+	if (!HealthComponent->GetOwner()->HasAuthority())
+		return;
+	
 	FDamageInstance DamageEvent;
 	DamageEvent.Damage = ProjectileDamage;
 	DamageEvent.Instigator = OwningCharacter;
@@ -98,8 +101,7 @@ void AProjectile::DamageHealthComponent(UHealthComponent* HealthComponent)
 		DamageEvent.Description = FText::Format(FText::FromString("{0}'s {1}"), OwningCharacter->CharacterName, Data->Name);
 	else
 		DamageEvent.Description = FText::Format(FText::FromString("A {1}"), Data->Name);
-	if (HealthComponent->GetOwner()->HasAuthority())
-		HealthComponent->TakeDamage(DamageEvent);
+	HealthComponent->TakeDamage(DamageEvent);
 }
 
 void AProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

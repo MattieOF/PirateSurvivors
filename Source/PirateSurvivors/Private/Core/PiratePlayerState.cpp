@@ -143,7 +143,7 @@ void APiratePlayerState::OnRep_XP() const
 
 void APiratePlayerState::Client_ReceiveUpgradeChoices_Implementation(const TArray<FQueuedUpgradeChoice>& UpgradeChoices)
 {
-	PIRATE_LOGC_NOLOC(GetWorld(), "Received upgrade choices!");
+	// PIRATE_LOGC_NOLOC(GetWorld(), "Received upgrade choices!");
 	UpgradeQueue.Enqueue(UpgradeChoices);
 	OnUpgradeChoicesReceived.Broadcast(UpgradeChoices, this);
 }
@@ -156,14 +156,14 @@ void APiratePlayerState::OnLevelUp_Implementation(int NewLevel)
 	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
 	auto UpgradeChoices = GameMode->GetUpgradeList()->GetPlayerUpgradeChoices(this);
 
-	PIRATE_LOGC_NOLOC(GetWorld(), "Level up! Upgrade choices:");
-	for (const auto& [Upgrade, TargetWeaponIndex] : UpgradeChoices)
-	{
-		if (TargetWeaponIndex != -1)
-			PIRATE_LOGC_NOLOC(GetWorld(), "    %s, for weapon %i", *Upgrade->GetName(), TargetWeaponIndex);
-		else
-			PIRATE_LOGC_NOLOC(GetWorld(), "    %s", *Upgrade->GetName());
-	}
+	// PIRATE_LOGC_NOLOC(GetWorld(), "Level up! Upgrade choices:");
+	// for (const auto& [Upgrade, TargetWeaponIndex] : UpgradeChoices)
+	// {
+	// 	if (TargetWeaponIndex != -1)
+	// 		PIRATE_LOGC_NOLOC(GetWorld(), "    %s, for weapon %i", *Upgrade->GetName(), TargetWeaponIndex);
+	// 	else
+	// 		PIRATE_LOGC_NOLOC(GetWorld(), "    %s", *Upgrade->GetName());
+	// }
 
 	if (UpgradeChoices.Num() == 0)
 	{

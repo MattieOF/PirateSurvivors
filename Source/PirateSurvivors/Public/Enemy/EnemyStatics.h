@@ -16,12 +16,12 @@ class PIRATESURVIVORS_API UEnemyStatics : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Enemy Statics", meta = (WorldContext = "WorldContextObject"))
-	static APiratePlayerCharacter* GetClosestPlayer(UObject* WorldContextObject, const FVector& Location, float& OutDistance);
+	static APiratePlayerCharacter* GetClosestPlayer(UObject* WorldContextObject, const FVector& Location, float& OutDistance, bool bIncludeDead = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Enemy Statics", meta = (WorldContext = "WorldContextObject"))
-	static FORCEINLINE APiratePlayerCharacter* GetClosestPlayerNoDist(UObject* WorldContextObject, const FVector& Location)
+	static FORCEINLINE APiratePlayerCharacter* GetClosestPlayerNoDist(UObject* WorldContextObject, const FVector& Location, bool bIncludeDead = false)
 	{
 		float _;
-		return GetClosestPlayer(WorldContextObject, Location, _);
+		return GetClosestPlayer(WorldContextObject, Location, _, bIncludeDead);
 	}
 };

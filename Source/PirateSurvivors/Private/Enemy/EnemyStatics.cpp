@@ -5,7 +5,7 @@
 #include "EngineUtils.h"
 #include "Core/PiratePlayerCharacter.h"
 
-APiratePlayerCharacter* UEnemyStatics::GetClosestPlayer(UObject* WorldContextObject, const FVector& Location, float& OutDistance)
+APiratePlayerCharacter* UEnemyStatics::GetClosestPlayer(UObject* WorldContextObject, const FVector& Location, float& OutDistance, bool bIncludeDead)
 {
 	APiratePlayerCharacter* ClosestPlayer = nullptr;
 	float ClosestDistance = TNumericLimits<float>::Max();
@@ -15,6 +15,9 @@ APiratePlayerCharacter* UEnemyStatics::GetClosestPlayer(UObject* WorldContextObj
 		APiratePlayerCharacter* Player = *It;
 		
 		if (!Player)
+			continue;
+
+		if (!bIncludeDead && Player->GetHealthComponent() && Player->GetHealthComponent()->IsDead())
 			continue;
 
 		const float Distance = FVector::DistSquared(Location, Player->GetActorLocation());
