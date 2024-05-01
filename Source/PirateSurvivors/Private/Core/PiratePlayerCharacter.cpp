@@ -284,6 +284,13 @@ void APiratePlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* Overlapp
 
 	if (bIsDown)
 		return;
+
+	if (!PiratePlayerState)
+	{
+		// Happens sometimes, not really sure why, don't have time to find out why, so just prevent a crash.
+		PIRATE_LOGC_ERROR(GetWorld(), "In OnCapsuleBeginOverlap, but PiratePlayerState is null!");
+		return;
+	}
 	
 	if (UInteractableComponent* Interactable = Cast<UInteractableComponent>(OtherComp->GetOuter()))
 	{
@@ -304,6 +311,13 @@ void APiratePlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* Overlapped
 	
 	if (bIsDown)
 		return;
+	
+	if (!PiratePlayerState)
+	{
+		// Happens sometimes, not really sure why, don't have time to find out why, so just prevent a crash.
+		PIRATE_LOGC_ERROR(GetWorld(), "In OnCapsuleBeginOverlap, but PiratePlayerState is null!");
+		return;
+	}
 	
 	if (UInteractableComponent* Interactable = Cast<UInteractableComponent>(OtherComp->GetOuter()))
 	{
@@ -340,4 +354,5 @@ void APiratePlayerCharacter::OnRevived(APiratePlayerCharacter* Reviver)
 	GetCharacterMovement()->MaxWalkSpeed /= DownSpeedMultiplier;
 	bIsDown = false;
 	ReviveInteraction->DisableInteraction();
+	HealthComponent->Revive(.2f);
 }

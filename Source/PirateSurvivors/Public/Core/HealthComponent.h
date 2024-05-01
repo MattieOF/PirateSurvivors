@@ -72,7 +72,7 @@ public:
 	void Multicast_Die();
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void Revive();
+	void Revive(float RevivalHPPercentage);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	FORCEINLINE float GetHealth() const { return Health; }
