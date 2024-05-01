@@ -6,11 +6,6 @@
 #include "Core/PirateSurvivorsCharacter.h"
 #include "Enemy/Enemy.h"
 
-ABasicProjectileWeapon::ABasicProjectileWeapon()
-{
-	PrimaryActorTick.bCanEverTick = true;
-}
-
 void ABasicProjectileWeapon::OnFire_Implementation()
 {
 	Super::OnFire_Implementation();

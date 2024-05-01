@@ -18,7 +18,6 @@ AWeaponFunctionality::AWeaponFunctionality()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	bReplicates = true;
-	bOnlyRelevantToOwner = true;
 	NetUpdateFrequency = 20; // Still a lot, but 1/5th of the default.
 }
 
@@ -38,6 +37,9 @@ void AWeaponFunctionality::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	if (!(HasAuthority() || GetLocalRole() == ROLE_AutonomousProxy))
+		return;
+
 	if (ReloadTime > 0)
 	{
 		ReloadTime -= DeltaSeconds;
@@ -51,7 +53,8 @@ void AWeaponFunctionality::Tick(float DeltaSeconds)
 			CurrentFireTime -= DeltaSeconds;
 			if (CurrentFireTime <= 0)
 			{
-				OnFire();
+				if (!OwningCharacter->GetHealthComponent()->IsDead())
+					OnFire();
 				CurrentFireTime = WeaponStats->FireRateSeconds;
 			}
 		}
@@ -74,6 +77,8 @@ void AWeaponFunctionality::Initialise(APirateSurvivorsCharacter* NewOwner, UWeap
 		if (IsOwnedBy(LocalController))
 			LocalController->GetPlayerState<APiratePlayerState>()->Client_OnReceivedWeapon(this);
 	}
+
+	OnInitialise();
 }
 
 void AWeaponFunctionality::InitialiseLight(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data)
@@ -81,6 +86,10 @@ void AWeaponFunctionality::InitialiseLight(APirateSurvivorsCharacter* NewOwner, 
 	WeaponData = Data;
 	if (NewOwner)
 		OwningCharacter = NewOwner;
+}
+
+void AWeaponFunctionality::OnInitialise_Implementation()
+{
 }
 
 float AWeaponFunctionality::GetReloadProgress() const
@@ -209,8 +218,9 @@ bool AWeaponFunctionality::ReplicateSubobjects(UActorChannel* Channel, FOutBunch
 void AWeaponFunctionality::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(AWeaponFunctionality, Ammo);
-	DOREPLIFETIME(AWeaponFunctionality, ReloadTime);
+	DOREPLIFETIME_CONDITION(AWeaponFunctionality, Ammo, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AWeaponFunctionality, ReloadTime, COND_OwnerOnly);
 	// DOREPLIFETIME(AWeaponFunctionality, WeaponStats);
 	DOREPLIFETIME_CONDITION(AWeaponFunctionality, WeaponData, COND_InitialOnly);
+	DOREPLIFETIME_CONDITION(AWeaponFunctionality, OwningCharacter, COND_InitialOnly);
 }

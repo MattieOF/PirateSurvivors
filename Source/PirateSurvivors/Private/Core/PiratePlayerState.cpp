@@ -19,6 +19,17 @@ void APiratePlayerState::BeginPlay()
 	Initialise();
 }
 
+void APiratePlayerState::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	for (AWeaponFunctionality* Weapon : Weapons)
+	{
+		if (Weapon && Weapon->bRequestReposition)
+			Weapon->SetActorTransform(GetPawn()->GetActorTransform());
+	}
+}
+
 void APiratePlayerState::Initialise()
 {
 	if (!GetPiratePawn())

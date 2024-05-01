@@ -33,6 +33,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void InitialiseLight(APirateSurvivorsCharacter* NewOwner, UWeaponData* Data);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Weapon")
+	void OnInitialise();
 	
 	UFUNCTION(BlueprintNativeEvent, Category = "Weapon")
 	void OnFire();
@@ -54,6 +57,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnWeaponDataUpdated OnDataUpdated;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+	bool bRequestReposition = false;
 	
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
@@ -90,7 +96,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
 	float CurrentFireTime = 0;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", Replicated)
 	APirateSurvivorsCharacter* OwningCharacter = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon", Replicated)
