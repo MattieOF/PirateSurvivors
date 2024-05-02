@@ -172,7 +172,7 @@ void APiratePlayerState::OnLevelUp_Implementation(int NewLevel)
 	
 	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
 
-	if (Level % 5 == 0)
+	if (Level % 8 == 0)
 	{
 		// Give the player a choice of weapon upgrades
 		auto WeaponChoices = GameMode->GetUpgradeList()->GetWeaponChoices(this);
