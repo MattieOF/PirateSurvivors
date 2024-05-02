@@ -23,6 +23,8 @@ public:
 	void SetTarget(APirateSurvivorsCharacter* NewTarget);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy AI Controller")
 	FORCEINLINE bool IsTargetPlayer() const { return bIsTargetPlayer; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy AI Controller")
+	FORCEINLINE APirateSurvivorsCharacter* GetTarget() const { return Target; }
 
 	UFUNCTION(BlueprintCallable, Category = "Enemy AI Controller")
 	void SetIsMeleeAttacking(bool bNewValue);

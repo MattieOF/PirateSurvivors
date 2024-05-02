@@ -5,6 +5,14 @@
 #include "PirateLog.h"
 #include "Net/UnrealNetwork.h"
 
+static TAutoConsoleVariable<int32> CVarDisableDamage(
+	TEXT("ps.DisableDamage"),
+	0,
+	TEXT("Defines whether or not any health component can take damage.\n")
+	TEXT("<=0: off, normal behaviour\n")
+	TEXT("  1: no health components can take damage\n"),
+	 ECVF_Cheat);
+
 UHealthComponent::UHealthComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -34,6 +42,9 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 void UHealthComponent::TakeDamage(const FDamageInstance& DamageEvent)
 {
+	if (CVarDisableDamage.GetValueOnGameThread() > 0)
+		return;
+	
 	if (IsDead())
 		return;
 	
@@ -43,7 +54,7 @@ void UHealthComponent::TakeDamage(const FDamageInstance& DamageEvent)
 		return;
 	}
 	
-	FDamageInstance Event = DamageEvent; // Copy the event so we can modify it, needed for armour calculations
+	FDamageInstance Event = DamageEvent; // Copy the event so that we can modify it, needed for armour calculations
 	float Armour = 0;
 	if (ArmourGetter.IsBound())
 		Armour = ArmourGetter.Execute(Event);

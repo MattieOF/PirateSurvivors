@@ -6,6 +6,7 @@
 #include "Core/PirateSurvivorsCharacter.h"
 #include "Enemy.generated.h"
 
+class AEnemyAIController;
 class APiratePlayerCharacter;
 class UHealthBar;
 class UEnemyData;
@@ -43,8 +44,16 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy")
 	FORCEINLINE UEnemyData* GetData() const { return EnemyData; }
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bManuallyFaceTarget = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Enemy")
+	void SetManuallyFaceTarget(bool bNewValue);
+	
 protected:
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void PossessedBy(AController* NewController) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UEnemyData* EnemyData = nullptr;
@@ -52,4 +61,9 @@ protected:
 	// Usually null, only valid if the enemy is a mini-boss
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UHealthBar* HealthBar = nullptr;
+
+	UPROPERTY()
+	AEnemyAIController* EnemyAIController = nullptr;
+
+	bool bHasSetData = false;
 };

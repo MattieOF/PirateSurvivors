@@ -9,7 +9,7 @@
 /**
  * Data relating to a projectile type
  */
-UCLASS()
+UCLASS(BlueprintType)
 class PIRATESURVIVORS_API UProjectileData : public UDataAsset
 {
 	GENERATED_BODY()

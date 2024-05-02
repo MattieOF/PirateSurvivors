@@ -21,6 +21,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "XP")
 	void Hide();
 
+	virtual void Tick(float DeltaSeconds) override;
+
+	void SetPhysics(FVector Velocity);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "XP")
 	bool bPickedUp = false;
 	
@@ -29,6 +33,11 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 	int ID = 0;
+
+	float PickupDelay = 0;
+	bool bCanBePickedUp = true;
+	
+	bool bPhysicsEnabled = false;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "XP")

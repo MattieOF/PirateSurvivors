@@ -36,6 +36,7 @@ AEnemy::AEnemy()
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Enemy);
 
 	GetCharacterMovement()->bUseRVOAvoidance = true;
+	GetCharacterMovement()->bOrientRotationToMovement = !bManuallyFaceTarget;
 }
 
 void AEnemy::BeginPlay()
@@ -51,7 +52,7 @@ void AEnemy::BeginPlay()
 void AEnemy::OnHealthChanged(float Change, float NewHP)
 {
 	const auto GS = APirateGameState::GetPirateGameState(GetWorld());
-	if (!GS) return;
+	if (!GS || !bHasSetData) return;
 	
 	FVector Origin, Bounds;
 	GetActorBounds(true, Origin, Bounds);
@@ -73,11 +74,31 @@ void AEnemy::Die()
 	Destroy();
 }
 
+void AEnemy::SetManuallyFaceTarget(bool bNewValue)
+{
+	bManuallyFaceTarget = bNewValue;
+	GetCharacterMovement()->bOrientRotationToMovement = !bManuallyFaceTarget;
+}
+
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+	if (bManuallyFaceTarget
+		&& EnemyAIController
+		&& EnemyAIController->GetTarget())
+	{
+		FVector Dir = EnemyAIController->GetTarget()->GetActorLocation() - GetActorLocation();
+		Dir.Z = 0;
+		Dir.Normalize();
+		SetActorRotation(Dir.Rotation());
+	}
+}
+
+void AEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	EnemyAIController = Cast<AEnemyAIController>(NewController);
 }
 
 void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
@@ -112,6 +133,8 @@ void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 				AIController->SetTarget(Target);
 		}
 	}
+
+	bHasSetData = true;
 }
 
 void AEnemy::SetHasHealthBar(bool bHasHealthBar)

@@ -9,6 +9,7 @@
 #include "Player/Upgrade.h"
 #include "Weapon/ProjectileData.h"
 #include "Weapon/WeaponData.h"
+#include "Weapon/WeaponStats.h"
 
 #define DEFINE_ASSET_FACTORY(Type, FullType) U##Type##Factory::U##Type##Factory()\
 {\
@@ -67,6 +68,7 @@ DEFINE_ASSET_FACTORY(EnemyData, UEnemyData);
 DEFINE_ASSET_FACTORY(PlayerClassData, UPlayerClassData);
 DEFINE_ASSET_FACTORY(ProjectileData, UProjectileData);
 DEFINE_ASSET_FACTORY_NONAME(PlayerStats, UPlayerStats);
+DEFINE_ASSET_FACTORY_NONAME(WeaponStats, UWeaponStats);
 DEFINE_ASSET_FACTORY(WeaponUpgrade, UWeaponUpgrade);
 DEFINE_ASSET_FACTORY(PlayerUpgrade, UPlayerUpgrade);
 DEFINE_ASSET_FACTORY(EncounterData, UEncounterData);

@@ -93,6 +93,35 @@ void AXPManager::SpawnXP(FVector Location, float Value, int ID)
 	Multicast_SpawnXP(Location, Value, ID);
 }
 
+void AXPManager::SpawnXPWithPhysics(FVector Location, float Value, int ID, FVector Velocity)
+{
+	if (!HasAuthority()) return;
+	if (ID == 0)
+		ID = GetFreeID();
+	Multicast_SpawnXPWithPhysics(Location, Value, ID, Velocity);
+}
+
+void AXPManager::Multicast_SpawnXPWithPhysics_Implementation(FVector Location, float Value, int ID, FVector Velocity)
+{
+	if (CurrentXPObjects.Contains(ID))
+	{
+		PIRATE_LOG_ERROR_NOLOC("Tried to spawn XP with ID %d, but it already exists!", ID);
+		return;
+	}
+
+	const auto GS = APirateGameState::GetPirateGameState(GetWorld());
+	if (!GS || !GS->XPClass) return;
+	AXP* XP = GetWorld()->SpawnActorDeferred<AXP>(GS->XPClass, FTransform(Location));
+	XP->Value = Value;
+	XP->ID = ID;
+	XP->SetPhysics(Velocity);
+	// We add it before FinishSpawning as FinishSpawning will cause collisions to be checked, so if a player
+	// is in range of the XP when it spawns, they'll pick it up immediately. This will call Multicast_PickupXP before
+	// the ID is added to the map, which will cause an error.
+	CurrentXPObjects.Add(ID, XP);
+	XP->FinishSpawning(XP->GetTransform());
+}
+
 void AXPManager::BeginPlay()
 {
 	Super::BeginPlay();

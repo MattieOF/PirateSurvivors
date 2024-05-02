@@ -32,6 +32,9 @@ void APiratePlayerState::Tick(float DeltaSeconds)
 
 void APiratePlayerState::Initialise()
 {
+	if (!GetPawn())
+		return; // ?????????????
+	
 	if (!GetPiratePawn())
 	{
 		GetWorldTimerManager().SetTimerForNextTick([this] { Initialise(); });
