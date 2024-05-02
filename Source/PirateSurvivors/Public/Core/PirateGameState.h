@@ -8,12 +8,15 @@
 #include "PirateGameState.generated.h"
 
 // Forward decls
+class AEnemy;
 class UHealthBars;
 class UDamageNumbers;
 class AXP;
 class AXPManager;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameOver);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossSpawned, AEnemy*, Enemy);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBossKilled, AEnemy*, Enemy);
 
 /**
  * Game	State class for Pirate Survivors.
@@ -50,6 +53,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGameOver OnGameOver;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnBossSpawned OnBossSpawned;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnBossKilled OnBossKilled;
 	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;

@@ -63,12 +63,25 @@ void AEnemy::Die()
 {
 	// Do blueprint stuff
 	OnDeath();
+
+	if (EnemyData->bIsBoss)
+	{
+		if (const APirateGameState* GS = APirateGameState::GetPirateGameState(GetWorld()))
+			GS->OnBossKilled.Broadcast(this);
+	}
 	
 	if (!HasAuthority()) return;
 
 	// Spawn XP
 	AXPManager* XPManager = APirateGameState::GetPirateGameState(GetWorld())->GetXPManager();
-	XPManager->SpawnXP(GetActorLocation(), EnemyData->GetXPDrop());
+	if (EnemyData->XPDropCount > 1)
+	{
+		for (int i = 0; i < EnemyData->XPDropCount; i++)
+			XPManager->SpawnXPWithPhysics(GetActorLocation(), EnemyData->GetXPDrop(), 0,
+			                              FVector(FMath::FRandRange(-200.f, 200.f), FMath::FRandRange(-200.f, 200.f),
+			                                      FMath::FRandRange(0, 200.f)));
+	} else
+		XPManager->SpawnXP(GetActorLocation(), EnemyData->GetXPDrop());
 	
 	// Destroy the enemy
 	Destroy();
@@ -114,6 +127,11 @@ void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 	GetMesh()->SetSkeletalMesh(EnemyData ? EnemyData->Mesh : nullptr);
 	if (EnemyData->bIsMiniBoss)
 		SetHasHealthBar(true);
+	if (EnemyData->bIsBoss)
+	{
+		if (const APirateGameState* GS = APirateGameState::GetPirateGameState(GetWorld()))
+			GS->OnBossSpawned.Broadcast(this);
+	}
 	if (HasAuthority() && EnemyData && HealthComponent)
 	{
 		HealthComponent->SetMaxHP(EnemyData->Stats->BaseHealth, true, true);

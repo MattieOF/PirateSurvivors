@@ -130,7 +130,7 @@ APiratePlayerCharacter* UEnemySpawner::GetSpawnTarget() const
 	return Target;
 }
 
-bool UEnemySpawner::GetSpawnPoint(APiratePlayerCharacter* Target, FVector& OutSpawnPoint) const
+bool UEnemySpawner::GetSpawnPoint(APiratePlayerCharacter* Target, FVector& OutSpawnPoint, bool bImportant) const
 {
 	bool bFound = false;
 
@@ -138,6 +138,8 @@ bool UEnemySpawner::GetSpawnPoint(APiratePlayerCharacter* Target, FVector& OutSp
 	constexpr float MinimumDistanceFromAnyPlayerSquared = FMath::Square(MinimumDistanceFromAnyPlayer);
 
 	int Tries = 10;
+	if (bImportant) // Bodge: ideally, there would just not be a risk of not finding a spawn point
+		Tries *= 20;
 	const UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	double Start = FPlatformTime::Seconds();
 	do

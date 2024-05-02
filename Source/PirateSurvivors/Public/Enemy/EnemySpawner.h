@@ -43,7 +43,7 @@ private:
 	APiratePlayerCharacter* GetSpawnTarget() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Enemy Spawner")
-	bool GetSpawnPoint(APiratePlayerCharacter* Target, FVector& OutSpawnPoint) const;
+	bool GetSpawnPoint(APiratePlayerCharacter* Target, FVector& OutSpawnPoint, bool bImportant = false) const;
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy Spawner", meta = (WorldContext = "WorldContextObject"))
 	static float GetLowestSquaredDistanceToPlayer(UObject* WorldContextObject, const FVector& Location);

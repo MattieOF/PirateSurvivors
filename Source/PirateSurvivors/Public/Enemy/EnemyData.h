@@ -32,6 +32,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	bool bIsMiniBoss = false;
 
+	// If an enemy is a boss, it will have a bigger healthbar and will end the level when killed.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
+	bool bIsBoss = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	USkeletalMesh* Mesh = nullptr;
 
@@ -51,6 +55,9 @@ public:
 	FVector2D XPDropRange = FVector2D(1.0f, 1.5f);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Enemy Data")
 	FORCEINLINE float GetXPDrop() const { return FMath::RandRange(XPDropRange.X, XPDropRange.Y); }
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
+	int XPDropCount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data", DisplayName = "Default AI Values")
 	TMap<FName, float> DefaultAIValues;
