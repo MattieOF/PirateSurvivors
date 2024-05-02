@@ -26,12 +26,6 @@ public:
 	FText Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
-	float BaseHealth = 100;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
-	float BaseDamage = 20;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Enemy Data")
 	float MeleeDistCheckBias = 70.f;
 
 	// If an enemy is a mini-boss, it will have a healthbar
@@ -62,7 +56,7 @@ public:
 	TMap<FName, float> DefaultAIValues;
 
 	UPROPERTY(EditAnywhere, Instanced, BlueprintReadOnly, Category = "Enemy Data")
-	UEnemyStats* Stats;
+	UEnemyStats* Stats = nullptr;
 	
 	// ----------------- Audio -----------------
 	

@@ -126,8 +126,7 @@ void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const
 void UHealthComponent::Revive(float RevivalHPPercentage)
 {
 	bDead = false;
-	if (GetOwner()->HasAuthority())
-		Multicast_SetHP(RevivalHPPercentage * MaxHealth);
+	Multicast_SetHP(RevivalHPPercentage * MaxHealth);
 }
 
 void UHealthComponent::Multicast_Die_Implementation()

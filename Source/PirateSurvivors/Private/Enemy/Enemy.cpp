@@ -9,6 +9,7 @@
 #include "Core/PiratePlayerCharacter.h"
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
+#include "Enemy/EnemyStats.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UI/DamageNumbers.h"
 #include "UI/HealthBar.h"
@@ -43,6 +44,9 @@ void AEnemy::BeginPlay()
 	if (EnemyData)
 		SetData(EnemyData);
 }
+
+// Can't be const because of the OnHealthChanged.AddDynamic
+// ReSharper disable once CppMemberFunctionMayBeConst
 
 void AEnemy::OnHealthChanged(float Change, float NewHP)
 {
@@ -90,7 +94,7 @@ void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 		SetHasHealthBar(true);
 	if (HasAuthority() && EnemyData && HealthComponent)
 	{
-		HealthComponent->SetHP(EnemyData->BaseHealth, true);
+		HealthComponent->SetMaxHP(EnemyData->Stats->BaseHealth, true, true);
 
 		// Setup AI controller
 		AIControllerClass = EnemyData->EnemyAISubclass;
@@ -111,7 +115,7 @@ void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 
 void AEnemy::SetHasHealthBar(bool bHasHealthBar)
 {
-	APirateGameState* GS = APirateGameState::GetPirateGameState(GetWorld());
+	const APirateGameState* GS = APirateGameState::GetPirateGameState(GetWorld());
 
 	if (!GS || !GS->GetHealthBars())
 	{

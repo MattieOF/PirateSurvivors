@@ -15,6 +15,13 @@ class PIRATESURVIVORS_API UEnemyStats : public UObject
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats", Setter = SetBaseHealth)
+	float BaseHealth = 100.f;
+	UFUNCTION(BlueprintCallable)
+	void SetBaseHealth(float Value);
+	UPROPERTY(BlueprintAssignable)
+	FOnEnemyStatChanged OnBaseHealthChanged;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Stats", Setter = SetWalkSpeed)
 	float WalkSpeed = 300.0f;
 	UFUNCTION(BlueprintCallable)

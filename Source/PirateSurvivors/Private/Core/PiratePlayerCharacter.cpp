@@ -354,8 +354,9 @@ void APiratePlayerCharacter::OnKilled()
 	}
 }
 
-void APiratePlayerCharacter::Multicast_OnRevived(APiratePlayerCharacter* Reviver)
+void APiratePlayerCharacter::Multicast_OnRevived_Implementation(APiratePlayerCharacter* Reviver)
 {
+	PIRATE_LOGC(GetWorld(), "Revived %s, by %s", *GetName(), *Reviver->GetName());
 	OnRevived(Reviver);
 }
 

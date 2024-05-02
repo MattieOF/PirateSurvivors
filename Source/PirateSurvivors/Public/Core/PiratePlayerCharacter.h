@@ -61,7 +61,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player Character")
 	void OnKilled();
-	UFUNCTION(BlueprintCallable, Category = "Pirate Player Character")
+	UFUNCTION(BlueprintCallable, Category = "Pirate Player Character", NetMulticast, Reliable)
 	void Multicast_OnRevived(APiratePlayerCharacter* Reviver);
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player Character")
 	void OnRevived(APiratePlayerCharacter* Reviver);
