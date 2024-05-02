@@ -55,10 +55,9 @@ void UHealthComponent::TakeDamage(const FDamageInstance& DamageEvent)
 void UHealthComponent::Multicast_TakeDamage_Implementation(const FDamageInstance& DamageEvent)
 {
 	// if (GetOwner()->HasAuthority())
-	ChangeHP(-DamageEvent.Damage);
-	
 	if (bRetainDamageEvents)
 		DamageHistory.Add(DamageEvent);
+	ChangeHP(-DamageEvent.Damage);
 }
 
 void UHealthComponent::ChangeHP(const float Amount)

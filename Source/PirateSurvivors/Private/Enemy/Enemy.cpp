@@ -88,7 +88,8 @@ void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 	{
 		PIRATE_LOGC_ERROR(GetWorld(), "In enemy %s, SetData called with null enemydata", *GetName());
 	}
-	
+
+	CharacterName = EnemyData->Name;
 	GetMesh()->SetSkeletalMesh(EnemyData ? EnemyData->Mesh : nullptr);
 	if (EnemyData->bIsMiniBoss)
 		SetHasHealthBar(true);
