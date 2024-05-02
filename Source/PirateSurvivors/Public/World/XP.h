@@ -6,6 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "XP.generated.h"
 
+class APiratePlayerCharacter;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPickedUp, APiratePlayerCharacter*, Player);
+
 // XP is a collectible item that can be picked up by the player to increase their XP.
 // Don't create XP directly in the world, use the XPManager to spawn them.
 // XP is not directly replicated, as there are too many of them to replicate individually.
@@ -38,6 +42,9 @@ public:
 	bool bCanBePickedUp = true;
 	
 	bool bPhysicsEnabled = false;
+
+	UPROPERTY(BlueprintAssignable, Category = "XP")
+	FOnPickedUp OnPickedUp;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "XP")

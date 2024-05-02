@@ -224,7 +224,8 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 			APiratePlayerState* PS = Cast<APiratePlayerState>(GetPlayerState());
 			if (!PS)
 				continue;
-			PS->AddXP(XPBeingPickedUp[Index]->Value); 
+			PS->AddXP(XPBeingPickedUp[Index]->Value);
+			XPBeingPickedUp[Index]->OnPickedUp.Broadcast(this);
 			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->DestroyXP(XPBeingPickedUp[Index]->ID);	
 			XPBeingPickedUp[Index]->Hide();
 			XPBeingPickedUp.RemoveAt(Index);

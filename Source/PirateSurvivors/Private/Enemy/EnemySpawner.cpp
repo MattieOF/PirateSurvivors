@@ -79,12 +79,12 @@ void UEnemySpawner::Tick()
 			{
 				APiratePlayerCharacter* Target = GetSpawnTarget(); // todo: optimise
 				FVector Location;
-				if (!GetSpawnPoint(Target, Location))
+				UEnemyData* EnemyData = Stage.Stage->Enemies[FMath::RandRange(0, Stage.Stage->Enemies.Num() - 1)];
+				if (!GetSpawnPoint(Target, Location, EnemyData->bIsBoss || EnemyData->bIsMiniBoss))
 				{
 					PIRATE_LOGC_WARN(GetWorld(), "Failed to find a spawn point for enemy!");
 					continue;
 				}
-				UEnemyData* EnemyData = Stage.Stage->Enemies[FMath::RandRange(0, Stage.Stage->Enemies.Num() - 1)];
 				AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(EnemyData->EnemySubclass, Location, FRotator::ZeroRotator);
 				if (!Enemy)
 				{

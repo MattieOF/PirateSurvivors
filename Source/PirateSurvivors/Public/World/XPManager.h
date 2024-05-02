@@ -63,6 +63,12 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void Multicast_SpawnXPWithPhysics(FVector Location, float Value, int ID = 0, FVector Velocity = FVector::ZeroVector);
+	
+	UFUNCTION(BlueprintCallable)
+	void SpawnSpecialXPWithPhysics(TSubclassOf<AXP> SpecialClass, FVector Location, float Value, int ID = 0, FVector Velocity = FVector::ZeroVector);
+	
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
+	void Multicast_SpawnSpecialXPWithPhysics(TSubclassOf<AXP> SpecialClass, FVector Location, float Value, int ID = 0, FVector Velocity = FVector::ZeroVector);
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void Multicast_PickupXP(APiratePlayerCharacter* Character, int XPID, int Tries = 3);
