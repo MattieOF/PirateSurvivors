@@ -5,6 +5,7 @@
 #include "PirateLog.h"
 #include "Blueprint/UserWidget.h"
 #include "Core/PirateGameInstance.h"
+#include "Core/PiratePlayerCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "UI/DamageNumbers.h"
 #include "UI/HealthBars.h"
@@ -31,6 +32,27 @@ void APirateGameState::BeginPlay()
 		PIRATE_LOGC_ERROR(GetWorld(), "GI HealthBarsClass is either unset or not a subclass of UHealthBars");
 	else
 		HealthBars->AddToViewport(-101);
+}
+
+void APirateGameState::OnPlayerDied()
+{
+	if (!HasAuthority())
+		return;
+	
+	// iterate through all players, if all are dead, game over
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		const auto Player = Cast<APiratePlayerCharacter>(It->Get()->GetPawn());
+		if (Player && !Player->GetHealthComponent()->IsDead())
+			return;
+	}
+
+	Multicast_GameOver();
+}
+
+void APirateGameState::Multicast_GameOver_Implementation()
+{
+	OnGameOver.Broadcast();
 }
 
 void APirateGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

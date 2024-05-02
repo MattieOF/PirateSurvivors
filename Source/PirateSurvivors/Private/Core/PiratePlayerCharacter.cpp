@@ -352,6 +352,14 @@ void APiratePlayerCharacter::OnKilled()
 		PiratePlayerState->CurrentInteractable->EndInteract(PiratePlayerState);
 		PiratePlayerState->SetInteractable(nullptr);
 	}
+
+	if (HasAuthority())
+	{
+		APirateGameState* GS = APirateGameState::GetPirateGameState(GetWorld());
+		if (!GS)
+			return;
+		GS->OnPlayerDied();
+	}
 }
 
 void APiratePlayerCharacter::Multicast_OnRevived_Implementation(APiratePlayerCharacter* Reviver)

@@ -13,6 +13,8 @@ class UDamageNumbers;
 class AXP;
 class AXPManager;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameOver);
+
 /**
  * Game	State class for Pirate Survivors.
  */
@@ -33,6 +35,12 @@ public:
 	FORCEINLINE AXPManager* GetXPManager() const { return XPManager; }
 	FORCEINLINE UDamageNumbers* GetDamageNumbers() const { return DamageNumbers; }
 	FORCEINLINE UHealthBars* GetHealthBars() const { return HealthBars; }
+
+	UFUNCTION(BlueprintCallable)
+	void OnPlayerDied();
+	
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void Multicast_GameOver();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Asset References")
 	TSubclassOf<AXP> XPClass;
@@ -40,6 +48,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<double> XPMultipliers = {1.0, 0.7, 0.7, 0.5, 0.5, 0.3, 0.3, 0.1, 0.1, 0.1, 0.05};
 
+	UPROPERTY(BlueprintAssignable)
+	FOnGameOver OnGameOver;
+	
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
