@@ -3,7 +3,9 @@
 #include "Weapon/WeaponStats.h"
 
 #include "PirateLog.h"
+#include "Core/PiratePlayerState.h"
 #include "Weapon/WeaponData.h"
+#include "Weapon/WeaponFunctionality.h"
 
 DECLARE_PIRATE_STAT_CPP(UWeaponStats, Damage);
 DECLARE_PIRATE_STAT_CPP(UWeaponStats, FireRateSeconds);
@@ -28,5 +30,21 @@ bool UWeaponData::VerifyCompatability() const
 		return false;
 	}
 
+	return true;
+}
+
+bool UWeaponData::CanPlayerUseWeapon(APiratePlayerState* Player) const
+{
+	check(Player);
+
+	auto PlayersWeapons = Player->GetWeapons();
+	for (const AWeaponFunctionality* Weapon : *PlayersWeapons)
+	{
+		if (Weapon && Weapon->GetWeaponData() == this)
+			return false;
+	}
+
+	// TODO: expand with more features
+	
 	return true;
 }

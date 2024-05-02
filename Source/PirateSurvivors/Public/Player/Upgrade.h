@@ -36,6 +36,9 @@ struct FQueuedUpgradeChoice
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "Upgrade Choice")
+	UWeaponData* Weapon;
+	
+	UPROPERTY(BlueprintReadWrite, Category = "Upgrade Choice")
 	UUpgrade* Upgrade;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Upgrade Choice")

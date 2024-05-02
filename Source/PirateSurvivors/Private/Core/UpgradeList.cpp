@@ -7,6 +7,7 @@
 #include "Core/PirateGameModeBase.h"
 #include "Core/PiratePlayerState.h"
 #include "Player/Upgrade.h"
+#include "Weapon/WeaponData.h"
 
 UUpgradeList::UUpgradeList()
 {
@@ -48,6 +49,19 @@ UUpgradeList::UUpgradeList()
 				PlayerUpgrades.Add(Upgrade->Rarity, TArray<UPlayerUpgrade*>());
 			PlayerUpgrades[Upgrade->Rarity].Add(Upgrade);
 			TotalPlayerUpgrades++;
+		}
+	}
+
+	// And finally for weapons
+	{
+		AssetData.Empty();
+		const UClass* WeaponDataClass = UWeaponData::StaticClass();
+		AssetRegistry.GetAssetsByClass(FTopLevelAssetPath(WeaponDataClass->GetPackage()->GetFName(), WeaponDataClass->GetFName()), AssetData);
+		for (auto& Asset : AssetData)
+		{
+			UWeaponData* Weapon = Cast<UWeaponData>(Asset.GetAsset());
+			Weapons.Add(Weapon);
+			TotalWeapons++;
 		}
 	}
 }
@@ -123,15 +137,15 @@ TArray<FQueuedUpgradeChoice> UUpgradeList::GetPlayerUpgradeChoices(APiratePlayer
 			if (Upgrade->bForOneWeapon)
 			{
 				// TODO: We've already calculated this before during the initial upgrade selection, so it's wasteful to do it again.
-				TArray<AWeaponFunctionality*> Weapons = *Player->GetWeapons();
-				Weapons.FilterByPredicate([&Upgrade](AWeaponFunctionality* Weapon) { return Upgrade->IsValidForWeapon(Weapon); });
-				if (Weapons.Num() > 0)
-					TargetIndex = FMath::RandRange(0, Weapons.Num() - 1);
+				TArray<AWeaponFunctionality*> PlayersWeapons = *Player->GetWeapons();
+				PlayersWeapons.FilterByPredicate([&Upgrade](AWeaponFunctionality* Weapon) { return Upgrade->IsValidForWeapon(Weapon); });
+				if (PlayersWeapons.Num() > 0)
+					TargetIndex = FMath::RandRange(0, PlayersWeapons.Num() - 1);
 				else
 					PIRATE_LOGC_ERROR(GetWorld(), "Somehow no valid weapon?");
 			}
 		}
-		Choices.Add({ Choice, TargetIndex });
+		Choices.Add({ nullptr, Choice, TargetIndex });
 	}
 
 	const double End = FPlatformTime::Seconds();
@@ -200,4 +214,24 @@ UWeaponUpgrade* UUpgradeList::GetPlayerWeaponUpgradeChoice(APiratePlayerState* P
 	} while ((Choice == nullptr || !WeaponUpgrades.Contains(Rarity)) && !(static_cast<int>(Rarity) == 0 && HasTriedAboveRarities));
 
 	return Choice;
+}
+
+TArray<FQueuedUpgradeChoice> UUpgradeList::GetWeaponChoices(APiratePlayerState* Player)
+{
+	TArray<UWeaponData*> Options = Weapons;
+	TArray<FQueuedUpgradeChoice> Result;
+	int Choices = 3;
+
+	while (!Options.IsEmpty() && Choices > 0)
+	{
+		const int Index = FMath::RandRange(0, Options.Num() - 1);
+		if (Options[Index]->CanPlayerUseWeapon(Player))
+		{
+			Result.Add({ Options[Index], nullptr, -1 });
+			Choices--;
+		}
+		Options.RemoveAt(Index);
+	}
+
+	return Result;
 }

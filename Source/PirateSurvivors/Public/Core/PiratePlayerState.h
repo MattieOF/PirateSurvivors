@@ -29,6 +29,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FInteractableUpdated, UInteractableC
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUpgradeChoicesReceived, const TArray<FQueuedUpgradeChoice>&, Choices, APiratePlayerState*, PlayerState);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpgradeChosen, int, UpgradeIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponChoicesReceived, const TArray<UWeaponData*>&, Choices, APiratePlayerState*, PlayerState);
 
 /**
  * Base player state class for Pirate Survivors
@@ -87,6 +88,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
 	FOnUpgradeChoicesReceived OnUpgradeChoicesReceived;
+
+	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
+	FOnWeaponChoicesReceived OnWeaponChoicesReceived;
 
 	UPROPERTY(BlueprintAssignable, Category = "Pirate Player State")
 	FInteractableUpdated OnInteractableUpdated;

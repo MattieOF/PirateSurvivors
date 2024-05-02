@@ -40,4 +40,7 @@ public:
 
 	UFUNCTION(CallInEditor, Category = "Weapon")
 	FORCEINLINE void CheckCompatibility() const { VerifyCompatability(); };
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon")
+	bool CanPlayerUseWeapon(class APiratePlayerState* Player) const;
 };

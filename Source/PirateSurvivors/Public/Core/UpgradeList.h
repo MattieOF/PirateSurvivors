@@ -6,6 +6,7 @@
 #include "UObject/Object.h"
 #include "UpgradeList.generated.h"
 
+class UWeaponData;
 // Forward decls
 struct FQueuedUpgradeChoice;
 class UUpgrade;
@@ -41,6 +42,9 @@ public:
 	UPlayerUpgrade* GetPlayerPlayerUpgradeChoice(APiratePlayerState* Player, const TArray<UUpgrade*>& Blacklist) const;
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UWeaponUpgrade* GetPlayerWeaponUpgradeChoice(APiratePlayerState* Player, const TArray<UUpgrade*>& Blacklist) const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Upgrade List")
+	TArray<FQueuedUpgradeChoice> GetWeaponChoices(APiratePlayerState* Player);
 	
 protected:
 	TMap<ERarity, TArray<UWeaponUpgrade*>> WeaponUpgrades;
@@ -49,4 +53,9 @@ protected:
 	TMap<ERarity, TArray<UPlayerUpgrade*>> PlayerUpgrades;
 	UPROPERTY(BlueprintReadOnly, Category = "Upgrade List")
 	int TotalPlayerUpgrades = 0;
+	UPROPERTY(BlueprintReadOnly, Category = "Upgrade List")
+	int TotalWeapons = 0;
+
+	UPROPERTY()
+	TArray<UWeaponData*> Weapons;
 };

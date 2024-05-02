@@ -171,16 +171,20 @@ void APiratePlayerState::OnLevelUp_Implementation(int NewLevel)
 		return;
 	
 	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
-	auto UpgradeChoices = GameMode->GetUpgradeList()->GetPlayerUpgradeChoices(this);
 
-	// PIRATE_LOGC_NOLOC(GetWorld(), "Level up! Upgrade choices:");
-	// for (const auto& [Upgrade, TargetWeaponIndex] : UpgradeChoices)
-	// {
-	// 	if (TargetWeaponIndex != -1)
-	// 		PIRATE_LOGC_NOLOC(GetWorld(), "    %s, for weapon %i", *Upgrade->GetName(), TargetWeaponIndex);
-	// 	else
-	// 		PIRATE_LOGC_NOLOC(GetWorld(), "    %s", *Upgrade->GetName());
-	// }
+	if (Level % 5 == 0)
+	{
+		// Give the player a choice of weapon upgrades
+		auto WeaponChoices = GameMode->GetUpgradeList()->GetWeaponChoices(this);
+		if (WeaponChoices.Num() != 0)
+		{
+			UpgradeQueue.Enqueue(WeaponChoices); // Enqueue the upgrade choices on the server
+			Client_ReceiveUpgradeChoices(WeaponChoices); // And send them to the client
+			return;
+		}
+	}
+
+	auto UpgradeChoices = GameMode->GetUpgradeList()->GetPlayerUpgradeChoices(this);
 
 	if (UpgradeChoices.Num() == 0)
 	{
@@ -288,7 +292,9 @@ void APiratePlayerState::Server_SelectUpgrade_Implementation(int Index)
 	// Ok, we've got a valid choice, let's apply it
 	// Make sure we call the correct function based on the type of upgrade
 	const FQueuedUpgradeChoice Choice = UpgradeChoices[Index];
-	if (Choice.Upgrade->IsA(UWeaponUpgrade::StaticClass()))
+	if (Choice.Weapon != nullptr)
+		GiveWeaponFromType(Choice.Weapon);
+	else if (Choice.Upgrade->IsA(UWeaponUpgrade::StaticClass()))
 		Multicast_AddWeaponUpgrade(Choice);
 	else
 		Multicast_AddStatUpgrade(Choice);
