@@ -16,7 +16,7 @@ AProjectile::AProjectile()
 
 	bReplicates = true;
 	// AActor::SetReplicateMovement(true);
-	
+
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 	ProjectileMovementComponent->bAutoActivate = false;
 	// No gravity by default. This could be changed with a projectile subclass if needed, but we really don't want gravity on most projectiles.
@@ -26,6 +26,7 @@ AProjectile::AProjectile()
 	// Again, this could be changed with a projectile subclass if needed.
 	ProjectileMovementComponent->Friction = 0;
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetCanEverAffectNavigation(false);
 	Mesh->OnComponentHit.AddDynamic(this, &AProjectile::OnProjectileHit);
 
 	RootComponent = Mesh;

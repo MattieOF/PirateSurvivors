@@ -6,6 +6,7 @@
 #include "PirateSurvivors.h"
 #include "Components/CapsuleComponent.h"
 #include "Core/PirateGameState.h"
+#include "Core/PiratePlayerCharacter.h"
 #include "Enemy/EnemyAIController.h"
 #include "Enemy/EnemyData.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -39,7 +40,8 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	SetData(EnemyData);
+	if (EnemyData)
+		SetData(EnemyData);
 }
 
 void AEnemy::OnHealthChanged(float Change, float NewHP)
@@ -74,7 +76,7 @@ void AEnemy::Tick(float DeltaTime)
 	
 }
 
-void AEnemy::SetData(UEnemyData* NewEnemyData)
+void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 {
 	EnemyData = NewEnemyData;
 
@@ -98,6 +100,12 @@ void AEnemy::SetData(UEnemyData* NewEnemyData)
 			Controller = nullptr;
 		}
 		SpawnDefaultController();
+
+		if (Target != nullptr)
+		{
+			if (AEnemyAIController* AIController = Cast<AEnemyAIController>(Controller))
+				AIController->SetTarget(Target);
+		}
 	}
 }
 
@@ -123,7 +131,7 @@ void AEnemy::SetHasHealthBar(bool bHasHealthBar)
 	}
 }
 
-void AEnemy::Multicast_SetData_Implementation(UEnemyData* NewEnemyData)
+void AEnemy::Multicast_SetData_Implementation(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 {
-	SetData(NewEnemyData);
+	SetData(NewEnemyData, Target);
 }

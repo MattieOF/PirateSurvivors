@@ -8,6 +8,7 @@
 #include "Core/PSStatics.h"
 #include "Enemy/Enemy.h"
 #include "Enemy/EnemyData.h"
+#include "Enemy/EnemySpawner.h"
 #include "Enemy/EnemyStatics.h"
 #include "Enemy/EnemyStats.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -19,9 +20,15 @@ AEnemyAIController::AEnemyAIController()
 
 void AEnemyAIController::SetTarget(APirateSurvivorsCharacter* NewTarget)
 {
+	if (APiratePlayerCharacter* Player = Cast<APiratePlayerCharacter>(Target))
+		Player->EnemiesTargetingMe--;
+	
 	Target = NewTarget;
 	bIsTargetPlayer = Cast<APiratePlayerCharacter>(NewTarget) != nullptr;
 	GetBlackboardComponent()->SetValueAsObject(TargetPropertyName, NewTarget);
+	
+	if (APiratePlayerCharacter* Player = Cast<APiratePlayerCharacter>(Target))
+		Player->EnemiesTargetingMe++;
 }
 
 void AEnemyAIController::SetIsMeleeAttacking(bool bNewValue)
@@ -73,6 +80,11 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 
 	if (!UPSStatics::InActualGame())
 		return;
+
+	if (PossessedEnemy)
+	{
+		PossessedEnemy->GetHealthComponent()->OnDeath.RemoveDynamic(this, &AEnemyAIController::OnPossessedEnemyDeath);
+	}
 	
 	PossessedEnemy = Cast<AEnemy>(InPawn);
 	if (!PossessedEnemy)
@@ -80,6 +92,8 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 		PIRATE_LOGC_ERROR(GetWorld(), "Possessed pawn is not an enemy!");
 		return;
 	}
+
+	PossessedEnemy->GetHealthComponent()->OnDeath.AddDynamic(this, &AEnemyAIController::OnPossessedEnemyDeath);
 
 	const UEnemyData* Data = PossessedEnemy->GetData();
 	if (!Data)
@@ -102,14 +116,23 @@ void AEnemyAIController::OnPossess(APawn* InPawn)
 	}
 	else
 		PIRATE_LOGC_ERROR(GetWorld(), "Null enemy stats in EnemyData %s", *Data->GetName());
-
-	// For now, just set the target to the nearest player.
-	if (APiratePlayerCharacter* ClosestPlayer = UEnemyStatics::GetClosestPlayerNoDist(this, PossessedEnemy->GetActorLocation()))
-		SetTarget(ClosestPlayer);
-	else
-		PIRATE_LOGC_WARN(GetWorld(), "No players found to target!");
+	
+	// // For now, just set the target to the nearest player.
+	// if (APiratePlayerCharacter* ClosestPlayer = UEnemyStatics::GetClosestPlayerNoDist(this, PossessedEnemy->GetActorLocation()))
+	// 	SetTarget(ClosestPlayer);
+	// else
+	// 	PIRATE_LOGC_WARN(GetWorld(), "No players found to target!");
 
 	// Initialise other blackboard data
 	for (const TPair<FName, float>& Pair : Data->DefaultAIValues)
 		BB->SetValueAsFloat(Pair.Key, Pair.Value);
+}
+
+void AEnemyAIController::OnPossessedEnemyDeath()
+{
+	APirateGameModeBase* GM = Cast<APirateGameModeBase>(GetWorld()->GetAuthGameMode());
+	check(GM);
+	GM->GetEnemySpawner()->AliveEnemies--;
+	if (APiratePlayerCharacter* Player = Cast<APiratePlayerCharacter>(Target))
+		Player->EnemiesTargetingMe--;
 }

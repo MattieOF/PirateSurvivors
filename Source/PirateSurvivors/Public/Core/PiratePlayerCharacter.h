@@ -7,8 +7,8 @@
 #include "PirateSurvivorsCharacter.h"
 #include "PiratePlayerCharacter.generated.h"
 
-class UInteractableComponent;
 // Forward decls
+class UInteractableComponent;
 class UWeaponData;
 class AWeaponFunctionality;
 class AXP;
@@ -62,6 +62,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player Character")
 	void OnKilled();
 	UFUNCTION(BlueprintCallable, Category = "Pirate Player Character")
+	void Multicast_OnRevived(APiratePlayerCharacter* Reviver);
+	UFUNCTION(BlueprintCallable, Category = "Pirate Player Character")
 	void OnRevived(APiratePlayerCharacter* Reviver);
 
 	UPROPERTY(BlueprintAssignable)
@@ -77,6 +79,9 @@ public:
 	
 	UFUNCTION()
 	void OnReviveInteract(APiratePlayerState* Interactor);
+
+	UPROPERTY(BlueprintReadWrite, Category = "Pirate Player Character")
+	int EnemiesTargetingMe = 0;
 	
 protected:
 	virtual void BeginPlay() override;

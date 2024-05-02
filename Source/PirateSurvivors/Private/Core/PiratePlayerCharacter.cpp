@@ -73,7 +73,7 @@ void APiratePlayerCharacter::OnReviveInteract(APiratePlayerState* Interactor)
 		return;
 	}
 
-	OnRevived(Interactor->GetPiratePawn());
+	Multicast_OnRevived(Interactor->GetPiratePawn());
 }
 
 void APiratePlayerCharacter::BeginPlay()
@@ -352,6 +352,11 @@ void APiratePlayerCharacter::OnKilled()
 		PiratePlayerState->CurrentInteractable->EndInteract(PiratePlayerState);
 		PiratePlayerState->SetInteractable(nullptr);
 	}
+}
+
+void APiratePlayerCharacter::Multicast_OnRevived(APiratePlayerCharacter* Reviver)
+{
+	OnRevived(Reviver);
 }
 
 void APiratePlayerCharacter::OnRevived(APiratePlayerCharacter* Reviver)

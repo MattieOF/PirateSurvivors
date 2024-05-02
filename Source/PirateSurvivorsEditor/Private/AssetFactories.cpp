@@ -2,6 +2,7 @@
 
 #include "AssetFactories.h"
 
+#include "Enemy/EncounterData.h"
 #include "Enemy/EnemyData.h"
 #include "Player/PlayerClassData.h"
 #include "Player/PlayerStats.h"
@@ -68,3 +69,4 @@ DEFINE_ASSET_FACTORY(ProjectileData, UProjectileData);
 DEFINE_ASSET_FACTORY_NONAME(PlayerStats, UPlayerStats);
 DEFINE_ASSET_FACTORY(WeaponUpgrade, UWeaponUpgrade);
 DEFINE_ASSET_FACTORY(PlayerUpgrade, UPlayerUpgrade);
+DEFINE_ASSET_FACTORY(EncounterData, UEncounterData);

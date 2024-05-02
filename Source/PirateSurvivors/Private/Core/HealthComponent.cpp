@@ -117,7 +117,7 @@ void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const
 	const float Diff = NewMaxHP - MaxHealth;
 	MaxHealth = NewMaxHP;
 	OnHealthChanged.Broadcast(0, Health); // This will update the health bar, etc.
-	if (bGiveDifference)
+	if (bGiveDifference && !bDead)
 		SetHP(Health + Diff);
 	if (bClampHP)
 		SetHP(FMath::Clamp(Health, 0.f, MaxHealth));
@@ -126,7 +126,8 @@ void UHealthComponent::SetMaxHP(const float NewMaxHP, const bool bClampHP, const
 void UHealthComponent::Revive(float RevivalHPPercentage)
 {
 	bDead = false;
-	Multicast_SetHP(RevivalHPPercentage * MaxHealth);
+	if (GetOwner()->HasAuthority())
+		Multicast_SetHP(RevivalHPPercentage * MaxHealth);
 }
 
 void UHealthComponent::Multicast_Die_Implementation()

@@ -8,6 +8,8 @@
 #include "Player/Upgrade.h"
 #include "PirateGameModeBase.generated.h"
 
+class UEncounterData;
+class UEnemySpawner;
 // Forward decls
 class UUpgradeList;
 class APiratePlayerState;
@@ -27,6 +29,8 @@ class PIRATESURVIVORS_API APirateGameModeBase : public AGameModeBase
 
 public:
 	APirateGameModeBase();
+
+	virtual void Tick(float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default Game Settings")
 	// TStaticArray<float, static_cast<int>(ERarity::Max)> RarityProbabilities;
@@ -61,13 +65,25 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Game Mode")
 	FORCEINLINE UUpgradeList* GetUpgradeList() const { return UpgradeList; }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Game Mode")
+	FORCEINLINE UEnemySpawner* GetEnemySpawner() const { return EnemySpawner; }
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Game Mode")
+	UEncounterData* DefaultEncounter = nullptr;
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Pirate Game Mode")
-	UUpgradeList* UpgradeList;
+	UUpgradeList* UpgradeList = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Pirate Game Mode")
+	UEnemySpawner* EnemySpawner = nullptr;
+	
 	UFUNCTION(BlueprintNativeEvent)
 	void CreateUpgradeList();
+
+	UFUNCTION(BlueprintNativeEvent)
+	void CreateEnemySpawner();
 	
 	virtual void BeginPlay() override;
 	virtual void PostLogin(APlayerController* NewPlayer) override;

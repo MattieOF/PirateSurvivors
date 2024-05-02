@@ -17,11 +17,19 @@ class PIRATESURVIVORS_API ASummon : public AActor
 public:
 	ASummon();
 
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(BlueprintReadWrite, Category = "Summon")
 	APirateSurvivorsCharacter* OwningCharacter;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Summon")
 	UWeaponStats* Stats;
+
+	UFUNCTION(BlueprintCallable, Category = "Summon", NetMulticast, Reliable)
+	void Multicast_Die();
+	
+	UFUNCTION(BlueprintCallable, Category = "Summon")
+	void Die();
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void OnSpawn();

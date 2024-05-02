@@ -9,6 +9,7 @@
 #include "Core/PiratePlayerController.h"
 #include "Core/PiratePlayerState.h"
 #include "Core/UpgradeList.h"
+#include "Enemy/EnemySpawner.h"
 #include "Engine/LocalPlayer.h"
 #include "Weapon/WeaponData.h"
 #include "World/XPManager.h"
@@ -23,6 +24,8 @@ static TAutoConsoleVariable<int32> CVarUseDebugUpgrades(
 
 APirateGameModeBase::APirateGameModeBase()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	DefaultPawnClass = APiratePlayerCharacter::StaticClass();
 	PlayerControllerClass = APiratePlayerController::StaticClass();
 	PlayerStateClass = APiratePlayerState::StaticClass();
@@ -32,6 +35,18 @@ APirateGameModeBase::APirateGameModeBase()
 	RarityProbabilities.Init(0, static_cast<int>(ERarity::Max));
 }
 
+void APirateGameModeBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	EnemySpawner->Tick();
+}
+
+void APirateGameModeBase::CreateEnemySpawner_Implementation()
+{
+	EnemySpawner = NewObject<UEnemySpawner>(this);
+	EnemySpawner->SetEncounter(DefaultEncounter);
+}
+
 void APirateGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -39,6 +54,7 @@ void APirateGameModeBase::BeginPlay()
 	for (const float RarityProbability : RarityProbabilities)
 		RarityProbabilitySum += RarityProbability;
 	CreateUpgradeList();
+	CreateEnemySpawner();
 }
 
 void APirateGameModeBase::PostLogin(APlayerController* NewPlayer)

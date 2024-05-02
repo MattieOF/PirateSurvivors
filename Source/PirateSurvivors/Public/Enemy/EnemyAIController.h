@@ -46,6 +46,9 @@ protected:
 	UPROPERTY()
 	APirateSurvivorsCharacter* Target = nullptr;
 
+	UFUNCTION()
+	void OnPossessedEnemyDeath();
+	
 	bool bIsTargetPlayer = false;
 	bool bIsMeleeAttacking = false;
 };

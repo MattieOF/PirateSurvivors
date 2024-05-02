@@ -6,6 +6,7 @@
 #include "Core/PirateSurvivorsCharacter.h"
 #include "Enemy.generated.h"
 
+class APiratePlayerCharacter;
 class UHealthBar;
 class UEnemyData;
 
@@ -31,8 +32,11 @@ public:
 	void OnDeath();
 	
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
-	void SetData(UEnemyData* NewEnemyData);
+	void SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target = nullptr);
 
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "Enemy")
+	void Multicast_SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target = nullptr);
+	
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	void SetHasHealthBar(bool bHasHealthBar);
 
@@ -42,9 +46,6 @@ public:
 protected:
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "Enemy")
-	void Multicast_SetData(UEnemyData* NewEnemyData);
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UEnemyData* EnemyData = nullptr;
 
