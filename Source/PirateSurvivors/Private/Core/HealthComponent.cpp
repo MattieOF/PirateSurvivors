@@ -55,10 +55,13 @@ void UHealthComponent::TakeDamage(const FDamageInstance& DamageEvent)
 	}
 	
 	FDamageInstance Event = DamageEvent; // Copy the event so that we can modify it, needed for armour calculations
-	float Armour = 0;
-	if (ArmourGetter.IsBound())
-		Armour = ArmourGetter.Execute(Event);
-	Event.Damage = FMath::Max(0.f, Event.Damage - (Armour / 2)); // TODO: Refine this formula
+	if (!DamageEvent.bArmorPiercing)
+	{
+		float Armour = 0;
+		if (ArmourGetter.IsBound())
+			Armour = ArmourGetter.Execute(Event);
+		Event.Damage = FMath::Max(0.f, Event.Damage - (Armour / 2)); // TODO: Refine this formula
+	}
 
 	Multicast_TakeDamage(Event);
 }

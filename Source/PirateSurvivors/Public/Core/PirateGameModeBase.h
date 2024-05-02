@@ -50,6 +50,9 @@ public:
 
 	UFUNCTION(Exec, Category = "Pirate Game Mode")
 	void ListEnemies() const;
+
+	UFUNCTION(Exec, Category = "Pirate Game Mode")
+	void KillPlayer(int PlayerIndex);
 	
 	UFUNCTION(Exec, BlueprintCallable, Category = "Pirate Game Mode")
 	void GivePlayerWeapon(int PlayerIndex, FString WeaponName);

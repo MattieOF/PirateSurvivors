@@ -179,6 +179,25 @@ void APiratePlayerCharacter::Tick(float DeltaTime)
 	Camera->SetWorldLocation(GetActorLocation() + CameraOffset);
 	Camera->SetWorldRotation(CameraRotation);
 
+	if (HasAuthority())
+	{
+		for (int Index = XPToConsider.Num() - 1; Index >= 0; Index--)
+		{
+			if (!XPToConsider[Index])
+			{
+				XPToConsider.RemoveAt(Index);
+				continue;
+			}
+
+			if (XPToConsider[Index]->bCanBePickedUp)
+			{
+				if (XPToConsider[Index]->bPickedUp) return;
+				APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_PickupXP(this, XPToConsider[Index]->ID);
+				XPToConsider.RemoveAt(Index);
+			}
+		}
+	}
+	
 	// Iterate backwards to allow removing elements
 	for (int Index = XPBeingPickedUp.Num() - 1; Index >= 0; Index--)
 	{
@@ -254,12 +273,24 @@ void APiratePlayerCharacter::Fire(bool bHeld)
 void APiratePlayerCharacter::OnPickupRangeBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                                        UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (const AXP* XPActor = Cast<AXP>(OtherActor))
+	// Without this check, everything fucking breaks in weird ways, and I'm too tired to reason about why.
+	// It's a good check either way, but it breaks in weird ways without it, and I don't really get it.
+	if (bIsDown)
+		return;
+	
+	if (AXP* XPActor = Cast<AXP>(OtherActor))
 	{
 		if (HasAuthority())
 		{
-			if (XPActor->bPickedUp) return;
-			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_PickupXP(this, XPActor->ID);	
+			if (XPActor->bCanBePickedUp)
+			{
+				if (XPActor->bPickedUp) return;
+				APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->Multicast_PickupXP(this, XPActor->ID);	
+			} else
+			{
+				if (!XPToConsider.Contains(XPActor))
+					XPToConsider.Add(XPActor);
+			}
 		} else
 		{
 			// So, we have a bit of an issue where XP picked up during a specific time during player connection such that,
@@ -342,6 +373,12 @@ void APiratePlayerCharacter::OnKilled()
 		PIRATE_LOGC_ERROR(GetWorld(), "Somehow killed while already down?");
 		return;
 	}
+
+	if (!PiratePlayerState)
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "Somehow killed before player state initialised?");
+		return;
+	}
 	
 	Killed.Broadcast(HealthComponent->DamageHistory.IsEmpty() ? FDamageInstance{} : HealthComponent->DamageHistory.Last());
 	GetCharacterMovement()->MaxWalkSpeed *= DownSpeedMultiplier;
@@ -375,4 +412,16 @@ void APiratePlayerCharacter::OnRevived(APiratePlayerCharacter* Reviver)
 	bIsDown = false;
 	ReviveInteraction->DisableInteraction();
 	HealthComponent->Revive(.2f);
+
+	if (HasAuthority())
+	{
+		// Spawn some revive XP
+		int Count = FMath::RandRange(10, 15);
+		for (int i = 0; i < Count; i++)
+		{
+			APirateGameState::GetPirateGameState(GetWorld())->GetXPManager()->SpawnXPWithPhysics(
+				GetActorLocation() + FVector(0, 0, 100), FMath::RandRange(1, 2), 0,
+				FVector(FMath::RandRange(-200, 200), FMath::RandRange(-200, 200), FMath::RandRange(0, 200)));
+		}
+	}
 }

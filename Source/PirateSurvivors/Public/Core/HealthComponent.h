@@ -29,6 +29,9 @@ public:
 	float Damage = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Event")
+	bool bArmorPiercing = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage Event")
 	APirateSurvivorsCharacter* Instigator = nullptr;
 };
 

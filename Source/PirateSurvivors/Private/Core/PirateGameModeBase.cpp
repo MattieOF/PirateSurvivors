@@ -108,6 +108,31 @@ void APirateGameModeBase::ListEnemies() const
 	}
 }
 
+void APirateGameModeBase::KillPlayer(int PlayerIndex)
+{
+	const auto GS = APirateGameState::GetPirateGameState(GetWorld());
+	if (PlayerIndex < 0 || PlayerIndex >= GS->PlayerArray.Num())
+	{
+		PIRATE_LOGC_ERROR_NOLOC(GetWorld(), "Player index %d is out of range", PlayerIndex);
+		return;
+	}
+	const auto Player = GS->PlayerArray[PlayerIndex];
+	APiratePlayerState* PlayerState = Cast<APiratePlayerState>(Player.Get());
+
+	if (!PlayerState)
+	{
+		PIRATE_LOGC_ERROR_NOLOC(GetWorld(), "Couldn't find player with index %d", PlayerIndex);
+		return;
+	}
+
+	UHealthComponent* PlayerHealth = PlayerState->GetPiratePawn()->GetHealthComponent();
+	FDamageInstance Damage;
+	Damage.Damage = PlayerHealth->GetHealth();
+	Damage.bArmorPiercing = true;
+	Damage.Description = FText::FromString("FROM GOD.");
+	PlayerHealth->TakeDamage(Damage);
+}
+
 void APirateGameModeBase::GivePlayerWeapon(int PlayerIndex, FString WeaponName)
 {
 	const auto GS = APirateGameState::GetPirateGameState(GetWorld());

@@ -57,7 +57,7 @@ void AEnemyAIController::PerformMeleeAttack() const
 	{
 		Target->GetHealthComponent()->TakeDamage({
 			FText::Format(FText::FromString("{0}'s Melee"), PossessedEnemy->CharacterName),
-			PossessedEnemy->GetData()->Stats->MeleeDamage, PossessedEnemy
+			PossessedEnemy->GetData()->Stats->MeleeDamage, false, PossessedEnemy
 		});
 	}
 }

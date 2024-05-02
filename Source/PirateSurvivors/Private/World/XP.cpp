@@ -6,6 +6,7 @@
 
 AXP::AXP()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	SetActorEnableCollision(true);
@@ -35,6 +36,13 @@ void AXP::Tick(float DeltaSeconds)
 		{
 			bCanBePickedUp = true;
 			PrimaryActorTick.SetTickFunctionEnable(false);
+
+			if (bPhysicsEnabled)
+			{
+				bPhysicsEnabled = false;
+				Mesh->SetSimulatePhysics(false);
+				Mesh->SetEnableGravity(false);
+			}
 		}
 	}
 }
@@ -42,13 +50,14 @@ void AXP::Tick(float DeltaSeconds)
 void AXP::SetPhysics(FVector Velocity)
 {
 	bCanBePickedUp = false;
-	PickupDelay = 1;
-	PrimaryActorTick.SetTickFunctionEnable(false);
+	PickupDelay = 1.25f;
+	PrimaryActorTick.SetTickFunctionEnable(true);
 	
 	Mesh->SetCollisionProfileName(TEXT("IgnoreOnlyPawn"));
 	Mesh->SetCollisionResponseToChannel(ECC_Player, ECR_Ignore);
 	Mesh->SetCollisionResponseToChannel(ECC_Enemy, ECR_Ignore);
 	Mesh->SetCollisionResponseToChannel(ECC_Projectile, ECR_Ignore);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 	bPhysicsEnabled = true;
 	Mesh->SetSimulatePhysics(true);

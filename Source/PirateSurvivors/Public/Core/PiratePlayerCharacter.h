@@ -146,4 +146,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Pirate Player Character")
 	bool bIsDown = false;
+
+	UPROPERTY()
+	TArray<AXP*> XPToConsider;
 };
