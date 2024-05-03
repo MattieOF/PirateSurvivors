@@ -95,11 +95,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
 	TArray<FName> ValidWeaponTags;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Upgrade")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
 	TArray<UUpgrade*> Prerequisites;
 
 	// If true, the upgrade will only apply to one weapon. If false, it will apply to all compatible weapons.
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Player Upgrade")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")
 	bool bForOneWeapon = true;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon Upgrade")

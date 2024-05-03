@@ -74,6 +74,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Game Mode")
 	UEncounterData* DefaultEncounter = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Game Mode")
+	UWeaponData* DefaultWeapon = nullptr;
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Pirate Game Mode")

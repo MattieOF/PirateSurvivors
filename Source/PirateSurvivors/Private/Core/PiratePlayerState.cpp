@@ -34,7 +34,7 @@ void APiratePlayerState::Initialise()
 {
 	// if (!GetPawn())
 	// 	return; // ?????????????
-	
+
 	if (!GetPiratePawn())
 	{
 		GetWorldTimerManager().SetTimerForNextTick([this] { Initialise(); });
@@ -55,6 +55,8 @@ void APiratePlayerState::Initialise()
 	
 	AWeaponFunctionality* Null = nullptr;
 	Weapons.Init(Null, BaseWeaponSlotCount);
+	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
+	GiveWeaponFromType(GameMode->DefaultWeapon);
 }
 
 APiratePlayerCharacter* APiratePlayerState::GetPiratePawn() const
