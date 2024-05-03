@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AdvancedFriendsGameInstance.h"
 #include "Engine/GameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "PirateGameInstance.generated.h"
@@ -19,13 +20,13 @@ struct FXPInfo;
  * Holds data that persists throughout the entire session, including static settings.
  */
 UCLASS()
-class PIRATESURVIVORS_API UPirateGameInstance : public UGameInstance
+class PIRATESURVIVORS_API UPirateGameInstance : public UAdvancedFriendsGameInstance
 {
 	GENERATED_BODY()
 
 public:
 	virtual void Init() override;
-	
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Pirate Game Instance", meta = (WorldContext = "WorldContextObject"))
 	static FORCEINLINE UPirateGameInstance* GetPirateGameInstance(UObject* WorldContextObject)
 	{
