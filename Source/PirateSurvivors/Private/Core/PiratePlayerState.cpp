@@ -52,12 +52,18 @@ void APiratePlayerState::Initialise()
 	PlayerStats->OnMaxSpeedChanged.AddDynamic(this, &APiratePlayerState::OnMaxSpeedChanged);
 	PlayerStats->OnJumpHeightChanged.AddDynamic(this, &APiratePlayerState::OnJumpHeightChanged);
 	PlayerStats->OnTimeToReviveChanged.AddDynamic(this, &APiratePlayerState::OnTimeToReviveChanged);
+
+	// Check if we're in the lobby
+	if (GetWorld()->GetLevel(0)->GetName().Contains("Lobby")) // @hack
+		return;
 	
 	AWeaponFunctionality* Null = nullptr;
 	Weapons.Init(Null, BaseWeaponSlotCount);
 	if (HasAuthority())
 	{
 		const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
+		if (!GameMode)
+			return;
 		GiveWeaponFromType(GameMode->DefaultWeapon);
 	}
 }

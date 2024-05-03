@@ -77,6 +77,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pirate Game Mode")
 	UWeaponData* DefaultWeapon = nullptr;
+
+	UFUNCTION(BlueprintCallable, Category = "Pirate Game Mode")
+	void ReturnToLobby();
 	
 protected:
 	UPROPERTY(BlueprintReadWrite, Category = "Pirate Game Mode")
@@ -95,4 +98,6 @@ protected:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	float RarityProbabilitySum = 0;
+
+	bool bReturning = false;
 };

@@ -23,6 +23,12 @@ void UEnemySpawner::SetEncounter(UEncounterData* Encounter)
 	SpawnPoints.Empty();
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "SpawnPoint", SpawnPoints);
 
+	if (SpawnPoints.IsEmpty())
+	{
+		PIRATE_LOGC_ERROR(GetWorld(), "No spawn points found!");
+		return;
+	}
+	
 	// Build the encounter start times map
 	EncounterStartTimes.Empty();
 	for (int i = 0; i < Encounter->Stages.Num(); i++)
@@ -38,6 +44,11 @@ void UEnemySpawner::SetEncounter(UEncounterData* Encounter)
 
 void UEnemySpawner::Tick()
 {
+	if (SpawnPoints.IsEmpty())
+	{
+		return;
+	}
+	
 	float Delta = GetWorld()->GetDeltaSeconds();
 	CurrentTime += Delta;
 

@@ -203,6 +203,14 @@ ERarity APirateGameModeBase::GetRarityForPlayer(APiratePlayerState* Player) cons
 	return ERarity::Common; // Should never happen
 }
 
+void APirateGameModeBase::ReturnToLobby()
+{
+	if (bReturning)
+		return;
+	GetWorld()->ServerTravel("LVL_Lobby?listen");
+	bReturning = true;
+}
+
 void APirateGameModeBase::CreateUpgradeList_Implementation()
 {
 	UpgradeList = NewObject<UUpgradeList>(this);

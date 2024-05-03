@@ -33,7 +33,7 @@ void APiratePlayerController::EnsureXPReplicated()
 			return;
 		}
 	}
-	
+
 	// Couldn't replicate yet, so set timer for next tick
 	GetWorldTimerManager().SetTimerForNextTick(this, &APiratePlayerController::EnsureXPReplicated);
 }
@@ -52,7 +52,7 @@ void APiratePlayerController::Client_InitialiseXP_Implementation(const TArray<FX
 		if (GS->GetXPManager())
 		{
 			GS->GetXPManager()->Initialise(XPItems);
-			return;	
+			return;
 		}
 	}
 
