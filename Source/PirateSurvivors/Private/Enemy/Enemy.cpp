@@ -155,6 +155,11 @@ void AEnemy::SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target)
 	bHasSetData = true;
 }
 
+void AEnemy::Multicast_SetMovementSpeed_Implementation(float NewMovementSpeed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = NewMovementSpeed;
+}
+
 void AEnemy::SetHasHealthBar(bool bHasHealthBar)
 {
 	const APirateGameState* GS = APirateGameState::GetPirateGameState(GetWorld());

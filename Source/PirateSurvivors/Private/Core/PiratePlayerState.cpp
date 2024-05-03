@@ -271,6 +271,9 @@ void APiratePlayerState::Multicast_AddStatUpgrade_Implementation(const FQueuedUp
 
 void APiratePlayerState::Server_SelectUpgrade_Implementation(int Index)
 {
+	if (GetPiratePawn()->IsDown())
+		return;
+	
 	// Try and dequeue the current choices array
 	TArray<FQueuedUpgradeChoice> UpgradeChoices;
 	const bool DidFind = UpgradeQueue.Dequeue(UpgradeChoices);

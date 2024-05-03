@@ -37,6 +37,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "Enemy")
 	void Multicast_SetData(UEnemyData* NewEnemyData, APiratePlayerCharacter* Target = nullptr);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable, Category = "Enemy")
+	void Multicast_SetMovementSpeed(float NewMovementSpeed);
 	
 	UFUNCTION(BlueprintCallable, Category = "Enemy")
 	void SetHasHealthBar(bool bHasHealthBar);
