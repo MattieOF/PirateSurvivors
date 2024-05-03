@@ -55,8 +55,11 @@ void APiratePlayerState::Initialise()
 	
 	AWeaponFunctionality* Null = nullptr;
 	Weapons.Init(Null, BaseWeaponSlotCount);
-	const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
-	GiveWeaponFromType(GameMode->DefaultWeapon);
+	if (HasAuthority())
+	{
+		const APirateGameModeBase* GameMode = APirateGameModeBase::GetPirateGameMode(GetWorld());
+		GiveWeaponFromType(GameMode->DefaultWeapon);
+	}
 }
 
 APiratePlayerCharacter* APiratePlayerState::GetPiratePawn() const

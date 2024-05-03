@@ -108,6 +108,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
 	UWeaponStats* WeaponStats = nullptr;
 
+	UFUNCTION()
+	void InitUI();
+
 	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

@@ -24,6 +24,9 @@ ABasicMeleeWeapon::ABasicMeleeWeapon()
 void ABasicMeleeWeapon::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if (!OwningCharacter)
+		return;
 	
 	const FVector TargetLoc = OwningCharacter->GetActorLocation() + (LastDir * ((WeaponStats->Range / 2) + 100));
 	SetActorLocation(TargetLoc);

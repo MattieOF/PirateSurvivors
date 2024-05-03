@@ -36,6 +36,9 @@ public:
 	int AliveEnemies = 0;
 
 private:
+	UPROPERTY()
+	TArray<AActor*> SpawnPoints;
+	
 	TArray<FActiveEncounterStage> ActiveStages;
 	TMap<float, int> EncounterStartTimes;
 

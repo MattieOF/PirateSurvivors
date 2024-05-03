@@ -218,10 +218,23 @@ void AWeaponFunctionality::PostNetInit()
 	// The weapon stats object is not replicated directly, but any changes to it via upgrades will be replicated via RPCs.
 	WeaponStats = DuplicateObject<UWeaponStats>(WeaponData->BaseWeaponStats, this);
 
-	// And if we're owned by the local controller, update the UI. This feels like a hack, but it works.
+	InitUI();
+}
+
+void AWeaponFunctionality::InitUI()
+{
+	// if we're owned by the local controller, update the UI. This feels like a hack, but it works.
 	const auto LocalController = GetWorld()->GetFirstLocalPlayerFromController()->GetPlayerController(GetWorld());
 	if (IsOwnedBy(LocalController))
-		LocalController->GetPlayerState<APiratePlayerState>()->Client_OnReceivedWeapon(this);
+	{
+		APiratePlayerState* PlayerState = LocalController->GetPlayerState<APiratePlayerState>();
+		if (!PlayerState)
+		{
+			GetWorldTimerManager().SetTimerForNextTick([this] { InitUI(); });
+			return;
+		}
+		PlayerState->Client_OnReceivedWeapon(this);
+	}
 }
 
 bool AWeaponFunctionality::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)

@@ -20,6 +20,9 @@ void UEnemySpawner::SetEncounter(UEncounterData* Encounter)
 	CurrentEncounter = Encounter;
 	CurrentTime = 0;
 
+	SpawnPoints.Empty();
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "SpawnPoint", SpawnPoints);
+
 	// Build the encounter start times map
 	EncounterStartTimes.Empty();
 	for (int i = 0; i < Encounter->Stages.Num(); i++)
@@ -85,12 +88,19 @@ void UEnemySpawner::Tick()
 					PIRATE_LOGC_WARN(GetWorld(), "Failed to find a spawn point for enemy!");
 					continue;
 				}
-				AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(EnemyData->EnemySubclass, Location, FRotator::ZeroRotator);
+				FActorSpawnParameters Params;
+				Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+				FTransform TF(Location);
+				AEnemy* Enemy = GetWorld()->SpawnActorDeferred<AEnemy>(EnemyData->EnemySubclass, TF, nullptr, nullptr, ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
 				if (!Enemy)
 				{
 					PIRATE_LOGC_ERROR(GetWorld(), "Failed to spawn enemy!");
 					continue;
 				}
+				FVector Center, Extent;
+				Enemy->GetActorBounds(true, Center, Extent);
+				Enemy->SetActorLocation(Center + FVector(0, 0, Extent.Z));
+				Enemy->FinishSpawning(Enemy->GetTransform());
 				Enemy->Multicast_SetData(EnemyData, Target);
 				AliveEnemies++;
 			}
@@ -132,38 +142,54 @@ APiratePlayerCharacter* UEnemySpawner::GetSpawnTarget() const
 
 bool UEnemySpawner::GetSpawnPoint(APiratePlayerCharacter* Target, FVector& OutSpawnPoint, bool bImportant) const
 {
-	bool bFound = false;
-
-	constexpr float MinimumDistanceFromAnyPlayer = 2500;
-	constexpr float MinimumDistanceFromAnyPlayerSquared = FMath::Square(MinimumDistanceFromAnyPlayer);
-
-	int Tries = 10;
-	if (bImportant) // Bodge: ideally, there would just not be a risk of not finding a spawn point
-		Tries *= 20;
-	const UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-	double Start = FPlatformTime::Seconds();
+	constexpr float MinDist = 2500;
+	constexpr float MinDistSquared = FMath::Square(MinDist);
+	int Tries = 50;
+	
 	do
 	{
-		FVector Dir = FVector(FMath::FRandRange(-1.f, 1.f), FMath::FRandRange(-1.f, 1.f), 0).GetSafeNormal();		
-		OutSpawnPoint = Target->GetActorLocation() + (Dir * (MinimumDistanceFromAnyPlayer + 100));
-		
-		FNavLocation NavLoc;
-		NavSys->GetRandomPointInNavigableRadius(OutSpawnPoint, 100, NavLoc);
-
-		if (!NavLoc.HasNodeRef())
-		{
-			Tries--;
-			continue;
-		}
-
-		bFound = true;
-		OutSpawnPoint = NavLoc.Location;
+		OutSpawnPoint = SpawnPoints[FMath::RandRange(0, SpawnPoints.Num() - 1)]->GetActorLocation();
+		if (GetLowestSquaredDistanceToPlayer(GetWorld(), OutSpawnPoint) > MinDistSquared)
+			return true;
 		Tries--;
-	} while (Tries > 0 && GetLowestSquaredDistanceToPlayer(GetWorld(), OutSpawnPoint) < MinimumDistanceFromAnyPlayerSquared);
-	double End = FPlatformTime::Seconds();
-	PIRATE_LOGC(GetWorld(), "Time to find spawn point: %f ms", (End - Start) * 1000);
+	} while (Tries > 0);
 	
-	return bFound;
+	return false;
+	
+	// bool bFound = false;
+	//
+	// constexpr float MinimumDistanceFromAnyPlayer = 2500;
+	// constexpr float MinimumDistanceFromAnyPlayerSquared = FMath::Square(MinimumDistanceFromAnyPlayer);
+	//
+	// int Tries = 10;
+	// if (bImportant) // Bodge: ideally, there would just not be a risk of not finding a spawn point
+	// 	Tries *= 10;
+	// UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	// double Start = FPlatformTime::Seconds();
+	// do
+	// {
+	// 	FVector Dir = FVector(FMath::FRandRange(-1.f, 1.f), FMath::FRandRange(-1.f, 1.f), 0).GetSafeNormal();		
+	// 	OutSpawnPoint = Target->GetActorLocation() + (Dir * (MinimumDistanceFromAnyPlayer + 100));
+	// 	
+	// 	FVector Extent = FVector(200, 200, 200);
+	// 	FNavLocation NavLoc;
+	// 	bFound = NavSys->ProjectPointToNavigation(OutSpawnPoint, NavLoc, Extent);
+	// 	// NavSys->GetRandomPointInNavigableRadius(OutSpawnPoint, 100, NavLoc);
+	//
+	// 	if (!bFound)
+	// 	{
+	// 		Tries--;
+	// 		continue;
+	// 	}
+	//
+	// 	OutSpawnPoint = NavLoc.Location;
+	// 	
+	// 	Tries--;
+	// } while (Tries > 0 && (!bFound || GetLowestSquaredDistanceToPlayer(GetWorld(), OutSpawnPoint) < MinimumDistanceFromAnyPlayerSquared));
+	// double End = FPlatformTime::Seconds();
+	// PIRATE_LOGC(GetWorld(), "Time to find spawn point: %f ms", (End - Start) * 1000);
+	//
+	// return bFound;
 }
 
 float UEnemySpawner::GetLowestSquaredDistanceToPlayer(UObject* WorldContextObject, const FVector& Location)
